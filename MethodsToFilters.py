@@ -1,0 +1,10 @@
+import Methods 
+import Filters
+
+methods_to_filters = {
+	Methods.ListInterfaces: Filters.ListInterfaces_Filter,
+	Methods.ResponderAnalyzeInterface: Filters.ResponderAnalyzeInterface_Filter,
+	Methods.ArpScan: Filters.ArpScan_Filter,
+	Methods.PortScan: Filters.PortScan_Filter,
+	Methods.NBNSIPTranslation: Filters.NBNSIPTranslation_Filter
+}

@@ -1,0 +1,6 @@
+# Ignore Python cache files and directories
+__pycache__/
+*.py[cod]
+
+#ignore rerports 
+go_along.txt
