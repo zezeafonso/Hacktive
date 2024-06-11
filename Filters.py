@@ -188,6 +188,32 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		return findings
 
 
+class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
+	_name = "filter of querying the DC through Ldap to attain naming contexts"
+
+	@staticmethod
+	def filter(output:str) -> list: 
+		# the list of filtered objects we find
+		findings = []
+
+		# Regular expression to match lines starting with 'namingcontexts:' and followed by 'DC='
+		pattern = re.compile(r'^namingcontexts:\s+DC=[^,]*')
+
+		# Regular expression to capture the 'DC=' fields
+		dc_pattern = re.compile(r'DC=([^,]+)')
+
+		# Parse the lines to extract port numbers
+		for line in output.splitlines():
+			if pattern.match(line):
+				# Find all 'DC=' fields in the line
+				dcs = dc_pattern.findall(line)
+
+				# create the filtered object for every pattern of this type
+				# ex: foxriver.local; forestDNSZones.foxriver.local ...
+				findings.append(FO.Filtered_DomainComponentsFromLDAPQuery({}, list_dc=dcs))
+		
+		return findings
+
 
 class ResponderAnalyzeInterface_Filter(AbstractFilter):
 	pass

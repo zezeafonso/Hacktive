@@ -2,6 +2,30 @@ from AbstractClasses import AbstractFilteredObject
 
 
 
+# ldap 
+
+class Filtered_DomainComponentsFromLDAPQuery(AbstractFilteredObject):
+	def __init__(self, path:dict, list_dc:list):
+		self.info = dict()
+		self.info['path'] = path
+
+		# create the path ex: foxriver.local
+		domain_components_path = ''
+		for dc in list_dc:
+			domain_components_path += dc + '.'
+		domain_components_path = domain_components_path[:-1] # remove the final dot
+		
+		self.info['dc_path'] = domain_components_path
+
+	def captured(self) -> dict:
+		return self.info
+
+	def get_dc_path(self):
+		return self.info['dc_path']
+
+
+# list interfaces
+
 class Filtered_NewInterface(AbstractFilteredObject):
 	def __init__(self, path:dict, interface:str):
 		self.info = dict()
@@ -53,6 +77,8 @@ class Filtered_FoundOurIPForNetwork(AbstractFilteredObject):
 	def get_network(self):
 		return self.info['network']
 
+
+# NETBIOS
 
 class Filtered_FoundNetBIOSHostnameWithSMB(AbstractFilteredObject):
 	def __init__(self, path, hostname:str):
@@ -131,6 +157,8 @@ class Filtered_FoundNetBIOSHostnameForIP(AbstractFilteredObject):
 		return self.info['ip']
 
 
+
+# ARP SCAN
 
 class Filtered_NewIPForNetwork(AbstractFilteredObject):
 	def __init__(self, path:list, ip:str):

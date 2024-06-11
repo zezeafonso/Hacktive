@@ -162,15 +162,18 @@ class Host(AbstractNetworkComponent):
         if role not in self.netbios_groups[group]:
             self.netbios_groups[group].append(role)
             if role == '1b':
-                return self.found_dc_methods()
+                return [self.found_dc_methods] # the method to be run automatic
 
 
     def found_dc_methods(self):
         """
         the methods for when we find a dc
         """
-        print("dc methods")
-        return [] # for now
+        dc_methods = [Methods.QueryNamingContextOfDCThroughLDAP]
+        for method in dc_methods:
+            list_events = method.create_run_events(self)
+            for event in list_events:
+                throw_run_event_to_command_listener(event)
         
 
     def found_hostname_methods(self, hostname:str):
@@ -178,6 +181,25 @@ class Host(AbstractNetworkComponent):
         the methods for when we found a hostname
         """
         return [] # for now
+
+    def check_if_ldap_domain_components_path_is_domain_path(self, domain_components_path):
+        """
+        Checks if the domain components path found in ldap
+        ex: foxriver.local... domaindnszones.foxriver.local 
+        is in fact a domain path. 
+        For this we check if we belong to any group of netbios 
+        that starts with the same word. 
+        in our case the host will belong to foxriver and so 
+        'foxriver.local' is in fact a domain name 
+        """
+        first_word_of_dcs = domain_components_path.split('.')[0]
+        with TS.shared_lock:
+            for group in self.netbios_groups:
+                if first_word_of_dcs.lower() == group.lower():
+                    print(f"FOUND IT: DOMAIN NAME: {domain_components_path}")
+                    return []
+            return []
+
 
     def get_root(self):
         return self.path['root']

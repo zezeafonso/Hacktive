@@ -253,6 +253,16 @@ def update_components_found_pdf_for_netbios_group(context, filtered_obj):
 
 	return auto_methods
 
+
+
+def update_components_found_new_domain_components_path_ldap(context_for_updates, filtered_obj):
+	host_obj = context_for_updates['host']
+	domain_components_path = filtered_obj.get_dc_path()
+
+	auto_methods = []
+
+	auto_methods += host_obj.check_if_ldap_domain_components_path_is_domain_path(domain_components_path)
+	return auto_methods
 	
 
 
@@ -341,6 +351,9 @@ def update_ip_to_host_nbns(context, filtered_objects):
 	
 	return auto_methods
 
+
+
+
 def update_arp_scan(context, filtered_objects):
 	# for this update the context will just be the root object
 	if context['network'] is None or context['interface'] is None:
@@ -369,7 +382,44 @@ def update_arp_scan(context, filtered_objects):
 	return auto_methods
 
 
+def update_query_naming_context_of_dc_through_ldap(context, filtered_objects):
+	"""
+	does the update of network components from the information received 
+	by the filter of the method, in the form of filtered objects
 
+	TODO: 
+	+ implemenent locks
+	+ implement the proper functioning when the objects don't exist
+	"""
+
+	# for this update the context will just be the root object
+	if context['network'] is None or context['interface'] is None or context['ip'] is None:
+		return 
+
+	auto_methods = list() # the list of new objects created
+
+	# context is only the network and interface names
+	net_name = context['network']
+	int_name = context['interface']
+	host_name = context['ip']
+
+	# retrieve interface and network objects (both methods have locks)
+	answer = check_exists_retrieve_interface_or_interface_and_auto_methods(int_name)
+	int_obj = answer['object']
+	answer = check_exists_retrieve_network_or_network_and_auto_methods(int_obj, net_name)
+	net_obj = answer['object']
+	answer = check_ip_exists_retrieve_host_or_host_and_auto_methods(net_obj, host_name)
+	host_obj = answer['object']
+
+	context_for_updates = {'host': host_obj}
+
+	for filtered_obj in filtered_objects:
+		# FOUND A DOMAIN COMPONENTS PATH
+		if isinstance(filtered_obj, FO.Filtered_DomainComponentsFromLDAPQuery):
+			print(f"filter for ldap query found new domain components path {filtered_obj.get_dc_path()}")
+			auto_methods += update_components_found_new_domain_components_path_ldap(context_for_updates, filtered_obj)
+
+	return auto_methods
 
 
 """
@@ -384,4 +434,6 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return update_arp_scan(context, filtered_objects)
 	elif method._name == 'ip to hostname through NBNS':
 		return update_ip_to_host_nbns(context, filtered_objects)
+	elif method._name == 'query naming context of DC through LDAP':
+		return update_query_naming_context_of_dc_through_ldap(context, filtered_objects)
 

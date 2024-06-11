@@ -112,6 +112,51 @@ class NBNSIPTranslation(AbstractMethod):
 		return context
 
 
+
+class QueryNamingContextOfDCThroughLDAP(AbstractMethod):
+	_name = "query naming context of DC through LDAP"
+	_filename = "outputs/naming-context-LDAP"
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{QueryNamingContextOfDCThroughLDAP._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent) -> list:
+		"""
+		nc should be a livehost. 
+		"""
+		# get context
+		context = QueryNamingContextOfDCThroughLDAP.get_context(nc)
+		if len(context) == 0:
+			return []
+
+		context_ip_address = context['ip']
+		str_ip_address = context_ip_address.replace('.', '_')
+		# output file
+		output_file = QueryNamingContextOfDCThroughLDAP._filename+'-'+str_ip_address +'.out'
+
+		cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=QueryNamingContextOfDCThroughLDAP, nc=nc, context=context)]
+
+	@staticmethod
+	def get_context(nc:AbstractNetworkComponent):
+		# get the host object (if it wasn't a host sending this)
+		host_with_ip = nc.get_host().ip
+		network_name = nc.get_network().network_address
+		interface_name = nc.get_interface().interface_name
+
+		if host_with_ip is None or network_name is None or interface_name is None:
+			print(f"can't obtain the context for the LDAP method")
+			return dict()
+
+		context = {'ip':host_with_ip, 'network':network_name, 'interface':interface_name}
+		return context
+
+
 class ArpScan(AbstractMethod):
 	_name = "arp scan"
 	_filename = "outputs/arpscan"

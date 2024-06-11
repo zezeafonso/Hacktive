@@ -6,5 +6,6 @@ methods_to_filters = {
 	Methods.ResponderAnalyzeInterface: Filters.ResponderAnalyzeInterface_Filter,
 	Methods.ArpScan: Filters.ArpScan_Filter,
 	Methods.PortScan: Filters.PortScan_Filter,
-	Methods.NBNSIPTranslation: Filters.NBNSIPTranslation_Filter
+	Methods.NBNSIPTranslation: Filters.NBNSIPTranslation_Filter,
+	Methods.QueryNamingContextOfDCThroughLDAP: Filters.QueryNamingContextOfDCThroughLDAP_Filter
 }

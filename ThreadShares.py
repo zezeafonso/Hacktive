@@ -65,21 +65,19 @@ def initialize():
 def add_pid_to_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock) -> None:
 	global cmd_pid_dict
 
-	logging.info(f"[TS] adding pid {pid} to cmd_pid")
 	if cmd in cmd_pid_dict:
 		raise SE.CommandAlreadyBeingRun(f"command: {cmd}, already in shared_dict!")
 	cmd_pid_dict[cmd] = pid
-	logging.info(f"[TS] adding pid {pid} to cmd_pid: SUCCESS")
+	logging.info(f"[TS] added pid {pid} to cmd_pid")
 
 
 def del_pid_from_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock):
 	global cmd_pid_dict
 
-	logging.info(f"[TS] removing {pid} from cmd_pid")
 	if cmd not in cmd_pid_dict:
 		raise SE.CommandNotBeingRun(f"command: {cmd}, not being run")
 	cmd_pid_dict.pop(cmd)
-	logging.info(f"[TS] removing {pid} from cmd_pid: SUCCESS")
+	logging.info(f"[TS] removed {pid} from cmd_pid")
 
 
 def know_if_commands_was_already_run(cmd):
