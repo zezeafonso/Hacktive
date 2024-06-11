@@ -1,50 +1,47 @@
-2024-06-10 16:17:58,856 - root - INFO - [Commands listener]: up
-2024-06-10 16:17:58,857 - root - INFO - [Output Listener]: up
-2024-06-10 16:17:58,858 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:17:58,858 - root - INFO - [Main]: user interaction thread finished
-2024-06-10 16:17:58,858 - root - INFO - [Pool thread]: calling Popen for command: ip a
-2024-06-10 16:17:58,859 - root - INFO - [Commands Listener] submitted to the pool: ip a
-2024-06-10 16:17:58,860 - root - INFO - [Pool thread ip a]: storing PID: 47108
-2024-06-10 16:17:58,860 - root - INFO - [TS] adding pid 47108 to cmd_pid
-2024-06-10 16:17:58,860 - root - INFO - [TS] adding pid 47108 to cmd_pid: SUCCESS
-2024-06-10 16:17:58,862 - root - INFO - [Pool thread ip a] received output. Return code = 0
-2024-06-10 16:17:58,862 - root - INFO - [TS] removing 47108 from cmd_pid
-2024-06-10 16:17:58,862 - root - INFO - [TS] removing 47108 from cmd_pid: SUCCESS
-2024-06-10 16:17:58,862 - root - INFO - [Pool thread ip a] writting to file: outputs/ListInterfaces.out
-2024-06-10 16:17:58,862 - root - INFO - [Pool thread ip a] sended Done Event to outputs
-2024-06-10 16:17:58,862 - root - INFO - [Output Listener]: Received Event
-2024-06-10 16:17:58,862 - root - INFO - [Output Listener]: filtering output in: list interfaces filter
-2024-06-10 16:17:58,863 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:17:58,863 - root - INFO - [Commands Listener] submitted to the pool: sudo nmap -PR -sn -n 192.168.122.0/24
-2024-06-10 16:17:58,864 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:17:58,863 - root - INFO - [Pool thread]: calling Popen for command: sudo nmap -PR -sn -n 192.168.122.0/24
-2024-06-10 16:17:58,864 - root - INFO - [Pool thread sudo nmap -PR -sn -n 192.168.122.0/24]: storing PID: 47110
-2024-06-10 16:17:58,865 - root - INFO - [TS] adding pid 47110 to cmd_pid
-2024-06-10 16:17:58,865 - root - INFO - [TS] adding pid 47110 to cmd_pid: SUCCESS
-2024-06-10 16:18:00,832 - root - INFO - [Pool thread sudo nmap -PR -sn -n 192.168.122.0/24] received output. Return code = 0
-2024-06-10 16:18:00,832 - root - INFO - [TS] removing 47110 from cmd_pid
-2024-06-10 16:18:00,832 - root - INFO - [TS] removing 47110 from cmd_pid: SUCCESS
-2024-06-10 16:18:00,832 - root - INFO - [Pool thread sudo nmap -PR -sn -n 192.168.122.0/24] writting to file: outputs/arpscan192_168_122_0_24.out
-2024-06-10 16:18:00,833 - root - INFO - [Pool thread sudo nmap -PR -sn -n 192.168.122.0/24] sended Done Event to outputs
-2024-06-10 16:18:00,833 - root - INFO - [Output Listener]: Received Event
-2024-06-10 16:18:00,833 - root - INFO - [Output Listener]: filtering output in: arp scan filter
-2024-06-10 16:18:00,833 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:18:00,833 - root - INFO - [Commands Listener] submitted to the pool: nmblookup -A 192.168.122.10
-2024-06-10 16:18:00,833 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:18:00,834 - root - INFO - [Pool thread]: calling Popen for command: nmblookup -A 192.168.122.10
-2024-06-10 16:18:00,834 - root - INFO - [Pool thread nmblookup -A 192.168.122.10]: storing PID: 47145
-2024-06-10 16:18:00,834 - root - INFO - [TS] adding pid 47145 to cmd_pid
-2024-06-10 16:18:00,834 - root - INFO - [TS] adding pid 47145 to cmd_pid: SUCCESS
-2024-06-10 16:18:00,863 - root - INFO - [Pool thread nmblookup -A 192.168.122.10] received output. Return code = 0
-2024-06-10 16:18:00,863 - root - INFO - [TS] removing 47145 from cmd_pid
-2024-06-10 16:18:00,863 - root - INFO - [TS] removing 47145 from cmd_pid: SUCCESS
-2024-06-10 16:18:00,863 - root - INFO - [Pool thread nmblookup -A 192.168.122.10] writting to file: outputs/nmblookup-A-192_168_122_10.out
-2024-06-10 16:18:00,863 - root - INFO - [Pool thread nmblookup -A 192.168.122.10] sended Done Event to outputs
-2024-06-10 16:18:00,863 - root - INFO - [Output Listener]: Received Event
-2024-06-10 16:18:00,864 - root - INFO - [Output Listener]: filtering output in: translation of ip to hostname through NBNS FILTER
-2024-06-10 16:18:00,865 - root - INFO - [Commands Listener]: received event
-2024-06-10 16:18:00,865 - root - INFO - [Commands Listener]: Finishing...
-2024-06-10 16:18:00,865 - root - INFO - [Commands Listener]: shutting down the pool
-2024-06-10 16:18:00,865 - root - INFO - [Commands Listener: sending 'Done' to output]
-2024-06-10 16:18:00,865 - root - INFO - [Output Listener]: Received Event
-2024-06-10 16:18:00,865 - root - INFO - [Output Listener]: Finishing...
+2024-06-10 19:39:13,441 - root - INFO - [Commands listener]: up
+2024-06-10 19:39:13,442 - root - INFO - [Output Listener]: up
+2024-06-10 19:39:13,442 - root - INFO - [Main]: user interaction thread finished
+2024-06-10 19:39:13,443 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:13,443 - root - INFO - [Pool thread]: calling Popen for command: ip a
+2024-06-10 19:39:13,443 - root - INFO - [Commands Listener] submitted to the pool: ip a
+2024-06-10 19:39:13,444 - root - INFO - [Pool thread ip a]: storing PID: 42645
+2024-06-10 19:39:13,444 - root - INFO - [TS] adding pid 42645 to cmd_pid
+2024-06-10 19:39:13,444 - root - INFO - [TS] adding pid 42645 to cmd_pid: SUCCESS
+2024-06-10 19:39:13,446 - root - INFO - [Pool thread 42645] received output. Return code = 0
+2024-06-10 19:39:13,446 - root - INFO - [TS] removing 42645 from cmd_pid
+2024-06-10 19:39:13,446 - root - INFO - [TS] removing 42645 from cmd_pid: SUCCESS
+2024-06-10 19:39:13,446 - root - INFO - [Pool thread 42645] writting to file: outputs/ListInterfaces.out
+2024-06-10 19:39:13,446 - root - INFO - [Output Listener]: Received Event
+2024-06-10 19:39:13,446 - root - INFO - [Output Listener]: filtering output in: list interfaces filter
+2024-06-10 19:39:13,447 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:13,447 - root - INFO - [Commands Listener] submitted to the pool: sudo nmap -PR -sn -n 192.168.122.0/24
+2024-06-10 19:39:13,447 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:13,447 - root - INFO - [Pool thread]: calling Popen for command: sudo nmap -PR -sn -n 192.168.122.0/24
+2024-06-10 19:39:13,448 - root - INFO - [Pool thread sudo nmap -PR -sn -n 192.168.122.0/24]: storing PID: 42647
+2024-06-10 19:39:13,448 - root - INFO - [TS] adding pid 42647 to cmd_pid
+2024-06-10 19:39:13,448 - root - INFO - [TS] adding pid 42647 to cmd_pid: SUCCESS
+2024-06-10 19:39:15,398 - root - INFO - [Pool thread 42647] received output. Return code = 0
+2024-06-10 19:39:15,398 - root - INFO - [TS] removing 42647 from cmd_pid
+2024-06-10 19:39:15,398 - root - INFO - [TS] removing 42647 from cmd_pid: SUCCESS
+2024-06-10 19:39:15,398 - root - INFO - [Pool thread 42647] writting to file: outputs/arpscan192_168_122_0_24.out
+2024-06-10 19:39:15,398 - root - INFO - [Output Listener]: Received Event
+2024-06-10 19:39:15,398 - root - INFO - [Output Listener]: filtering output in: arp scan filter
+2024-06-10 19:39:15,399 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:15,399 - root - INFO - [Commands Listener] submitted to the pool: nmblookup -A 192.168.122.1
+2024-06-10 19:39:15,399 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:15,399 - root - INFO - [Pool thread]: calling Popen for command: nmblookup -A 192.168.122.1
+2024-06-10 19:39:15,399 - root - INFO - [Pool thread nmblookup -A 192.168.122.1]: storing PID: 42670
+2024-06-10 19:39:15,399 - root - INFO - [TS] adding pid 42670 to cmd_pid
+2024-06-10 19:39:15,399 - root - INFO - [TS] adding pid 42670 to cmd_pid: SUCCESS
+2024-06-10 19:39:25,429 - root - INFO - [Pool thread 42670] received output. Return code = 1
+2024-06-10 19:39:25,429 - root - INFO - [TS] removing 42670 from cmd_pid
+2024-06-10 19:39:25,429 - root - INFO - [TS] removing 42670 from cmd_pid: SUCCESS
+2024-06-10 19:39:25,429 - root - INFO - [Pool thread 42670] writting to file: outputs/nmblookup-A-192_168_122_1.out
+2024-06-10 19:39:25,430 - root - INFO - [Output Listener]: Received Event
+2024-06-10 19:39:25,430 - root - INFO - [Output Listener]: filtering output in: translation of ip to hostname through NBNS FILTER
+2024-06-10 19:39:25,431 - root - INFO - [Commands Listener]: received event
+2024-06-10 19:39:25,431 - root - INFO - [Commands Listener]: Finishing...
+2024-06-10 19:39:25,431 - root - INFO - [Commands Listener]: shutting down the pool
+2024-06-10 19:39:25,431 - root - INFO - [Commands Listener: sending 'Done' to output]
+2024-06-10 19:39:25,431 - root - INFO - [Output Listener]: Received Event
+2024-06-10 19:39:25,431 - root - INFO - [Output Listener]: Finishing...

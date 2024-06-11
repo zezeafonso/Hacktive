@@ -11,6 +11,9 @@ import NetworkComponentUpdater as NCU
 import MethodsToFilters
 
 
+
+
+
 def outputs_listener():
 	LoggingConfig.configure_logging()
 	# init the network components dictionary
@@ -64,6 +67,10 @@ def outputs_listener():
 				# call the automatic methods (will put events in cmd_queue)
 				method() 
 
+			# no more outputs to parse for now -> send to the commands thread this is done
+			if TS.out_queue.empty(): 
+				TS.cmd_queue.put('Done')
+		else:
 			# no more outputs to parse for now -> send to the commands thread this is done
 			if TS.out_queue.empty(): 
 				TS.cmd_queue.put('Done')

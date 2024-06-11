@@ -1,7 +1,7 @@
-Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-06-10 16:17 WEST
-Nmap scan report for 192.168.122.10
-Host is up (0.0010s latency).
-MAC Address: 0C:FA:DF:F5:00:00 (Unknown)
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-06-10 19:39 WEST
+Nmap scan report for 192.168.122.1
+Host is up (0.00099s latency).
+MAC Address: 52:54:00:F7:5E:1E (QEMU virtual NIC)
 Nmap scan report for 192.168.122.129
 Host is up.
-Nmap done: 256 IP addresses (2 hosts up) scanned in 1.92 seconds
+Nmap done: 256 IP addresses (2 hosts up) scanned in 1.91 seconds

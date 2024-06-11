@@ -12,55 +12,100 @@ from AbstractClasses import AbstractNetworkComponent, AbstractFilter, AbstractMe
 import LoggingConfig
 
 
+def get_event_from_the_command_queue():
+	event = TS.cmd_queue.get() # blocking
+	logging.info(f"[Commands Listener]: received event")
+	return event
 
-def run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComponent, method:AbstractMethod, context:dict):
-	# call Popen
+def send_sentinel_to_output_listener_thread():
+	TS.out_queue.put('Done')
+
+def handle_done_events_from_output_listener_thread(thread_pool):
+	# if there is no command for analysis and no command to be read from the queue -> finish
+	if TS.cmd_queue.empty() and TS.check_if_there_are_no_commands_for_analysis():
+		logging.info("[Commands Listener]: Finishing...")
+		logging.info("[Commands Listener]: shutting down the pool")
+
+		thread_pool.shutdown(wait=True) # shutdown the pool
+		send_sentinel_to_output_listener_thread()
+
+		logging.info("[Commands Listener: sending 'Done' to output]")
+		return 0
+	return 1
+
+def run_command_in_another_process(cmd):
 	logging.info(f"[Pool thread]: calling Popen for command: {cmd}")
 
-	# add to the list of commands already run 
-	TS.add_command_to_commands_run(cmd)
-
-	# run the commands in parallel using a different process
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+	return proc
 
-	# Store the PID
-	pid = proc.pid
+
+def store_the_pid_of_process_in_pids_executing_commands(cmd, pid):
 	try: 
 		logging.info(f"[Pool thread {cmd}]: storing PID: {pid}")
+
 		TS.add_pid_to_cmd_pid_dict(cmd, pid, TS.shared_lock)
 	except SE.CommandAlreadyBeingRun as e:
 		raise Exception(f"Command {cmd} is already being run")
 
+
+def wait_for_process_to_complete_and_get_output_and_err(proc):
 	# Wait for the process to complete and get output
 	stdout, stderr = proc.communicate() # BLOCKING CALL (thread)
-	logging.info(f"[Pool thread {cmd}] received output. Return code = {proc.returncode}")
 
+	logging.info(f"[Pool thread {proc.pid}] received output. Return code = {proc.returncode}")
+	return stdout, stderr
+
+
+def remove_the_pid_of_process_from_the_pids_executing_commands(cmd, pid):
 	# remove pid from list of running processes
 	try:
 		TS.del_pid_from_cmd_pid_dict(cmd, pid, TS.shared_lock)
 	except SE.CommandNotBeingRun as e:
 		raise Exception(f"Command {cmd} was not being run")
 
-	# retrieve the output
-	output = stdout if proc.returncode == 0 else stderr
 
-	# write the output to the file
+def write_output_of_command_to_its_respective_file(out_file, pid, output):
 	try:
-		filename = out_file
-		logging.info(f"[Pool thread {cmd}] writting to file: {filename}")
-		with open(filename, 'w') as file:
+		logging.info(f"[Pool thread {pid}] writting to file: {out_file}")
+		with open(out_file, 'w') as file:
 			file.write(output)
 	except FileNotFoundError as e:
 		raise Exception("File Not Found")
 
-	# create the event done (only with stdout)
-	output_event = Done_Event('done',cmd, stdout, method, nc, context)
+def create_event_for_output_listener(cmd, output, method, nc, context):
+	return Done_Event('done', cmd, output, method, nc, context)
 
-	# put it in the queue for outputs_listener thread
-	TS.out_queue.put(output_event)
+def send_event_to_output_listener(event):
+	TS.out_queue.put(event)
 	logging.info(f"[Pool thread {cmd}] sended Done Event to outputs")
 
-	return stdout
+
+def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComponent, method:AbstractMethod, context:dict):
+	TS.add_command_to_list_of_commands_run(cmd)
+	proc = run_command_in_another_process(cmd)
+	store_the_pid_of_process_in_pids_executing_commands(cmd, proc.pid)
+	proc_stdout, proc_stderr = wait_for_process_to_complete_and_get_output_and_err(proc)
+	remove_the_pid_of_process_from_the_pids_executing_commands(cmd, proc.pid)
+	# know what to send to filter
+	output = proc_stdout if proc.returncode == 0 else proc_stderr
+	write_output_of_command_to_its_respective_file(out_file, proc.pid, output)
+	event = create_event_for_output_listener(cmd, output, method, nc, context)
+	send_event_to_output_listener(event)
+	return
+
+
+def submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context):
+	thread_pool.submit(thread_pool_run_normal_command, out_file, cmd, nc, method, context)
+	logging.info(f"[Commands Listener] submitted to the pool: {cmd}")
+
+
+def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
+	if not TS.know_if_commands_was_already_run(cmd):
+		TS.add_command_to_commands_for_analysis(cmd)
+		submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context)
+	else:
+		print(f"{cmd} was already run!!!!")
 
 
 
@@ -69,21 +114,11 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 	logging.info(f"[Commands listener]: up")
 
 	while True:
-		# get an event from the commands_queue
-		event = TS.cmd_queue.get()
-		logging.info(f"[Commands Listener]: received event")
+		event = get_event_from_the_command_queue() # blocking
 
-		# output thread sent done (it had no more outputs to parse)
-		# if we have no more methods in the queue, and all the methods 
-		# already sent were processed than finish.
+		# might be sentinel to stop
 		if event == 'Done':
-			# if there is no comamnd for analysis and no command to be read from the queue -> finish
-			if TS.cmd_queue.empty() and TS.check_if_there_are_no_commands_for_analysis():
-				logging.info("[Commands Listener]: Finishing...")
-				logging.info("[Commands Listener]: shutting down the pool")
-				thread_pool.shutdown(wait=True)
-				TS.out_queue.put('Done') # sentinel to outputs queue
-				logging.info("[Commands Listener: sending 'Done' to output]")
+			if handle_done_events_from_output_listener_thread(thread_pool) == 0:
 				break
 		else:
 			# event must be of type run
@@ -92,19 +127,9 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 			
 			# know the events attributes
 			out_file, cmd, method, nc, context = event.get_attributes()
+			handle_normal_command(thread_pool, out_file, cmd, method, nc, context)
 
-			# if commands wasn't already run
-			if not TS.know_if_commands_was_already_run(cmd):
-				# add commands to the list of commands for analysis
-				TS.add_command_to_commands_for_analysis(cmd)
-
-				# submit task to pool
-				thread_pool.submit(run_normal_command, out_file, cmd, nc, method, context)
-				logging.info(f"[Commands Listener] submitted to the pool: {cmd}")
-			else:
-				print(f"{cmd} was already run!!!!")
-
-			# task done
+			# signal task done
 			TS.cmd_queue.task_done()
 	
 	#TS.cmd_queue.join() # every command inserted

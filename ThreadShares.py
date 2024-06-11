@@ -5,29 +5,6 @@ import logging
 import SpecificExceptions as SE
 import LoggingConfig
 
-"""
-class Shared_Dict():
-	def __init__(self):
-		self._dict = {}
-
-	def add_pair_to_dict(self, key:str, value:int, lock:threading.Lock):
-		with lock:
-			if key in _dict:
-				raise SE.CommandAlreadyBeingRun(f"command: {key}, already in shared_dict!")
-			self._dict[key] = value
-
-	def del_key_in_dict(self, key:str, lock:threading.Lock):
-		with lock:
-			if key not in _dict:
-				raise SE.CommandNotBeingRun(f"command: {key}, not in shared_dict!")
-			self._dict.pop(key)
-
-	def get_key(self, key:str, lock:threading.Lock):
-		with lock:
-			if key not in _dict:
-				raise SE.CommandNotBeingRun(f"command: {key}, not in shared_dict!")
-			return self._dict[key]
-"""
 
 """
 The shared lock is necessary because multiple threads will 
@@ -113,7 +90,7 @@ def know_if_commands_was_already_run(cmd):
 		res = cmd in commands_run_set
 	return res
 
-def add_command_to_commands_run(cmd):
+def add_command_to_list_of_commands_run(cmd):
 	global commands_run_set
 	global shared_lock
 
