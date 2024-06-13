@@ -9,12 +9,12 @@ import SpecificExceptions as SE
 from Events import Done_Event
 import ThreadShares as TS
 from AbstractClasses import AbstractNetworkComponent, AbstractFilter, AbstractMethod
-import LoggingConfig
+from LoggingConfig import logger
 
 
 def get_event_from_the_command_queue():
 	event = TS.cmd_queue.get() # blocking
-	logging.info(f"[Commands Listener]: received event")
+	logger.debug(f"[Commands Listener]: received event")
 	return event
 
 def send_sentinel_to_output_listener_thread():
@@ -23,18 +23,18 @@ def send_sentinel_to_output_listener_thread():
 def handle_done_events_from_output_listener_thread(thread_pool):
 	# if there is no command for analysis and no command to be read from the queue -> finish
 	if TS.cmd_queue.empty() and TS.check_if_there_are_no_commands_for_analysis():
-		logging.info("[Commands Listener]: Finishing...")
-		logging.info("[Commands Listener]: shutting down the pool")
+		logger.info("[Commands Listener]: Finishing...")
+		logger.info("[Commands Listener]: shutting down the pool")
 
 		thread_pool.shutdown(wait=True) # shutdown the pool
 		send_sentinel_to_output_listener_thread()
 
-		logging.info("[Commands Listener: sending 'Done' to output]")
+		logger.info("[Commands Listener: sending 'Done' to output]")
 		return 0
 	return 1
 
 def run_command_in_another_process(cmd):
-	logging.info(f"[Pool thread]: calling Popen for command: {cmd}")
+	logger.debug(f"[Pool thread]: calling Popen for command: {cmd}")
 
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
 	return proc
@@ -42,7 +42,7 @@ def run_command_in_another_process(cmd):
 
 def store_the_pid_of_process_in_pids_executing_commands(cmd, pid):
 	try: 
-		logging.info(f"[Pool thread {cmd}]: storing PID: {pid}")
+		logger.debug(f"[Pool thread {cmd}]: storing PID: {pid}")
 
 		TS.add_pid_to_cmd_pid_dict(cmd, pid, TS.shared_lock)
 	except SE.CommandAlreadyBeingRun as e:
@@ -53,7 +53,7 @@ def wait_for_process_to_complete_and_get_output_and_err(proc):
 	# Wait for the process to complete and get output
 	stdout, stderr = proc.communicate() # BLOCKING CALL (thread)
 
-	logging.info(f"[Pool thread {proc.pid}] received output. Return code = {proc.returncode}")
+	logger.debug(f"[Pool thread {proc.pid}] received output. Return code = {proc.returncode}")
 	return stdout, stderr
 
 
@@ -67,7 +67,7 @@ def remove_the_pid_of_process_from_the_pids_executing_commands(cmd, pid):
 
 def write_output_of_command_to_its_respective_file(out_file, pid, output):
 	try:
-		logging.info(f"[Pool thread {pid}] writting to file: {out_file}")
+		logger.debug(f"[Pool thread {pid}] writting to file: {out_file}")
 		with open(out_file, 'w') as file:
 			file.write(output)
 	except FileNotFoundError as e:
@@ -78,7 +78,7 @@ def create_event_for_output_listener(cmd, output, method, nc, context):
 
 def send_event_to_output_listener(event):
 	TS.out_queue.put(event)
-	logging.info(f"[Pool thread {cmd}] sended Done Event to outputs")
+	logger.debug(f"[Pool thread {cmd}] sended Done Event to outputs")
 
 
 def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComponent, method:AbstractMethod, context:dict):
@@ -97,7 +97,7 @@ def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComp
 
 def submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context):
 	thread_pool.submit(thread_pool_run_normal_command, out_file, cmd, nc, method, context)
-	logging.info(f"[Commands Listener] submitted to the pool: {cmd}")
+	logger.debug(f"[Commands Listener] submitted to the thread pool: {cmd}")
 
 
 def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
@@ -105,13 +105,12 @@ def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
 		TS.add_command_to_commands_for_analysis(cmd)
 		submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context)
 	else:
-		print(f"{cmd} was already run!!!!")
+		logger.warning(f"[Commands Listener] {cmd} was already run!!")
 
 
 
 def commands_listener(thread_pool:ThreadPoolExecutor):
-	LoggingConfig.configure_logging()
-	logging.info(f"[Commands listener]: up")
+	logger.info(f"[Commands listener]: up")
 
 	while True:
 		event = get_event_from_the_command_queue() # blocking

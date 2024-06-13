@@ -10,11 +10,11 @@ import EventDoneThread as EDT
 import CommandsListener as CL
 import LoggingConfig
 import ThreadShares
+from LoggingConfig import logger
 
 
 
 def main():
-    LoggingConfig.configure_logging()
     # initialize the shared objects 
     ThreadShares.initialize()
 
@@ -46,7 +46,7 @@ def main():
 
     # Wait for user input thread to finish
     user_interaction_thread.join()
-    logging.info("[Main]: user interaction thread finished")
+    logger.info("[Main]: user interaction thread finished")
     event_run_thread.join()
     event_done_thread.join()
     print("done 2 and 3")

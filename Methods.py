@@ -70,6 +70,55 @@ class PortScan(AbstractMethod):
 
 
 
+class NBNSGroupMembers(AbstractMethod):
+	_name = 'find the members of netbios group'
+	_filename = "outputs/nmblookup-"
+	
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{NBNSGroupMembers._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent) -> list:
+		"""
+		Creates the run events for this method using a network component.
+		NC should be a NetBIOSGroup in most cases
+		"""	
+		context = NBNSGroupMembers.get_context(nc)
+		
+		# context couldn't extract necessary fields
+		if len(context) == 0:
+			return []
+
+		group_id = context['group_id']
+		# output file
+		output_file = NBNSGroupMembers._filename + group_id +'.out'
+
+		cmd =  f"nmblookup '{group_id}'"
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=NBNSGroupMembers, nc=nc, context=context)]
+
+
+
+	def get_context(nc:AbstractNetworkComponent):
+		"""
+		Supposes that the nc is a NetBIOSGroup object
+		"""
+		# get the object to which is associated 
+		network_name = nc.associated.network_address
+		interface_name = nc.associated.get_interface().interface_name
+		group_id = nc.id
+
+		if network_name is None or interface_name is None or group_id is None:
+			return {}
+
+		context = {'group_id': group_id, 'network':network_name, 'interface':interface_name}
+		return context
+
+
+
 class NBNSIPTranslation(AbstractMethod):
 	_name = "ip to hostname through NBNS"
 	_filename = "outputs/nmblookup-A-"

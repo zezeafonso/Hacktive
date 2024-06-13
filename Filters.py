@@ -146,6 +146,18 @@ class ArpScan_Filter(AbstractFilter):
 		return findings
 
 
+
+class NBNSGroupMembers_Filter(AbstractFilter):
+	_name = "netbios group membership filter"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+
+		print("THE FILTER FOR NBNS GROUP MEMBER WAS CALLED")
+		return findings
+
+
 		    
 class NBNSIPTranslation_Filter(AbstractFilter):
 	_name = "translation of ip to hostname through NBNS FILTER"
@@ -156,7 +168,7 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		findings = []
 
 		pattern_00 = re.compile(r'^\s*(\S+)\s+<00>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
-		pattern_group_00 = re.compile(r'^\s*(\S+)\s+<00>\s+-\s+<GROUP>\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
+		pattern_group = re.compile(r'^\s*(\S+)\s+<(00|1c)>\s+-\s+<GROUP>\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		pattern_20 = re.compile(r'^\s*(\S+)\s+<20>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		pattern_1b = re.compile(r'^\s*(\S+)\s+<1b>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		
@@ -164,7 +176,7 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 
 		# Find matches
 		matches_00 = pattern_00.findall(output)
-		matches_group_00 = pattern_group_00.findall(output)
+		matches_group = pattern_group.findall(output)
 		matches_20 = pattern_20.findall(output)
 		matches_1b = pattern_1b.findall(output)
 		match_ip = ip_pattern.search(output)
@@ -175,11 +187,14 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		for match in matches_00: # will just be one but yes
 			findings.append(FO.Filtered_FoundNetBIOSHostnameForIP({}, hostname=match, ip=ip_address))
 
-		for match in matches_group_00:
-			findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, group=match, ip=ip_address))
+		for match in matches_group:
+			print(f"MATCH FOR FILTER: {match}")
+			group = match[0]
+			_type = match[1]
+			findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, group, _type, ip=ip_address))
 
 		for match in matches_20:
-			findings.append(FO.Filtered_FoundNetBIOSHostnameWithSMB({}, hostname=match))
+			findings.append(FO.Filtered_FoundNetBIOSHostnameWithSMB({}, hostname=match, ip=ip_address))
 
 		for match in matches_1b:
 			findings.append(FO.Filtered_FoundPDCIPForNetBIOSGroup({}, group=match, ip=ip_address))

@@ -7,5 +7,6 @@ methods_to_filters = {
 	Methods.ArpScan: Filters.ArpScan_Filter,
 	Methods.PortScan: Filters.PortScan_Filter,
 	Methods.NBNSIPTranslation: Filters.NBNSIPTranslation_Filter,
-	Methods.QueryNamingContextOfDCThroughLDAP: Filters.QueryNamingContextOfDCThroughLDAP_Filter
+	Methods.QueryNamingContextOfDCThroughLDAP: Filters.QueryNamingContextOfDCThroughLDAP_Filter,
+	Methods.NBNSGroupMembers: Filters.NBNSGroupMembers_Filter
 }

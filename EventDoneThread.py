@@ -6,7 +6,7 @@ import logging
 import ThreadShares as TS
 import Filters
 import SpecificExceptions as SE
-import LoggingConfig
+from LoggingConfig import logger
 import NetworkComponentUpdater as NCU
 import MethodsToFilters
 
@@ -15,18 +15,17 @@ import MethodsToFilters
 
 
 def outputs_listener():
-	LoggingConfig.configure_logging()
 	# init the network components dictionary
 	Filters.init_dictionaries()
-	logging.info("[Output Listener]: up")
+	logger.info("[Output Listener]: up")
 
 	while True:
 		event = TS.out_queue.get() # BLOCKING call, wait for outputs
-		logging.info("[Output Listener]: Received Event")
+		logger.debug("[Output Listener]: Received Event")
 
 		# Sentinel to exit
 		if event == 'Done':  
-			logging.info("[Output Listener]: Finishing...")
+			logger.info("[Output Listener]: Finishing...")
 			break
 
 		# EXCEPTION
@@ -45,7 +44,7 @@ def outputs_listener():
 		# know the correct filter
 		f = MethodsToFilters.methods_to_filters[method]
 		# log
-		logging.info(f"[Output Listener]: filtering output in: {f._name}")
+		logger.debug(f"[Output Listener]: filtering output in: {f._name}")
 
 		# filter the contents of the output for objects
 		list_filtered_objects = f.filter(output) # it will create the objects
