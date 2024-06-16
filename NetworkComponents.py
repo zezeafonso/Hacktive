@@ -182,7 +182,7 @@ class LdapServer:
 		first_word_of_dcs = domain_components_path.split('.')[0]
 		with TS.shared_lock:
 			# if it doesn't start by any of these words i think it's the domain name
-			not_domain_first_words = ['DomainDNSZones', 'ForestDNSZones', 'Configuration', 'Schema']
+			not_domain_first_words = ['DomainDnsZones', 'ForestDnsZones', 'Configuration', 'Schema']
 			if first_word_of_dcs in not_domain_first_words:
 				logger.debug(f"The domain components path started with ({first_word_of_dcs}) therefore is not a domain name")
 				return []
