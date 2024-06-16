@@ -2,8 +2,6 @@ INFO - CommandsListener - commands_listener - going inside the while Loop
 INFO - EventDoneThread - outputs_listener -  up
 INFO - main - main - [Main]: user interaction thread finished
 WARNING - CommandsListener - handle_normal_command -  nmblookup 'foxriver#00' was already run!!
-WARNING - NetworkComponents - check_if_ldap_domain_components_path_is_domain_path - The ldap server was associated with a different domain name (foxRiver.local) than the domain components path (ForestDnsZones.foxRiver.local)
-WARNING - NetworkComponents - check_if_ldap_domain_components_path_is_domain_path - The ldap server was associated with a different domain name (foxRiver.local) than the domain components path (DomainDnsZones.foxRiver.local)
 INFO - CommandsListener - handle_done_events_from_output_listener_thread - Finishing...
 INFO - CommandsListener - handle_done_events_from_output_listener_thread - shutting down the pool
 INFO - CommandsListener - handle_done_events_from_output_listener_thread - sending 'Done' to output

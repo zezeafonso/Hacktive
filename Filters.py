@@ -217,7 +217,7 @@ class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
 		findings = []
 
 		# Regular expression to match lines starting with 'namingcontexts:' and followed by 'DC='
-		pattern = re.compile(r'^namingcontexts:\s+DC=[^,]*')
+		pattern = re.compile(r'^namingcontexts:\s+DC=[^,]*', re.IGNORECASE)
 
 		# Regular expression to capture the 'DC=' fields
 		dc_pattern = re.compile(r'DC=([^,]+)')
