@@ -69,9 +69,10 @@ class NetBIOSGroupDC:
 			return context
 
 	def display_json(self):
-		data = dict()
-		data['NetBIOS DC'] = dict()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['NetBIOS DC'] = dict()
+			return data
 
 	def auto(self):
 		"""
@@ -92,9 +93,10 @@ class NetBIOSGroupPDC:
 		self.group = group
 
 	def display_json(self):
-		data = dict()
-		data['NetBIOS PDC'] = dict()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['NetBIOS PDC'] = dict()
+			return data
 
 	def auto(self):
 		"""
@@ -113,9 +115,10 @@ class NetBIOSMBServer:
 		# or put them in a list to be send
 
 	def display_json(self):
-		data = dict()
-		data['NetBIOS SMB server'] = dict()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['NetBIOS SMB server'] = dict()
+			return data
 	
 
 	def auto(self):
@@ -159,10 +162,11 @@ class LdapServer:
 	
 
 	def display_json(self):
-		data = dict()
-		data['LDAP Server'] = dict()
-		data['LDAP Server']['domain'] = self.get_domain()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['LDAP Server'] = dict()
+			data['LDAP Server']['domain'] = self.get_domain()
+			return data
 
 
 	def check_if_ldap_domain_components_path_is_domain_path(self, domain_components_path):
@@ -243,16 +247,17 @@ class NetBIOSWorkstation:
 
 
 	def display_json(self):
-		data = dict()
-		data['NetBIOSWorkstation'] = dict()
-		data['NetBIOSWorkstation']['hostname'] = self.get_hostname()
-		data['NetBIOSWorkstation']['ip'] = self.get_ip()
-		data['NetBIOSWorkstation']['Groups'] = dict()
-		for group in self.groups_and_roles:
-			data['NetBIOSWorkstation']['Groups'][group.get_id()] = dict()
-			for role in self.get_roles_associated_to_group(group):
-				data['NetBIOSWorkstation']['Groups'][group.get_id()] = role.display_json()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['NetBIOSWorkstation'] = dict()
+			data['NetBIOSWorkstation']['hostname'] = self.get_hostname()
+			data['NetBIOSWorkstation']['ip'] = self.get_ip()
+			data['NetBIOSWorkstation']['Groups'] = dict()
+			for group in self.groups_and_roles:
+				data['NetBIOSWorkstation']['Groups'][group.get_id()] = dict()
+				for role in self.get_roles_associated_to_group(group):
+					data['NetBIOSWorkstation']['Groups'][group.get_id()] = role.display_json()
+			return data
 
 	def auto(self):
 		# call the automatic methods
@@ -586,15 +591,16 @@ class Host(AbstractNetworkComponent):
 				
 
 	def display_json(self):
-		data = dict()
-		data['Host'] = dict()
-		data['Host']['ip'] = self.get_ip()
-		data['Host']['hostname'] = self.get_netbios_hostname()
-		data['Host']['roles'] = list()
-		# for each role i want to show what it has
-		for role_name in self.roles:
-			data['Host']['roles'].append(self.roles[role_name].display_json())
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['Host'] = dict()
+			data['Host']['ip'] = self.get_ip()
+			data['Host']['hostname'] = self.get_netbios_hostname()
+			data['Host']['roles'] = list()
+			# for each role i want to show what it has
+			for role_name in self.roles:
+				data['Host']['roles'].append(self.roles[role_name].display_json())
+			return data
 
 
 	def to_str(self):
@@ -781,10 +787,11 @@ class NetBIOSGroup():
 			return self.id
 
 	def display_json(self):
-		data = dict()
-		data['NetBIOSGroup'] = dict()
-		data['NetBIOSGroup']['id'] = self.id
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['NetBIOSGroup'] = dict()
+			data['NetBIOSGroup']['id'] = self.id
+			return data
 
 	def add_group_member(self):
 		"""
@@ -885,22 +892,23 @@ class Network(AbstractNetworkComponent):
 	# Functions
 
 	def display_json(self):
-		data = dict()
-		data['network'] = dict()
-		data['network']['address'] = self.network_address
-		data['network']['netbios groups'] = list()
-		for netbios_group_id in self.netbios_groups:
-			# change I want to see who's in the group
-			data['network']['netbios groups'].append(self.netbios_groups[netbios_group_id].id)
-		data['network']['Hosts'] = list()
-		for host_ip in self.hosts:
-			# i want to see what's in the ip 
-			data['network']['Hosts'].append(self.hosts[host_ip].display_json())
-		data['network']['netbios workstations'] = list()
-		for netbios_workstation in self.netbios_workstations:
-			# i want to see each of the roles
-			data['network']['netbios workstations'].append(netbios_workstation.display_json())
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['network'] = dict()
+			data['network']['address'] = self.network_address
+			data['network']['netbios groups'] = list()
+			for netbios_group_id in self.netbios_groups:
+				# change I want to see who's in the group
+				data['network']['netbios groups'].append(self.netbios_groups[netbios_group_id].id)
+			data['network']['Hosts'] = list()
+			for host_ip in self.hosts:
+				# i want to see what's in the ip 
+				data['network']['Hosts'].append(self.hosts[host_ip].display_json())
+			data['network']['netbios workstations'] = list()
+			for netbios_workstation in self.netbios_workstations:
+				# i want to see each of the roles
+				data['network']['netbios workstations'].append(netbios_workstation.display_json())
+			return data
 
 	def auto(self):
 		print("auto network")
@@ -1158,13 +1166,14 @@ class Interface(AbstractNetworkComponent):
 			return context 
 
 	def display_json(self):
-		data = dict()
-		data['interface'] = dict()
-		data['interface']['name'] = self.interface_name
-		data['interface']['networks'] = list()
-		for network_name in self.networks:
-			data['interface']['networks'].append(self.networks[network_name].display_json())
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['interface'] = dict()
+			data['interface']['name'] = self.interface_name
+			data['interface']['networks'] = list()
+			for network_name in self.networks:
+				data['interface']['networks'].append(self.networks[network_name].display_json())
+			return data
 
 	def add_network(self, network:Network):
 		# TODO: check if already exists
@@ -1299,11 +1308,14 @@ class Root(AbstractNetworkComponent):
 		self.path = {'root':self} # the path to this object
 
 	def display_json(self):
-		data = dict()
-		for _int in self.interfaces:
-			interface = self.interfaces[_int]
-			data['interface'] = interface.display_json()
-		return data
+		with TS.shared_lock:
+			data = dict()
+			data['interfaces'] = list()
+			for _int in self.interfaces:
+				interface = self.interfaces[_int]
+				data['interfaces'].append(interface.display_json())
+				#data['interface'] = interface.display_json()
+			return data
 
 	def add_interface(self, interface:Interface):
 		# call the methods from the interface
