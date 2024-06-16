@@ -1,8 +1,0 @@
-INFO - CommandsListener - commands_listener - going inside the while Loop
-INFO - EventDoneThread - outputs_listener -  up
-INFO - main - main - [Main]: user interaction thread finished
-WARNING - CommandsListener - handle_normal_command -  nmblookup 'foxriver#00' was already run!!
-INFO - CommandsListener - handle_done_events_from_output_listener_thread - Finishing...
-INFO - CommandsListener - handle_done_events_from_output_listener_thread - shutting down the pool
-INFO - CommandsListener - handle_done_events_from_output_listener_thread - sending 'Done' to output
-INFO - EventDoneThread - outputs_listener -  Finishing...
