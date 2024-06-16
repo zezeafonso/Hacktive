@@ -40,7 +40,7 @@ file_debug_handler.setLevel(logging.DEBUG)
 # Create formatters and add them to the handlers
 console_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 
-file_format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_format = logging.Formatter('%(levelname)s - %(module)s - %(funcName)s - %(message)s')
 #console_handler.setFormatter(console_format)
 file_app_handler.setFormatter(file_format)
 file_debug_handler.setFormatter(file_format)

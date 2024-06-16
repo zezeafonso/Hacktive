@@ -17,6 +17,9 @@ class Filtered_DomainComponentsFromLDAPQuery(AbstractFilteredObject):
 		
 		self.info['dc_path'] = domain_components_path
 
+	def display(self):
+		return f"Domain Components Path ({self.info['dc_path']}) from ldap query to ..."
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -31,6 +34,9 @@ class Filtered_NewInterface(AbstractFilteredObject):
 		self.info = dict()
 		self.info['path'] = path
 		self.info['interface'] = interface
+
+	def display(self):
+		return f" new interface ({self.info['interface']})"	
 
 	def captured(self) -> dict:
 		return self.info
@@ -48,6 +54,9 @@ class Filtered_NewNetworkForInterface(AbstractFilteredObject):
 		self.info['interface'] = interface
 		self.info['network'] = network
 
+	def display(self):
+		return f" network ({self.info['network']}) for interface ({self.info['interface']})"
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -64,6 +73,9 @@ class Filtered_FoundOurIPForNetwork(AbstractFilteredObject):
 		self.info['interface'] = interface
 		self.info['network'] = network
 		self.info['ip'] = ip
+
+	def display(self):
+		return f" our ip ({self.info['ip']}) for network ({self.info['network']}) for interface ({self.info['interface']})"
 
 	def captured(self) -> dict:
 		return self.info
@@ -88,6 +100,9 @@ class Filtered_FoundNetBIOSHostnameWithSMB(AbstractFilteredObject):
 			self.info['netbios_hostname'] = hostname
 		self.info['ip'] = ip
 
+	def display(self):
+		return f" SMB server with netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -108,6 +123,10 @@ class Filtered_FoundNetBIOSGroupForIP(AbstractFilteredObject):
 		self.info['netbios_group'] = group
 		self.info['group_type'] = _type
 		self.info['ip'] = ip
+
+	def display(self):
+		return f"netbios group ({self.info['netbios_group']}#{self.info['group_type']}) for ip ({self.info['ip']})"
+
 
 	def captured(self) -> dict:
 		return self.info
@@ -132,6 +151,10 @@ class Filtered_FoundPDCIPForNetBIOSGroup(AbstractFilteredObject):
 		self.info['netbios_group'] = group
 		self.info['ip'] = ip
 
+	def display(self):
+		return f" PDC role for netbios group ({self.info['netbios_group']}) for ip ({self.info['ip']})"
+
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -151,6 +174,10 @@ class Filtered_FoundNetBIOSHostnameForIP(AbstractFilteredObject):
 		self.info['path'] = path
 		self.info['netbios_hostname'] = hostname
 		self.info['ip'] = ip
+
+	def display(self):
+		return f" netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
+
 
 	def captured(self) -> dict:
 		return self.info
@@ -174,6 +201,10 @@ class Filtered_NewIPForNetwork(AbstractFilteredObject):
 		self.info['path'] = path
 		if ip is not None:
 			self.info['ip'] = ip
+
+	def display(self):
+		return f" ip ({self.info['ip']}) for network"
+
 
 	def captured(self) -> dict:
 		return self.info

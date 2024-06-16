@@ -7,6 +7,7 @@ import Methods
 from AbstractClasses import AbstractNetworkComponent
 import ThreadShares as TS
 from Events import Run_Event
+from LoggingConfig import logger
 
 
 def throw_run_event_to_command_listener(event:Run_Event) -> None:
@@ -42,24 +43,58 @@ class Port(AbstractNetworkComponent):
 
 
 class NetBIOSGroupDC:
+	methods = {Methods.QueryNamingContextOfDCThroughLDAP._name: Methods.QueryNamingContextOfDCThroughLDAP}
+
 	def __init__(self, host:'Host', group:'NetBIOSGroup'):
 		self.host = host
 		self.group = group
+
+	def get_host(self):
+		with TS.shared_lock:
+			return self.host
+
+	def get_group(self):
+		with TS.shared_lock:
+			return self.group
+
+	def get_context(self):
+		"""
+		Defines the context in which the methods will be called
+		"""
+		with TS.shared_lock:
+			context = dict()
+			context['ip'] = self.host.get_ip()
+			context['network'] = self.host.get_network().get_network_address()
+			context['interface'] = self.host.get_interface().get_interface_name()
+			return context
+
+	def display_json(self):
+		data = dict()
+		data['NetBIOS DC'] = dict()
+		return data
 
 	def auto(self):
 		"""
 		for now doesn't do anything.
 		what we want it to do:
 		+ call the ldapsearch for this machines
-		+ find the other machines that have this group
+		+ find the other machines that have this group (done in the netbios group)
 		"""
-		print("CALLED AUTO FOR DC")
+		for method in self.methods:
+			list_events = self.methods[method].create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 		pass
 
 class NetBIOSGroupPDC:
 	def __init__(self, host:'Host', group:'NetBIOSGroup'):
 		self.host = host
 		self.group = group
+
+	def display_json(self):
+		data = dict()
+		data['NetBIOS PDC'] = dict()
+		return data
 
 	def auto(self):
 		"""
@@ -76,6 +111,11 @@ class NetBIOSMBServer:
 
 		# call automatic methods listed for this object
 		# or put them in a list to be send
+
+	def display_json(self):
+		data = dict()
+		data['NetBIOS SMB server'] = dict()
+		return data
 	
 
 	def auto(self):
@@ -90,14 +130,137 @@ class NetBIOSMBServer:
 
 
 
+
+class LdapServer:
+	methods = []
+
+	def __init__(self, host:'Host', domain:str=None):
+		self.domain = domain
+		if domain is not None:
+			self.check_if_ldap_domain_components_path_is_domain_path(domain)
+
+	def get_domain(self):
+		with TS.shared_lock:
+			return self.domain
+
+	def update_domain_name(self, domain_name:str):
+		with TS.shared_lock:
+			self.domain = domain_name
+
+	def auto_function(self):
+		"""
+		The function that's responsible for calling the auto methods.
+		"""
+		return []
+
+	def get_auto_function(self):
+		return self.auto_function
+
+	
+
+	def display_json(self):
+		data = dict()
+		data['LDAP Server'] = dict()
+		data['LDAP Server']['domain'] = self.get_domain()
+		return data
+
+
+	def check_if_ldap_domain_components_path_is_domain_path(self, domain_components_path):
+		"""
+		Checks if the domain components path found in ldap
+		ex: foxriver.local... domaindnszones.foxriver.local 
+		is in fact a domain path. 
+
+		- we check for the initial word of the components path
+		- we check if the ldap server was already associated with a domain name
+		"""
+		logger.debug(f"Checking if this domain components ({domain_components_path})path is a domain name")
+		first_word_of_dcs = domain_components_path.split('.')[0]
+		with TS.shared_lock:
+			# if it doesn't start by any of these words i think it's the domain name
+			not_domain_first_words = ['DomainDNSZones', 'ForestDNSZones', 'Configuration', 'Schema']
+			if first_word_of_dcs in not_domain_first_words:
+				logger.debug(f"The domain components path started with ({first_word_of_dcs}) therefore is not a domain name")
+				return []
+			else:
+				if self.domain is not None:
+					if self.domain == domain_components_path:
+						logger.debug(f"The domain components path ({domain_components_path}) was already the domain name for the ldap server")
+					else:
+						logger.warning(f"The ldap server was associated with a different domain name ({self.get_domain()}) than the domain components path ({domain_components_path})")
+				else:
+					self.update_domain_name(domain_components_path)
+				
+			return []
+
+
+
+
+
+
+
 class NetBIOSWorkstation:
-	def __init__(self, host:'Host', hostname:str=None):
-		self.host = host
-		self.hostname = hostname
+	methods = []
+
+	def __init__(self, host:'Host'=None, hostname:str=None):
+		"""
+		Constructor of NetBIOSWorkstation. 
+		Although (invidually) host and hostname can be None.
+		They can't be both None, otherwise there is no way of 
+		identifying this workstation correctly throughout the program.
+		"""
+		if host is None and hostname is None:
+			logger.warning("Trying to create a NetBIOSWorkstation without host and hostname")
+			return []
+		self.host = host # can be None
+		self.hostname = hostname # can be None
 		self.groups_and_roles = dict() # group_name : [role1, role2]
 		self.smb_server = None
 
-		# call automatic methods listed for this one bro
+
+	def get_hostname(self):
+		with TS.shared_lock:
+			return self.hostname
+
+	def get_host(self):
+		with TS.shared_lock:
+			return self.host
+
+	def get_ip(self):
+		with TS.shared_lock:
+			host = self.get_host()
+			if host is not None:
+				return host.get_ip()
+			return None
+
+	def get_groups(self):
+		with TS.shared_lock:
+			return [group for group in self.groups_and_roles]
+
+	
+
+	# FUNCTIONS
+
+
+	def display_json(self):
+		data = dict()
+		data['NetBIOSWorkstation'] = dict()
+		data['NetBIOSWorkstation']['hostname'] = self.get_hostname()
+		data['NetBIOSWorkstation']['ip'] = self.get_ip()
+		data['NetBIOSWorkstation']['Groups'] = dict()
+		for group in self.groups_and_roles:
+			data['NetBIOSWorkstation']['Groups'][group.get_id()] = dict()
+			for role in self.get_roles_associated_to_group(group):
+				data['NetBIOSWorkstation']['Groups'][group.get_id()] = role.display_json()
+		return data
+
+	def auto(self):
+		# call the automatic methods
+		for method in self.methods:
+			list_events = method.create_run_events(self)
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
+		pass
 
 	def update_hostname(self, hostname:str):
 		"""
@@ -119,6 +282,7 @@ class NetBIOSWorkstation:
 		for this workstation listed in the netbios so far.
 		"""
 		with TS.shared_lock:
+			logger.debug(f"Associating group ({group.id}) without roles to NetBIOSWorkstation")
 			self.groups_and_roles[group] = []
 
 	def check_if_belongs_to_group(self, group:'NetBIOSGroup'):
@@ -176,6 +340,7 @@ class NetBIOSWorkstation:
 		group.
 		"""
 		with TS.shared_lock:
+			logger.debug(f"associating netbios DC group role in group ({group.id})")
 			netbios_dc = NetBIOSGroupDC(self.host, group)
 			if not self.check_if_role_already_exists_for_group(group, NetBIOSGroupDC):
 				self.add_new_role_to_group(group, netbios_dc)
@@ -183,14 +348,8 @@ class NetBIOSWorkstation:
 			return []
 
 
-
-	# PUBLIC methods
-	def get_groups(self):
-		with TS.shared_lock:
-			return [group for group in self.groups_and_roles]
-
 	def add_netbios_smb_server(self, group:'NetBIOSGroup'):
-		# check if the group is already in the class
+		# check if we alre
 		# if it isn't
 			# create the netbiosGroupsSMBServer
 			# insert the object to this group in dict
@@ -228,12 +387,11 @@ class NetBIOSWorkstation:
 		returns methods
 		"""
 		with TS.shared_lock:
+			logger.debug(f"Adding group ({group.id}) to NetBIOSWorkstation")
 			if self.check_if_belongs_to_group(group):
+				logger.debug(f"Group ({group.id}) already belonged to NetBIOSWorkstation")
 				return []
 			else:
-				print(group)
-				print(group.type)
-
 				# place the group in dict without roles
 				self.associate_new_group_without_roles(group)
 
@@ -271,16 +429,72 @@ class NetBIOSWorkstation:
 						return role
 			return []
 
+
+	def check_for_netbios_smb_server(self):
+		"""
+		Checks if this netbios workstation already is considered
+		a netbios SMB server
+		"""
+		with TS.shared_lock:
+			logger.debug(f"checking if netbios workstation has a SMB server")
+			if self.smb_server is not None:
+				logger.debug(f"netbios workstation has a SMB server")
+				return True
+
+			logger.debug(f"netbios workstation does not have a SMB server")
+			return False
+
+
+	def associate_netbios_smb_server(self, netbios_smb_server:NetBIOSMBServer):
+		"""
+		associates a netbios smb server to this netbios workstation
+		"""
+		with TS.shared_lock:
+			logger.debug(f"associating smb server to this netbios workstation")
+			self.smb_server = netbios_smb_server
+
+
+	def get_function_methods_for_netbios_smb_server(self, smb_server):
+		return smb_server.auto
+
+
+	def get_netbios_smb_server_or_create_it(self):
+		"""
+		checks for an smb server associated to this netbios workstation
+		object. If it is associated returns the object. Otherwise 
+		creates, associates and return the new object and methods.
+		"""
+		with TS.shared_lock:
+			logger.debug(f"getting or creating a NetBIOS SMB server for netbios workstation")
+			if self.check_for_netbios_smb_server():
+				logger.debug(f"netbios workstation had a NetBIOS SMB server associated")
+				return {'object':self.smb_server, 'methods':[]}
+
+			if self.host is None:
+				logger.warning("trying to create a NetBIOS SMB server for a NetBIOS workstation that doesn't have a host")
+
+			logger.debug(f"Creating new NetBIOS SMB server for NetBIOS workstation")
+			netbios_smb_server = NetBIOSMBServer(self.host)
+			methods = [self.get_function_methods_for_netbios_smb_server(netbios_smb_server)]
+			return {'object':netbios_smb_server, 'methods':methods}
+
+
+	def associate_host(self, host:'Host'):
+		with TS.shared_lock:
+			self.host = host
+
+
 	def add_netbios_smb_server(self):
 		"""
 		Add the role of netbios Smb server to this netbios workstation
-		Check if it's already there
+		Check if it's already before
 		"""
 		with TS.shared_lock:
-			if self.smb_server is not None:
-				return []
+			# create the netbios smb server object
 			netbios_smb_server = NetBIOSMBServer(self.host)
+			# associate it to this object
 			self.smb_server = netbios_smb_server
+
 			return [netbios_smb_server.auto]
 
 
@@ -292,15 +506,6 @@ class Host(AbstractNetworkComponent):
 	"""
 	#methods = {Methods.PortScan._name: Methods.PortScan}
 	methods = {Methods.NBNSIPTranslation._name: Methods.NBNSIPTranslation}
-	ports = dict()
-	hostname = None
-	ip = None
-	dc = False
-	netbios_hostname = None
-	netbios_groups = dict() # each group will hold a list of the roles this machines takes
-	DNS_hostname = None
-	fqdn = None
-	roles = dict()
 	
 	def __init__(self, path:dict, ip:str=None,hostname:str=None):
 		if hostname is not None:
@@ -309,6 +514,88 @@ class Host(AbstractNetworkComponent):
 			self.ip = ip
 		self.path = path.copy()
 		self.path['host'] = self
+		self.dc = False
+		self.netbios_hostname = None
+		self.netbios_groups = dict() # group_obj: roles
+		self.DNS_hostname = None
+		self.fqdn = None
+		self.roles = dict() # class_name: obj; ex: 'NetBIOSWorkstation':nw_obj
+		self.ports = dict()
+
+	# getters
+
+	def get_context(self):
+		"""
+		Defines the context in which the methods will be called
+		"""
+		with TS.shared_lock:
+			context = dict()
+			context['ip'] = self.get_ip()
+			context['network'] = self.get_network().get_network_address()
+			context['interface'] = self.get_interface().get_interface_name()
+			return context
+
+
+	def get_netbios_workstation_obj(self):
+		with TS.shared_lock:
+			logger.debug(f"getting netbios workstaion obj from Host ({self.ip})")
+			if self.check_if_host_has_netbios_workstation_role():
+				return self.roles['NetBIOSWorkstation']
+			logger.debug(f"Host ({self.ip}) had no netbios workstation machine associated")
+			return None
+
+	def get_netbios_hostname(self):
+		"""
+		checks if the host has the netbios workstation role
+		checks if the netbios workstation object has a hostname
+		returns the hostname
+		"""
+		with TS.shared_lock:
+			logger.debug(f"getting netbios hostname for Host ({self.ip})")
+			nw_obj = self.get_netbios_workstation_obj()
+			if nw_obj is None:
+				logger.debug(f"host ({self.ip}) doesn't have an associated netbios workstation")
+				return None
+			if nw_obj.get_hostname() is None:
+				logger.debug(f"host ({self.ip}) netbios workstation doesn't have a Hostname")
+				return None
+			logger.debug(f"host ({self.ip}) netbios hostname is ({nw_obj.get_hostname()})")
+			return nw_obj.get_hostname()
+		return None
+
+	def get_ip(self):
+		return self.ip
+
+	def get_root(self):
+		return self.path['root']
+
+	def get_interface(self):
+		return self.path['interface']
+
+	def get_network(self):
+		return self.path['network']
+
+	def get_host(self):
+		return self.path['host']
+
+	
+
+	"""
+	Functions
+	"""
+				
+
+	def display_json(self):
+		data = dict()
+		data['Host'] = dict()
+		data['Host']['ip'] = self.get_ip()
+		data['Host']['hostname'] = self.get_netbios_hostname()
+		data['Host']['roles'] = list()
+		# for each role i want to show what it has
+		for role_name in self.roles:
+			data['Host']['roles'].append(self.roles[role_name].display_json())
+		return data
+
 
 	def to_str(self):
 		return f"{self.hostname}"
@@ -318,38 +605,10 @@ class Host(AbstractNetworkComponent):
 
 	def auto(self):
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self)
+			list_events = self.methods[method].create_run_events(self, self.get_context())
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 		pass
-
-	def update_hostname(self, hostname:str):
-		if self.hostname is not None:
-			if self.hostname != hostname:
-				print("Found new hostname: {hostname} for host with ip: {self.ip} and hostname {self.hostname}")
-		else:
-			self.hostname = hostname
-			# TODO - CALL AUTO METHODS FOR THIS (NOTHING FOR NOW)
-
-	def get_ip(self):
-		return self.ip
-
-	def updateComponent(self, add_nc:AbstractNetworkComponent):
-		if isinstance(add_nc, Port):
-			if add_nc.port_number in self.ports:
-				pass
-			else:
-				self.ports[add_nc.port_number] = add_nc
-				if not self.dc:
-					dc_services = ['domain', 'kerberos-sec', 'msrpc', 'ldap', 'microsoft-ds']
-					# Check if all elements are in the dictionary
-					all_present = all(service in services_dict for service in dc_services)
-					if all_present:
-						self.dc = True
-						print(f"[+] We found a new DC with ip: {self.ip}")
-
-		else:
-			raise SE.NoUpdateComponentForThatClass()
 
 
 	def merge_host_ip_with_another_host_hostname(self, host_hostname:'Host'):
@@ -394,12 +653,6 @@ class Host(AbstractNetworkComponent):
 		"""
 		return []
 
-	def update_netbios_group(self, group_name:str):
-		if group_name in self.netbios_groups:
-			pass
-		elif group_name not in self.netbios_groups:
-			self.netbios_groups[group_name] = list() # emtpy list
-
 	def add_role_to_netbios_group(self, role:str, group:str):
 		if group not in self.netbios_groups:
 			self.netbios_groups[group] = list()
@@ -419,30 +672,42 @@ class Host(AbstractNetworkComponent):
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 		
-
 	def found_hostname_methods(self, hostname:str):
 		"""
 		the methods for when we found a hostname
 		"""
 		return [] # for now
 
-	def check_if_ldap_domain_components_path_is_domain_path(self, domain_components_path):
+
+	def add_role_ldap_server(self):
 		"""
-		Checks if the domain components path found in ldap
-		ex: foxriver.local... domaindnszones.foxriver.local 
-		is in fact a domain path. 
-		For this we check if we belong to any group of netbios 
-		that starts with the same word. 
-		in our case the host will belong to foxriver and so 
-		'foxriver.local' is in fact a domain name 
+		adds a ldap server role to this host.
 		"""
-		first_word_of_dcs = domain_components_path.split('.')[0]
 		with TS.shared_lock:
-			for group in self.netbios_groups:
-				if first_word_of_dcs.lower() == group.lower():
-					print(f"FOUND IT: DOMAIN NAME: {domain_components_path}")
-					return []
-			return []
+			logger.debug(f"Adding a ldap server role to this host ({self.get_ip()})")
+			self.roles['ldap server'] = LdapServer(self)
+			return self.roles['ldap server']
+
+	def get_ldap_server(self):
+		with TS.shared_lock:
+			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
+			if 'ldap server' not in self.roles:
+				logger.debug(f"Host ({self.get_ip()}) didn't have a ldap server")
+				return None
+			return self.roles['ldap server']
+
+	def get_or_add_role_ldap_server(self):
+		"""
+		If this host already has a role of ldap server returns the 
+		ldap server object. Otherwise, creates and associates a new one
+		"""
+		with TS.shared_lock:
+			ldap_server = self.get_ldap_server()
+			if ldap_server is None:
+				ldap_server = self.add_role_ldap_server()
+				auto_function = ldap_server.get_auto_function()
+				return {'object': ldap_server, 'methods':[auto_function]}
+			return {'object':ldap_server, 'methods': []}
 
 
 	def add_role_netbios_workstation(self, netbios_hostname):
@@ -457,36 +722,45 @@ class Host(AbstractNetworkComponent):
 				print("host is now considered also a netBIOS workstations")
 
 
+	def associate_NetBIOSWorkstation(self, netbios_workstation:NetBIOSWorkstation):
+		"""
+		associates the netbios workstaiton to this host, 
+		returns the automatic methods for the netbios workstation
+
+		Updates the NetBIOSWorkstation object to point to this host
+		as well
+		"""
+		with TS.shared_lock:
+			logger.debug(f"Associating netbios workstation to Host ({self.ip})")
+			self.roles['NetBIOSWorkstation'] = netbios_workstation
+
+			netbios_workstation.associate_host(self)
+
+			return [netbios_workstation.auto]
+
+
+
+	def check_if_host_has_netbios_workstation_role(self):
+		with TS.shared_lock:
+			logger.debug(f"checking if host ({self.ip}) has a netbios workstation role")
+			if 'NetBIOSWorkstation' not in self.roles:
+				logger.debug(f"Host ({self.ip}) does not have a netbios workstation role")
+				return False
+			logger.debug(f"Host ({self.ip}) has a netbios workstation role")
+			return True
+
 	def add_role_netbios_workstation(self, hostname=None):
 		"""
 		Adds the role of netbios workstation to the host.
 		It also creates the object, hostname might be empty. 
 		"""
 		with TS.shared_lock:
-			if 'NetBIOSWorkstation' not in self.roles:
-				netbios_workstation_obj = NetBIOSWorkstation(self, hostname)
-				self.roles['NetBIOSWorkstation'] = netbios_workstation_obj
+			logger.debug(f"Host ({self.ip}) adding netbios workstation role")
+			if self.check_if_host_has_netbios_workstation_role():
+				logger.debug(f"Host ({self.ip}) already had netbios workstation role")
 
-
-	# getters and setters
-
-	def get_netbios_workstation_obj(self):
-		with TS.shared_lock:
-			if 'NetBIOSWorkstation' in self.roles:
-				return self.roles['NetBIOSWorkstation']
-			return None
-
-	def get_root(self):
-		return self.path['root']
-
-	def get_interface(self):
-		return self.path['interface']
-
-	def get_network(self):
-		return self.path['network']
-
-	def get_host(self):
-		return self.path['host']
+			netbios_workstation_obj = NetBIOSWorkstation(self, hostname)
+			self.roles['NetBIOSWorkstation'] = netbios_workstation_obj
 
 
 
@@ -502,6 +776,16 @@ class NetBIOSGroup():
 		self.id = group_name.lower()+'#'+group_type
 		self.associated = None # the object to which is associated (network / wins server)
 
+	def get_id(self):
+		with TS.shared_lock:
+			return self.id
+
+	def display_json(self):
+		data = dict()
+		data['NetBIOSGroup'] = dict()
+		data['NetBIOSGroup']['id'] = self.id
+		return data
+
 	def add_group_member(self):
 		"""
 		Function to add a group member to a netBIOS group
@@ -509,7 +793,7 @@ class NetBIOSGroup():
 		"""
 		pass
 
-	def auto_methods(self):
+	def auto(self):
 		"""
 		Defines the functions that runs the automatic methods 
 		for when we find a new netBIOS group.
@@ -525,8 +809,8 @@ class NetBIOSGroup():
 		list_events = []
 		for method in methods:
 			list_events += method.create_run_events(self)
-		for event in list_events:
-			throw_run_event_to_command_listener(event)
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 
 	def associate_with_object(self, obj):
 		"""
@@ -549,19 +833,74 @@ class Network(AbstractNetworkComponent):
 
 	"""
 	methods = {Methods.ArpScan._name: Methods.ArpScan}
-	#methods = {}
-	network_address = None
-	hosts = None
-	path = None
-	netbios_groups = dict()
 	
 	def __init__(self, network_address:str, path:dict):
 		self.network_address = network_address
 		#TODO: search for hosts using ip address
 		self.hosts = {}
 		self.hostnames = {} # point to the same hosts as hosts, but uses hostnames
+		self.netbios_workstations = []
 		self.path = path.copy()
 		self.path['network'] = self
+		self.netbios_groups = dict() # group id : group object
+		self.netbios_workstations = [] # [netbiosworkstation_obj, netbiosworkstaiton_obj]
+
+	def get_context(self):
+		"""
+		Defines the context in which the methods will be called
+		"""
+		with TS.shared_lock:
+			context = dict()
+			context['network'] = self.get_network_address()
+			context['interface'] = self.get_interface().get_interface_name()
+			return context
+
+	def get_network_address(self):
+		n_a = None
+		with TS.shared_lock:
+			n_a = self.network_address
+		return n_a
+
+	def get_host_through_ip(self, ip):
+		with TS.shared_lock:
+			logger.debug(f"getting host associated to the network ({self.network_address}) through ip ({ip})")
+			if ip not in self.hosts:
+				logger.debug(f"This network ({self.network_address}) is not associated with a host with ip: ({ip})")
+				return None
+			return self.hosts[ip]
+
+	def get_root(self):
+		return self.path['root']
+
+	def get_interface(self):
+		return self.path['interface']
+
+	def get_network(self):
+		return self.path['network']
+
+	def to_str(self):
+		return f"{self.network_address}"
+
+
+	# Functions
+
+	def display_json(self):
+		data = dict()
+		data['network'] = dict()
+		data['network']['address'] = self.network_address
+		data['network']['netbios groups'] = list()
+		for netbios_group_id in self.netbios_groups:
+			# change I want to see who's in the group
+			data['network']['netbios groups'].append(self.netbios_groups[netbios_group_id].id)
+		data['network']['Hosts'] = list()
+		for host_ip in self.hosts:
+			# i want to see what's in the ip 
+			data['network']['Hosts'].append(self.hosts[host_ip].display_json())
+		data['network']['netbios workstations'] = list()
+		for netbios_workstation in self.netbios_workstations:
+			# i want to see each of the roles
+			data['network']['netbios workstations'].append(netbios_workstation.display_json())
+		return data
 
 	def auto(self):
 		print("auto network")
@@ -575,7 +914,6 @@ class Network(AbstractNetworkComponent):
 	def add_our_ip(self, ip:str):
 		self.our_ip = ip
 
-	# LOCK
 	def attach_host(self, ip:str):
 		with TS.shared_lock:
 			if ip in self.hosts:
@@ -587,25 +925,62 @@ class Network(AbstractNetworkComponent):
 				self.hosts[ip] = new_host
 				return new_host
 
-	# PLEASE USE A LOCK
+
 	def check_for_host_with_ip(self, host_ip:str):
 		"""
 		if host exists, return the object
 		"""
-		if host_ip in self.hosts:
-			return {'exists':'yes', 'object':self.hosts[host_ip]}
-		return {'exists':'no'}
+		with TS.shared_lock:
+			logger.debug(f"checking if host ({host_ip}) exists for this network ({self.network_address})")
+			if host_ip in self.hosts:
+				logger.debug(f"host ({host_ip}) exists for this network ({self.network_address})")
+				return {'exists':'yes', 'object':self.hosts[host_ip]}
+			logger.debug(f"host ({host_ip}) does not exist for this network ({self.network_address})")
+			return {'exists':'no'}
 
-	# PLEASE USE A LOCK
+
 	def create_host_with_ip(self, ip:str):
 		"""
 		creates the host; attaches it to the network obj;
 		returns the list of methods to run
 		"""
-		new_host_obj = Host(ip=ip, path=self.path)
-		self.hosts[ip] = new_host_obj
-		res = {'object': new_host_obj, 'methods':self.found_ip_host_methods(new_host_obj)}
-		return res
+		with TS.shared_lock:
+			logger.debug(f"creating host ({ip}) for this network ({self.network_address})")
+			new_host_obj = Host(ip=ip, path=self.path)
+
+			self.hosts[ip] = new_host_obj
+			res = {'object': new_host_obj, 'methods':self.found_ip_host_methods(new_host_obj)}
+			return res
+
+	def get_ip_host_or_create_it(self, ip):
+		"""
+		gets the host object, if it exists. Otherwise, creates
+		a new host object for this network. 
+
+		returns: dict with 'object' (NONE: if the IP is the same
+		as OUR IP in this network) and 'methods' (if object 
+		is new)
+		"""
+		# if host doesn't exist create it and get methods
+		with TS.shared_lock:
+			logger.debug(f'get/create host with ip ({ip})')
+			answer = self.check_for_host_with_ip(ip)
+
+			if answer['exists'] == 'no': # if it doesn't exist
+				logger.debug(f'Host ({ip}) didnt exist for this network {self.network_address}')
+				# if it's 'our ip' in the network
+				if self.our_ip == ip:
+					logger.debug(f"Host ({ip}) is our IP for this network {self.network_address}")
+					#logger.debug("[Network Component]: IP to retrive is the same as OUR IP in the network!!!")
+					return {'object':None, 'methods':[]}
+
+
+				answer = self.create_host_with_ip(ip)
+				return answer
+			# the host already existed, no methods found
+			else:
+				logger.debug(f'host ({ip}) already existed for this network returning that object')
+				return {'object': answer['object'], 'methods': []}
 
 	# PLEASE USE A LOCK
 	def found_ip_host_methods(self, host:Host):
@@ -618,58 +993,111 @@ class Network(AbstractNetworkComponent):
 	def reference_new_host_using_NetBIOS_hostname(self, host:Host, hostname:str):
 		self.hostnames[hostname] = host
 	
-	def attach_NetBIOS_hostname_to_ip_host(self, hostname:str, ip:str) -> list:
-		# TODO: check if the hostname didn't already exist in the self.hostnames
-		# get the host with the ip
-		ip_host = self.hosts[ip]
-		
-		# check if the host with that hostname exists, 
-		if ip_host.hostname != None:
-			# we found a different one
-			if ip_host.hostname != hostname:
-				print(f"We found a new hostname {hostname} for a host {ip} that already had a hostname {self.hostname}")
-				return []
-			# we found the same one
-			if ip_host.hostname == hostname:
+
+	def associate_netbios_workstation_to_ip_host_through_hostname(self, hostname:str, ip:str):
+		"""
+		checks if the IP host is already associated to a netbios workstation
+		if it is:
+			check if the hostname of that workstaiton is the same as the
+			argument
+		if not:
+			check if there is already a netbios workstation with this hostname
+			if exists:
+				associate it with the ip host
+			if no:
+				create it 
+				associate it with the ip host
+		"""
+		with TS.shared_lock:
+			logger.debug(f"associating netbios workstation ({hostname}) to Host ({ip})")
+			ip_host = self.get_host_through_ip(ip)
+			nw_obj = ip_host.get_netbios_workstation_obj()
+
+			# if host is associated with a netbios machine 
+			if nw_obj is not None:
+				logger.debug(f"Host ({ip}) already had a netbios workstation obj associated")
+				if nw_obj.get_hostname() is not None and nw_obj.get_hostname() == hostname:
+					logger.debug(f"Host ({ip}) was already associated to this netbios workstation")
+				else:
+					logger.warning(f"Host ({ip}) is associated to a different netbios workstation")
 				return []
 
-		# check if the hostname was referencing a host
-		if hostname in self.hostnames:
-			# merge information with the ip host (will give methods)
-			ip_host.merge_host_ip_with_another_host_hostname(self.hostnames[hostname])
-			# update the hostname referencing
-			self.reference_new_host_using_NetBIOS_hostname(host=ip_host, hostname=hostname)
+			answer = self.get_or_create_netbios_workstation_through_hostname(hostname)
+			nw_obj = answer['object']
+			auto_functions = answer['methods']
+
+			auto_functions += ip_host.associate_NetBIOSWorkstation(nw_obj)
+			return auto_functions
+
+
+	def check_if_NetBIOSWorkstation_is_associated(self, netbios_wk:NetBIOSWorkstation):
+		"""
+		How we check if a netbios workstation is already associated
+		to this network object
+		"""		
+		with TS.shared_lock:
+			logger.debug(f"checking if network ({self.network_address}) has the netbios workstation")
+			if netbios_wk in self.netbios_workstations:
+				logger.debug(f"network ({self.network_address}) has the netbios workstation")
+				return True
+
+			logger.debug(f"network ({self.network_address}) does not have the netbios workstation")
+			return False
+
+
+	def check_if_NetBIOSWorkstation_is_associated_through_hostname(self, hostname:str):
+		"""
+		Checks if the network object has a netbios workstation 
+		with such a hostname.
+		If it does returns the object
+		"""
+		with TS.shared_lock:
+			logger.debug(f"checking if network ({self.network_address}) has a netbios workstation with hostname: ({hostname})")
+			for netbios_wk in self.netbios_workstations:
+				if netbios_wk.hostname is not None:
+					if netbios_wk.hostname == hostname:
+						logger.debug(f"network ({self.network_address}) has a netbios workstation with hostname: ({hostname})")
+						return netbios_wk
+			logger.debug(f"network ({self.network_address}) does NOT have a netbios workstation with hostname: ({hostname})")
+			return None
+
+
+	def associate_NetBIOSWorkstation(self, netbios_wk:NetBIOSWorkstation):
+		"""
+		Associates a NetBIOSWorkstation with this network object
+		we will keep it in our list of netbios workstation objects
+
+		returns list of function 
+		"""
+		with TS.shared_lock:
+			logger.debug(f"associating netbios workstation to network ({self.network_address})")
+			self.netbios_workstations.append(netbios_wk)
+			# the methods to call for netbios_workstations
+			# methods = [self.netbios_workstation.auto]
 			return []
 
-		# if it's a completely new hostname
-		else: 
-			# update the hostname in host
-			ip_host.update_hostname(hostname)
-			# reference a host using hostname
-			self.reference_new_host_using_NetBIOS_hostname(host=ip_host, hostname=hostname)
-			return ip_host.found_hostname_methods(hostname)
+
+	def get_or_create_netbios_workstation_through_hostname(self, hostname:str):
+		"""
+		Checks if the network object has a network workstation with such 
+		a hostname. If it does returns it, if it doesn't creates it, 
+		associates it and returns it.
+		"""
+		with TS.shared_lock:
+			logger.debug(f"associating netbios workstation with hostname ({hostname}) to network ({self.network_address})")
+			obj = self.check_if_NetBIOSWorkstation_is_associated_through_hostname(hostname)
+			if obj != None:
+				return {'object':obj, 'methods': []}
+
+			# create the netbios workstation object
+			new_nw_obj = NetBIOSWorkstation(host = None, hostname = hostname)
+			methods = [new_nw_obj.auto]
+
+			# associate the object to this network
+			self.associate_NetBIOSWorkstation(new_nw_obj)
+			return {'object': new_nw_obj, 'methods': methods}
 
 
-	"""
-	returns:
-	+ host object
-	+ auto methods to call (only if we found something new)
-	"""
-	def found_NetBIOS_hostname(self, hostname:str):
-		if hostname in self.hostnames:
-			return {'object':self.hostnames[hostname], 'methods':[]}
-		else:
-			# create hostname
-			host_hostname = Host(hostname=hostname, path=self.path)
-			# reference it
-			self.reference_new_host_using_hostname(host=host_hostname, hostname=hostname)
-			methods_to_call = host_hostname.found_hostname_methods(hostname)
-			return {'object':host_hostname, 'methods':methods_to_call}
-
-	def get_host_with_ip(self, ip:str):
-		if ip not in self.hosts:
-			return None
-		return self.hosts[ip]
 
 	def updateComponent(self, add_nc:AbstractNetworkComponent):
 		if isinstance(add_nc, Host):
@@ -704,28 +1132,6 @@ class Network(AbstractNetworkComponent):
 				self.netbios_groups[group_id] = group
 
 
-	"""
-	getters and setters
-	"""    
-
-	def get_network_address(self):
-		n_a = None
-		with TS.shared_lock:
-			n_a = self.network_address
-		return n_a
-
-	def get_root(self):
-		return self.path['root']
-
-	def get_interface(self):
-		return self.path['interface']
-
-	def get_network(self):
-		return self.path['network']
-
-	def to_str(self):
-		return f"{self.network_address}"
-
 
 
 class Interface(AbstractNetworkComponent):
@@ -735,7 +1141,6 @@ class Interface(AbstractNetworkComponent):
 	- responder analyzer (more on this later)
 	"""
 	methods = {}
-	path = {}
 
 	def __init__(self, interface_name:str, path:dict):
 		self.interface_name = interface_name
@@ -743,9 +1148,28 @@ class Interface(AbstractNetworkComponent):
 		self.path = path.copy()
 		self.path['interface'] = self
 
+	def get_context(self):
+		"""
+		Defines the context in which the methods will be called
+		"""
+		with TS.shared_lock:
+			context = dict()
+			context['interface'] = self.get_interface_name()
+			return context 
+
+	def display_json(self):
+		data = dict()
+		data['interface'] = dict()
+		data['interface']['name'] = self.interface_name
+		data['interface']['networks'] = list()
+		for network_name in self.networks:
+			data['interface']['networks'].append(self.networks[network_name].display_json())
+		return data
+
 	def add_network(self, network:Network):
 		# TODO: check if already exists
 		self.networks[network.network_address] = network
+
 
 	# LOCK
 	def attach_network(self, network_name:str):
@@ -763,8 +1187,9 @@ class Interface(AbstractNetworkComponent):
 		"""
 		if network exists, return the object
 		"""
-		if network_name in self.networks:
-			return {'exists': 'yes', 'object': self.networks[network_name]}
+		with TS.shared_lock:
+			if network_name in self.networks:
+				return {'exists': 'yes', 'object': self.networks[network_name]}
 		return {'exists':'no'}
 
 	def create_network_with_network_str(self, network_name:str):
@@ -773,9 +1198,30 @@ class Interface(AbstractNetworkComponent):
 		returns the list of methods to run
 		"""
 		new_network_obj = Network(network_name, self.path)
-		self.networks[network_name] = new_network_obj
+		with TS.shared_lock:
+			# call function that attaches a new network TODO 
+			self.networks[network_name] = new_network_obj
 		res = {'object': new_network_obj, 'methods':self.found_network_methods(new_network_obj)}
 		return res
+
+	def get_network_or_create_it(interface_obj, network_str):
+		"""
+		retrieves the network object with network_str, if 
+		it exists for this interface. Otherwise, creates a new 
+		object network.
+
+		returns: dict with 'object' and 'methods' (if we created a 
+		new network obj)
+		"""
+		# if network doesn't exist create it and get methods
+		with TS.shared_lock:
+			answer = interface_obj.check_for_network_str(network_str)
+			if answer['exists'] == 'no': # doesn't exist
+				# create the interface, and get the auto methods
+				answer = interface_obj.create_network_with_network_str(network_str)
+				return answer
+			else: # it exists
+				return {'object':answer['object'], 'methods':[]}
 
 	def found_network_methods(self, network:Network):
 		"""
@@ -852,6 +1298,13 @@ class Root(AbstractNetworkComponent):
 		self.interfaces = {}
 		self.path = {'root':self} # the path to this object
 
+	def display_json(self):
+		data = dict()
+		for _int in self.interfaces:
+			interface = self.interfaces[_int]
+			data['interface'] = interface.display_json()
+		return data
+
 	def add_interface(self, interface:Interface):
 		# call the methods from the interface
 		self.interfaces[interface.interface_name] = interface
@@ -898,6 +1351,24 @@ class Root(AbstractNetworkComponent):
 		MUST BE A LIST
 		"""
 		return [interface.auto]
+
+
+	def get_interface_or_create_it(self, interface_name:str):
+		"""
+		Retrieves the existing interface, if it exists, or 
+		creates a new one.
+
+		returns a dictionary with 'object' and 'methods' (in case
+		of new interface)
+		"""
+		# if interface doesn't exist create it and get methods
+		with TS.shared_lock:
+			answer = self.check_for_interface_name(interface_name)
+			if answer['exists'] == 'no': # doesn't exist
+				answer = self.create_interface_with_name(interface_name)
+				return answer # returns the same type of object
+			else:
+				return {'object':answer['object'], 'methods':[]}
 		
 
 	# TODO: do with lock
@@ -915,6 +1386,8 @@ class Root(AbstractNetworkComponent):
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 
+
+	# getters
 
 	def get_root(self):
 		return self.path['root']

@@ -27,9 +27,6 @@ class ResponderAnalyzeInterface(AbstractMethod):
 		output_file = ResponderAnalyzeInterface._filename
 
 		cmd = f"sudo responder -AI {interface.interface_name}"
-
-		print(f"\033[31m[{method_name}]:\033[0m command to run: {cmd}")
-		print(f"\033[31m[{method_name}]:\033[0m output file: {output_file}")
 		
 		# create the event and send it to the event-thread
 		new_event = Run_Event(type='run', command=cmd, method=ResponderAnalyzeInterface, nc=interface)
@@ -131,14 +128,15 @@ class NBNSIPTranslation(AbstractMethod):
 		return f"{NBNSIPTranslation._name}"
 
 	@staticmethod
-	def create_run_events(nc:AbstractNetworkComponent) -> list:
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
 		"""
 		nc should be a livehost. 
 		"""
-		# get context
-		context = NBNSIPTranslation.get_context(nc)
-		if len(context) == 0:
-			return []
+		if context is None:
+			# get context
+			context = NBNSIPTranslation.get_context(nc)
+			if len(context) == 0:
+				return []
 
 		context_ip_address = context['ip']
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -152,7 +150,7 @@ class NBNSIPTranslation(AbstractMethod):
 	def get_context(nc:AbstractNetworkComponent):
 		# get the host object (if it wasn't a host sending this)
 		host_with_ip = nc.get_host().ip
-		print(f"calling nbns host: {nc.get_host()} with ip: host_with_ip {host_with_ip}")
+	
 		network_name = nc.get_network().network_address
 		interface_name = nc.get_interface().interface_name
 		if host_with_ip is None or network_name is None:
@@ -174,14 +172,15 @@ class QueryNamingContextOfDCThroughLDAP(AbstractMethod):
 		return f"{QueryNamingContextOfDCThroughLDAP._name}"
 
 	@staticmethod
-	def create_run_events(nc:AbstractNetworkComponent) -> list:
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
 		"""
 		nc should be a livehost. 
 		"""
-		# get context
-		context = QueryNamingContextOfDCThroughLDAP.get_context(nc)
-		if len(context) == 0:
-			return []
+		if context is None:
+			# get context through the function
+			context = QueryNamingContextOfDCThroughLDAP.get_context(nc)
+			if len(context) == 0:
+				return []
 
 		context_ip_address = context['ip']
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -219,16 +218,17 @@ class ArpScan(AbstractMethod):
 
 
 	@staticmethod
-	def create_run_events(nc:AbstractNetworkComponent) -> list:
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
 		"""
 		nc should be a Network (component) for us to be able
 		to get the network address.
 		"""
 
-		# get context
-		context = ArpScan.get_context(nc)
-		if len(context) == 0:
-			return []
+		if context is None:
+			# get context
+			context = ArpScan.get_context(nc)
+			if len(context) == 0:
+				return []
 
 		# get the str of the network addresss
 		context_net_address = context['network']

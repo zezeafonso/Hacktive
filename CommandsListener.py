@@ -14,7 +14,7 @@ from LoggingConfig import logger
 
 def get_event_from_the_command_queue():
 	event = TS.cmd_queue.get() # blocking
-	logger.debug(f"[Commands Listener]: received event")
+	logger.debug(f"received event")
 	return event
 
 def send_sentinel_to_output_listener_thread():
@@ -23,13 +23,13 @@ def send_sentinel_to_output_listener_thread():
 def handle_done_events_from_output_listener_thread(thread_pool):
 	# if there is no command for analysis and no command to be read from the queue -> finish
 	if TS.cmd_queue.empty() and TS.check_if_there_are_no_commands_for_analysis():
-		logger.info("[Commands Listener]: Finishing...")
-		logger.info("[Commands Listener]: shutting down the pool")
+		logger.info("Finishing...")
+		logger.info("shutting down the pool")
 
 		thread_pool.shutdown(wait=True) # shutdown the pool
 		send_sentinel_to_output_listener_thread()
 
-		logger.info("[Commands Listener: sending 'Done' to output]")
+		logger.info("sending 'Done' to output")
 		return 0
 	return 1
 
@@ -97,7 +97,7 @@ def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComp
 
 def submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context):
 	thread_pool.submit(thread_pool_run_normal_command, out_file, cmd, nc, method, context)
-	logger.debug(f"[Commands Listener] submitted to the thread pool: {cmd}")
+	logger.debug(f" submitted to the thread pool: {cmd}")
 
 
 def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
@@ -105,12 +105,12 @@ def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
 		TS.add_command_to_commands_for_analysis(cmd)
 		submit_new_cmd_to_thread_pool(thread_pool, out_file, cmd, method, nc, context)
 	else:
-		logger.warning(f"[Commands Listener] {cmd} was already run!!")
+		logger.warning(f" {cmd} was already run!!")
 
 
 
 def commands_listener(thread_pool:ThreadPoolExecutor):
-	logger.info(f"[Commands listener]: up")
+	logger.info(f"going inside the while Loop")
 
 	while True:
 		event = get_event_from_the_command_queue() # blocking

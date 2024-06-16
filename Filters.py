@@ -154,7 +154,14 @@ class NBNSGroupMembers_Filter(AbstractFilter):
 	def filter(output:str) -> list:
 		findings = []
 
-		print("THE FILTER FOR NBNS GROUP MEMBER WAS CALLED")
+		# regular expression - ip group<type>
+		pattern = re.compile(r'(\d+\.\d+\.\d+\.\d+)\s+(\w+)<(00|1c)>')
+
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, match.group(2), match.group(3), match.group(1)))
+		
 		return findings
 
 
@@ -188,7 +195,6 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 			findings.append(FO.Filtered_FoundNetBIOSHostnameForIP({}, hostname=match, ip=ip_address))
 
 		for match in matches_group:
-			print(f"MATCH FOR FILTER: {match}")
 			group = match[0]
 			_type = match[1]
 			findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, group, _type, ip=ip_address))
@@ -199,7 +205,6 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		for match in matches_1b:
 			findings.append(FO.Filtered_FoundPDCIPForNetBIOSGroup({}, group=match, ip=ip_address))
 
-		print(f"findings: {findings}")
 		return findings
 
 

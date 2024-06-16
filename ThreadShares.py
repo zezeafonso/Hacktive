@@ -65,7 +65,7 @@ def add_pid_to_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock) -> None:
 	if cmd in cmd_pid_dict:
 		raise SE.CommandAlreadyBeingRun(f"command: {cmd}, already in shared_dict!")
 	cmd_pid_dict[cmd] = pid
-	logger.debug(f"[TS] added pid {pid} to cmd_pid")
+	logger.debug(f"added pid {pid} to cmd_pid")
 
 
 def del_pid_from_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock):
@@ -74,7 +74,7 @@ def del_pid_from_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock):
 	if cmd not in cmd_pid_dict:
 		raise SE.CommandNotBeingRun(f"command: {cmd}, not being run")
 	cmd_pid_dict.pop(cmd)
-	logger.debug(f"[TS] removed {pid} from cmd_pid")
+	logger.debug(f"removed {pid} from cmd_pid")
 
 
 def know_if_commands_was_already_run(cmd):
@@ -85,7 +85,7 @@ def know_if_commands_was_already_run(cmd):
 	global shared_lock
 
 	with shared_lock:
-		logger.debug(f"[TS]: knowing if command {cmd} was already run")
+		logger.debug(f" knowing if command {cmd} was already run")
 		res = cmd in commands_run_set
 	return res
 
@@ -101,7 +101,7 @@ def add_command_to_commands_for_analysis(cmd):
 	global shared_lock
 
 	with shared_lock:
-		logger.debug(f"[TS]: adding command for analysis")
+		logger.debug(f" adding command for analysis")
 		commands_for_analysis_list.append(cmd)
 
 def remove_command_from_commands_to_analyze(cmd):
@@ -109,19 +109,19 @@ def remove_command_from_commands_to_analyze(cmd):
 	global shared_lock
 
 	with shared_lock:
-		logger.debug(f"[TS]: removing {cmd} from the commands to analyze")
+		logger.debug(f" removing {cmd} from the commands to analyze")
 		for command in commands_for_analysis_list:
 			if command == cmd:
 				commands_for_analysis_list.remove(cmd)
 				return 
-		logger.warning(f"[TS]: {cmd} wasn't present in the commands to be analyzed")
+		logger.warning(f" ({cmd}) wasn't present in the commands to be analyzed")
 
 def check_if_there_are_no_commands_for_analysis():
 	global commands_for_analysis_list
 	global shared_lock
 
 	with shared_lock:
-		logger.debug(f"[TS]: checking if there are still commands to analyze")
+		logger.debug(f" checking if there are still commands to analyze")
 		if len(commands_for_analysis_list) == 0:
 			res = True
 		else:

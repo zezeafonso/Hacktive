@@ -14,3 +14,9 @@ scripts/
 # ignore the logs
 debug.log
 app.log
+
+# ignore the final output json
+final.json
+
+# ignore the states
+states/
