@@ -110,6 +110,13 @@ def handle_normal_command(thread_pool, out_file, cmd, method, nc, context):
 
 
 def commands_listener(thread_pool:ThreadPoolExecutor):
+	"""
+	Function of the thread that will be listening 
+	to command events.
+
+	Should handle the command event and the sentinel from 
+	the output thread as well
+	"""
 	logger.info(f"going inside the while Loop")
 
 	while True:

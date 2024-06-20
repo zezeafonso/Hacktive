@@ -125,6 +125,47 @@ class PortScan_Filter(AbstractFilter):
 		return [], []
 
 
+class CheckIfSMBServiceIsRunning_Filter(AbstractFilter):
+	_name = 'smb service scan filter'
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+
+		# output we're trying to parse
+		# 445/tcp open  microsoft-ds
+
+		# regular expression - ip group<type>
+		pattern = re.compile(r'(\d+)\/(tcp|udp)\s+open\s+microsoft-ds')
+
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_SMBServiceIsUp(port=match.group(1)))
+		
+		return findings
+
+
+
+class CheckIfMSRPCServiceIsRunning_Filter(AbstractFilter):
+	_name = 'msrpc service scan filter' 
+
+	@staticmethod 
+	def filter(output:str) -> list:
+		findings = []
+
+		# output we're trying to parse
+		# 135/tcp open ms-rpc
+
+		pattern = re.compile(r'(\d+)\/(tcp|udp)\s+open\s+msrpc')
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_MSRPCServiceIsUp(port=match.group(1)))
+
+		return findings
+
+
 
 
 class ArpScan_Filter(AbstractFilter):

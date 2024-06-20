@@ -133,18 +133,108 @@ class NetBIOSMBServer:
 
 
 
+class SMBServer:
+	"""
+	If we find a host that is launching an SMB service 
+	this class will represent it's server.
+	The port for SMB will be 445 (usually)
+	"""
+	methods = []
+
+	def __init__(self, host='Host', port=str):
+		self.host = host
+		self.shares = list() # list of shares in the SMB server
+		self.port = port # might be None
+
+	def display_json(self):
+		with TS.shared_lock:
+			data = dict()
+			data['SMB Server'] = dict()
+			data['SMB Server']['port'] = self.port
+			data['SMB Server']['shares'] = list()
+			for share in self.shares:
+				data['SMB Server']['shares'].append(share.display_json())
+			return data
+
+	def auto_function(self):
+		"""
+		The function that's responsible for calling the auto methods.
+		"""
+		for method in self.methods:
+			list_events = self.methods[method].create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
+		
+
+	def get_auto_function(self):
+		return self.auto_function
+
+
+
+class MSRPCServer:
+	"""
+	If we find a host that is launching an RPC service 
+	this class will represent it's server.
+	The port for MSRPC is usually 
+	"""
+	methods = []
+
+	def __init__(self, host='Host', port=str):
+		self.host = host
+		self.shares = list() # list of shares in the SMB server
+		self.port = port # might be None
+
+	def display_json(self):
+		with TS.shared_lock:
+			data = dict()
+			data['MSRPC Server'] = dict()
+			data['MSRPC Server']['port'] = self.port
+			return data
+
+	def auto_function(self):
+		"""
+		The function that's responsible for calling the auto methods.
+		"""
+		for method in self.methods:
+			list_events = self.methods[method].create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
+		
+
+	def get_auto_function(self):
+		return self.auto_function
+
+
 
 class LdapServer:
-	methods = []
+	"""
+	If we find that a host is in fact a ldap server.
+	We want to check if it is a domain controller for active directory.
+	We will check if the services of a domain controller are open.
+
+	kerberos: 88 
+	dns: 53 
+	smb: 139
+	msrpc: 135
+	"""
+	methods = [Methods.CheckIfSMBServiceIsRunning, Methods.CheckIfMSRPCServiceIsRunning]
 
 	def __init__(self, host:'Host', domain:str=None):
 		self.domain = domain
+		self.host = host
 		if domain is not None:
 			self.check_if_ldap_domain_components_path_is_domain_path(domain)
 
 	def get_domain(self):
 		with TS.shared_lock:
 			return self.domain
+
+	def get_context(self):
+		context = dict()
+		context['ip'] = self.host.get_ip()
+		context['network_address'] = self.host.get_network().get_network_address()
+		context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
+		return context
 
 	def update_domain_name(self, domain_name:str):
 		with TS.shared_lock:
@@ -154,7 +244,10 @@ class LdapServer:
 		"""
 		The function that's responsible for calling the auto methods.
 		"""
-		return []
+		for method in self.methods:
+			list_events = method.create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 
 	def get_auto_function(self):
 		return self.auto_function
@@ -744,8 +837,6 @@ class Host(AbstractNetworkComponent):
 
 			return [netbios_workstation.auto]
 
-
-
 	def check_if_host_has_netbios_workstation_role(self):
 		with TS.shared_lock:
 			logger.debug(f"checking if host ({self.ip}) has a netbios workstation role")
@@ -764,10 +855,75 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"Host ({self.ip}) adding netbios workstation role")
 			if self.check_if_host_has_netbios_workstation_role():
 				logger.debug(f"Host ({self.ip}) already had netbios workstation role")
+			else:
+				netbios_workstation_obj = NetBIOSWorkstation(self, hostname)
+				self.roles['NetBIOSWorkstation'] = netbios_workstation_obj
 
-			netbios_workstation_obj = NetBIOSWorkstation(self, hostname)
-			self.roles['NetBIOSWorkstation'] = netbios_workstation_obj
 
+
+	# SMB
+
+	def check_if_host_has_smb_server_role(self):
+		with TS.shared_lock:
+			logger.debug(f"Checking if host ({self.ip}) has a smb server role")
+			if 'SMBServer' not in self.roles:
+				logger.debug(f"Host ({self.ip}) does not have a smb server role")
+				return False
+			logger.debug(f"Host ({self.ip}) has a smb server role")
+			return True
+
+
+	def get_or_add_role_smb_server(self, port=str):
+		"""
+		Add and SMB server role to the host.
+		First checks if it already has
+		"""
+		with TS.shared_lock:
+			logger.debug(f"Host ({self.ip}) adding smb server role")
+			if self.check_if_host_has_smb_server_role():
+				logger.debug(f"Host ({self.ip}) already had a smb server role")
+				return {'object': self.roles['SMBServer'], 'methods': []}
+			else:
+				smb_server_obj = SMBServer(self, port)
+				self.roles['SMBServer'] = smb_server_obj
+				return {'object':smb_server_obj, 'methods': [smb_server_obj.get_auto_function()]}
+
+
+	def found_smb_service_running_on_port(self, port=str):
+		with TS.shared_lock:
+			return self.get_or_add_role_smb_server(port)
+
+
+
+	# RPC
+
+
+	def check_if_host_has_rpc_server_role(self):
+		with TS.shared_lock:
+			logger.debug(f"Checking if host ({self.ip}) has rpc server role")
+			if 'MSRPCServer' not in self.roles:
+				logger.debug(f"Host ({self.ip}) does not have a rpc server role")
+				return False
+			logger.debug(f"Host ({self.ip}) has a rpc server role")
+			return True
+
+	def get_or_add_role_rpc_server(self, port=str):
+		"""
+		get's the existing rpc server role or adds a new one
+		"""
+		with TS.shared_lock:
+			logger.debug(f"Host ({self.ip}) adding rpc server role")
+			if self.check_if_host_has_rpc_server_role():
+				logger.debug(f"host ({self.ip}) already has a rpc server role")
+				return {'object': self.roles['MSRPCServer'], 'methods': []}
+			else:
+				rpc_server_obj = MSRPCServer(self, port)
+				self.roles['MSRPCServer'] = rpc_server_obj
+				return {'object':rpc_server_obj, 'methods':[rpc_server_obj.get_auto_function()]}
+
+	def found_msrpc_service_running_on_port(self, port):
+		with TS.shared_lock:
+			return self.get_or_add_role_rpc_server(port)
 
 
 
@@ -1219,6 +1375,9 @@ class Interface(AbstractNetworkComponent):
 		it exists for this interface. Otherwise, creates a new 
 		object network.
 
+		If the network didn't exist. We will ask the user if 
+		he wants to keep it as a network component
+
 		returns: dict with 'object' and 'methods' (if we created a 
 		new network obj)
 		"""
@@ -1227,8 +1386,13 @@ class Interface(AbstractNetworkComponent):
 			answer = interface_obj.check_for_network_str(network_str)
 			if answer['exists'] == 'no': # doesn't exist
 				# create the interface, and get the auto methods
-				answer = interface_obj.create_network_with_network_str(network_str)
-				return answer
+				choice = input(f"[I]: add network ({network_str})? (y/n)")
+				# ASK THE USER IF THIS NETWORK IS THE ONE
+				if choice == 'yes' or choice == 'y':
+					answer = interface_obj.create_network_with_network_str(network_str)
+					return answer
+				else:
+					return {'object':None, 'methods':[]}
 			else: # it exists
 				return {'object':answer['object'], 'methods':[]}
 
@@ -1263,8 +1427,6 @@ class Interface(AbstractNetworkComponent):
 	Run this when we find a new interface
 	"""
 	def auto(self):
-		print("auto for interface")
-		return # NOTHING FOR NOW
 		# no need for lock, the methods don't change
 		for method in self.methods:
 			list_events = self.methods[method].create_run_events(self)

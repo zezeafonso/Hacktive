@@ -66,6 +66,7 @@ def update_components_found_new_network_for_interface(context, filtered_obj:FO.F
 		interface_obj = answer['object']
 		auto_functions += answer['methods']
 		
+		# ASKS THE USER IF HE WANTS THIS NETWORK
 		answer = interface_obj.get_network_or_create_it(network_name)
 		auto_functions += answer['methods']
 
@@ -387,11 +388,11 @@ def found_netbios_hostname_with_smb_active(context, filtered_obj):
 Update functions by method
 """
 
-"""
-THIS IS THE ONLY FUNCTION THAT THE CONTEXT WILL RECEIVE AN OBJECT. 
-more specifically the root object, since it will always automaticallly run.
-"""
+
 def update_list_interfaces(context:dict, filtered_objects:list):
+	"""
+	Defines the components we update when we list the interfaces available
+	"""
 	# for this update the context will just be the root object
 	if context['root'] is None:
 		return 
@@ -542,6 +543,80 @@ def update_query_naming_context_of_dc_through_ldap(context, filtered_objects):
 	return auto_functions
 
 
+def update_check_if_smb_service_is_running(context:dict, filtered_objects:list):
+	"""
+	Defines the components we update when we find that a host
+	is running a SMB service
+
+	get the interface; get network; get host
+	if host doesn't have already information that is running SMB
+		add it.
+	"""
+	global root_obj
+
+	# for this update the context will just be the root object
+	if context['network_address'] is None or context['interface_name'] is None or context['ip'] is None:
+		return 
+
+	auto_functions = list() # the list of new objects created
+
+	# context is only the network and interface names
+	net_name = context['network_address']
+	int_name = context['interface_name']
+	host_ip = context['ip']
+
+	answer = root_obj.get_interface_or_create_it(int_name)
+	int_obj = answer['object']
+	answer = int_obj.get_network_or_create_it(net_name)
+	net_obj = answer['object']
+	answer = net_obj.get_ip_host_or_create_it(host_ip)
+	host_obj = answer['object']
+
+	for filtered_obj in filtered_objects:
+		# FOUND A DOMAIN COMPONENTS PATH
+		if isinstance(filtered_obj, FO.Filtered_SMBServiceIsUp):
+			logger.debug(f"filter for checking if smb service is up for ip ({host_obj.ip}) found that it IS UP")
+			answer = host_obj.found_smb_service_running_on_port(port=filtered_obj.get_port())
+			auto_functions += answer['methods']
+
+
+
+def update_check_if_msrpc_service_is_running(context:dict, filtered_objects:list):
+	"""
+	Defines the components we update when we find that a host
+	is running a SMB service
+
+	get the interface; get network; get host
+	if host doesn't have already information that is running SMB
+		add it.
+	"""
+	global root_obj
+
+	# for this update the context will just be the root object
+	if context['network_address'] is None or context['interface_name'] is None or context['ip'] is None:
+		return 
+
+	auto_functions = list() # the list of new objects created
+
+	# context is only the network and interface names
+	net_name = context['network_address']
+	int_name = context['interface_name']
+	host_ip = context['ip']
+
+	answer = root_obj.get_interface_or_create_it(int_name)
+	int_obj = answer['object']
+	answer = int_obj.get_network_or_create_it(net_name)
+	net_obj = answer['object']
+	answer = net_obj.get_ip_host_or_create_it(host_ip)
+	host_obj = answer['object']
+
+	for filtered_obj in filtered_objects:
+		# FOUND A DOMAIN COMPONENTS PATH
+		if isinstance(filtered_obj, FO.Filtered_MSRPCServiceIsUp):
+			logger.debug(f"filter for checking if msrpc service is up for ip ({host_obj.ip}) found that it IS UP")
+			answer = host_obj.found_msrpc_service_running_on_port(port=filtered_obj.get_port())
+			auto_functions += answer['methods']
+
 """
 Update network components (general function)
 """
@@ -556,4 +631,8 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return update_ip_to_host_nbns(context, filtered_objects)
 	elif method._name == 'query naming context of DC through LDAP':
 		return update_query_naming_context_of_dc_through_ldap(context, filtered_objects)
+	elif method._name == 'check if SMB service is running':
+		return update_check_if_smb_service_is_running(context, filtered_objects)
+	elif method._name == 'check if MSRPC service is running':
+		return update_check_if_msrpc_service_is_running(context, filtered_objects)
 

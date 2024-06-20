@@ -66,6 +66,98 @@ class PortScan(AbstractMethod):
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=PortScan, nc=nc)]
 
 
+class CheckIfSMBServiceIsRunning(AbstractMethod):
+	_name = 'check if SMB service is running'
+	_filename = 'outputs/nmap_port_445'
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{CheckIfSMBServiceIsRunning._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict) -> list:
+		"""
+		defines the command events for this class.
+		"""
+		# check for the context variables
+		if context is None:
+			context = CheckIfSMBServiceIsRunning.get_context(nc)
+			if context is None:
+				logger.warning("No context for CheckIfSMBServiceIsRunning")
+				return []
+
+		# check for the specific requirements
+		if 'ip' not in context or 'network_address' not in context or 'interface_name' not in context:
+			return []
+
+		# extract the specific context for this command
+		ip = context['ip']
+		network_address = context['network_address']
+		interface_name = context['interface_name'] 
+
+		# obter o output file com o ip do host
+		str_ip = str(ip).replace('.','_')
+		output_file = CheckIfSMBServiceIsRunning._filename +str_ip + '.out'
+		# chamar o comando para listar os portos
+		cmd = f"sudo nmap -p 139,445 -n -Pn {ip}"
+		# criar o evento de run com o comando
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfSMBServiceIsRunning, nc=nc, context=context)]
+
+	def get_context(nc:AbstractNetworkComponent):
+		"""
+		Nothing for now
+		"""
+		pass
+
+
+
+class CheckIfMSRPCServiceIsRunning(AbstractMethod):
+	_name = 'check if MSRPC service is running'
+	_filename = 'outputs/nmap_port_135'
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{CheckIfMSRPCServiceIsRunning._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict) -> list:
+		"""
+		Will need the ip, the network and interface name
+		"""
+		if context is None:
+			CheckIfMSRPCServiceIsRunning.get_context(nc) # nothing for now 
+		
+		if context['ip'] is None or context['network_address'] is None or context['interface_name'] is None:
+			return [] # nothing to do in this case
+
+		# extract the specific context for this command
+		ip = context['ip']
+		network_address = context['network_address']
+		interface_name = context['interface_name'] 
+
+		# obter o output file com o ip do host
+		str_ip = str(ip).replace('.','_')
+		output_file = CheckIfMSRPCServiceIsRunning._filename +str_ip + '.out'
+		# chamar o comando para listar os portos
+		cmd = f"sudo nmap -p 135 -n -Pn {ip}"
+		# criar o evento de run com o comando
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfMSRPCServiceIsRunning, nc=nc, context=context)]
+
+
+	def get_context(nc:AbstractNetworkComponent):
+		"""
+		nothing for now 
+		"""
+		pass
+
+
+
 
 class NBNSGroupMembers(AbstractMethod):
 	_name = 'find the members of netbios group'

@@ -214,4 +214,40 @@ class Filtered_NewIPForNetwork(AbstractFilteredObject):
 
 	def get_path(self):
 		return self.info['path']
-	
+
+
+
+
+# PORTS AND SERVICES
+
+
+
+
+class Filtered_SMBServiceIsUp(AbstractFilteredObject):
+	def __init__(self, port:str):
+		self.port = port
+
+	def display(self):
+		return f"Found SMB service was running on port ({self.port})"
+
+	def get_port(self):
+		return self.port
+
+	def captured(self):
+		return self.port
+
+
+
+class Filtered_MSRPCServiceIsUp(AbstractFilteredObject):
+	def __init__(self, port:str):
+		self.port = port
+
+	def display(self):
+		return f"Found MSRPC service was running on port ({self.port})"
+
+	def get_port(self):
+		return self.port
+
+	def captured(self):
+		return self.port
+
