@@ -101,6 +101,9 @@ def update_components_found_our_ip_for_a_network(context, filtered_obj:FO.Filter
 		auto_functions += answer['methods']
 		
 		answer = interface_obj.get_network_or_create_it(network_name)
+		if answer['object'] is None: # not interested in this network
+			return auto_functions
+
 		network_obj = answer['object']
 		auto_functions += answer['methods']
 
@@ -440,6 +443,8 @@ def update_ip_to_host_nbns(context, filtered_objects):
 	answer = root_obj.get_interface_or_create_it(int_name)
 	int_obj = answer['object']
 	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None: # not interested in this network
+		return auto_functions
 	net_obj = answer['object']
 
 	context_for_updates = {'network':net_obj}
@@ -489,6 +494,8 @@ def update_arp_scan(context, filtered_objects):
 	answer = root_obj.get_interface_or_create_it(int_name)
 	int_obj = answer['object']
 	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None:
+		return auto_functions 
 	net_obj = answer['object']
 
 	context_for_updates = {'network':net_obj}
@@ -528,6 +535,8 @@ def update_query_naming_context_of_dc_through_ldap(context, filtered_objects):
 	answer = root_obj.get_interface_or_create_it(int_name)
 	int_obj = answer['object']
 	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None: # not interested in this network
+		return auto_functions 
 	net_obj = answer['object']
 	answer = net_obj.get_ip_host_or_create_it(context['ip'])
 	host_obj = answer['object']
@@ -568,6 +577,8 @@ def update_check_if_smb_service_is_running(context:dict, filtered_objects:list):
 	answer = root_obj.get_interface_or_create_it(int_name)
 	int_obj = answer['object']
 	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None: # not interested in this network
+		return auto_functions 
 	net_obj = answer['object']
 	answer = net_obj.get_ip_host_or_create_it(host_ip)
 	host_obj = answer['object']
@@ -606,6 +617,8 @@ def update_check_if_msrpc_service_is_running(context:dict, filtered_objects:list
 	answer = root_obj.get_interface_or_create_it(int_name)
 	int_obj = answer['object']
 	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None: # not interested in this network
+		return auto_functions 
 	net_obj = answer['object']
 	answer = net_obj.get_ip_host_or_create_it(host_ip)
 	host_obj = answer['object']
