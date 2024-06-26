@@ -10,6 +10,7 @@ from NetworkComponents import Root
 import NetworkComponentUpdater as NCU
 import EventDoneThread as EDT
 import CommandsListener as CL
+import FoundUpdates as FU
 import LoggingConfig
 import ThreadShares
 from LoggingConfig import logger
@@ -27,6 +28,7 @@ def main():
 	root = Root() # the root of the user interaction
 
 	NCU.init_root_object(root)
+	FU.init_root_object(root)
 	
 	# Start the user input process
 	#input_process = multiprocessing.Process(target=blocking_input, args=(input_queue, stop_event))

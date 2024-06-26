@@ -10,6 +10,7 @@ from LoggingConfig import logger
 import NetworkComponentUpdater as NCU
 import MethodsToFilters
 import output_json as OJ
+import FoundUpdates as FU
 
 
 commands_and_filtered_objs = dict()
@@ -73,7 +74,7 @@ def analyze_event(event):
 
 	if list_filtered_objects != []:
 		# update the network components with these captured information from the filter
-		auto_functions = NCU.update_network_components(method, context, list_filtered_objects)
+		auto_functions = FU.update_network_components(method, context, list_filtered_objects)
 
 		# print the state of the network components after the update network components
 		print_state_network_components_after_cmd(cmd)

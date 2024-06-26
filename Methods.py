@@ -34,6 +34,15 @@ class ResponderAnalyzeInterface(AbstractMethod):
 		commands_q.put(new_event)
 		return
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
 
 
 class PortScan(AbstractMethod):
@@ -65,6 +74,15 @@ class PortScan(AbstractMethod):
 		cmd = f"sudo nmap -sS -n -Pn {_ip}"
 		# criar o evento de run com o comando
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=PortScan, nc=nc)]
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 class CheckIfSMBServiceIsRunning(AbstractMethod):
@@ -113,6 +131,15 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		"""
 		pass
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
 
 
 class CheckIfMSRPCServiceIsRunning(AbstractMethod):
@@ -156,6 +183,15 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		nothing for now 
 		"""
 		pass
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 
@@ -207,6 +243,15 @@ class NBNSGroupMembers(AbstractMethod):
 		context = {'group_id': group_id, 'network':network_name, 'interface':interface_name}
 		return context
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
 
 
 class NBNSIPTranslation(AbstractMethod):
@@ -251,6 +296,15 @@ class NBNSIPTranslation(AbstractMethod):
 		context = {'ip':host_with_ip, 'network':network_name, 'interface':interface_name}
 		return context
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
 
 
 class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
@@ -289,6 +343,15 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 	def get_context(nc:AbstractNetworkComponent):
 		# nothing for now
 		return dict()
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 
@@ -329,6 +392,16 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		output_file = EnumDomainTrustsThroughRPC._filename + str_ip_address + '.out'
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainTrustsThroughRPC, nc=nc, context=context)]
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
+
 
 
 
@@ -365,6 +438,16 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		str_ip_address = context_ip_address.replace('.', '_')
 		output_file = EnumDomainsThroughRPC._filename + str_ip_address + '.out'
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainsThroughRPC, nc=nc, context=context)]
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
+
 
 
 class EnumDomainUsersThroughRPC(AbstractMethod):
@@ -406,6 +489,14 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		output_file = EnumDomainUsersThroughRPC._filename + str_ip_address + '.out'
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainUsersThroughRPC, nc=nc, context=context)]
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 class EnumDomainGroupsThroughRPC(AbstractMethod):
@@ -446,6 +537,14 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		output_file = EnumDomainGroupsThroughRPC._filename + str_ip_address + '.out'
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainGroupsThroughRPC, nc=nc, context=context)]
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 
@@ -469,6 +568,13 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 			# get context through the function
 			context = QueryRootDSEOfDCThroughLDAP.get_context(nc)
 			if len(context) == 0:
+				return []
+
+		# if we have the domain name ask the user if he wants to run this eitherway
+		if context['domain_name'] is not None:
+			logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")
+			choice = input(f'we already have the domain name ({context['domain_name']}) for host ({contex['ip']}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
+			if choice != 'y':
 				return []
 
 		# command
@@ -497,6 +603,24 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		context = {'ip':host_with_ip, 'network':network_name, 'interface':interface_name}
 		return context
 
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		with TS.shared_lock:
+			nc.get_context()
+			if 'domain_name' in context:
+				if context['domain_name'] is not None:
+					logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")
+					choice = input(f'we already have the domain name ({context['domain_name']}) for host ({contex['ip']}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
+					if choice != 'y':
+						return False
+			return True
+
+
 
 class ArpScan(AbstractMethod):
 	_name = "arp scan"
@@ -524,7 +648,7 @@ class ArpScan(AbstractMethod):
 				return []
 
 		# get the str of the network addresss
-		context_net_address = context['network']
+		context_net_address = context['network_address']
 		str_network_address = str(context_net_address).replace('/','_')
 		str_network_address = str_network_address.replace('.', '_')
 		# output file
@@ -541,6 +665,15 @@ class ArpScan(AbstractMethod):
 			return dict()
 		context = {'network':network_name, 'interface':interface_name}
 		return context
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
 
 
 
@@ -580,3 +713,12 @@ class ListInterfaces(AbstractMethod):
 			return dict()
 		context = {'root': root_obj}
 		return context
+
+	@staticmethod
+	def check_for_objective(nc):
+		"""
+		checks if the purpose of this method was already fullfilled.
+
+		returns True if we should run it 
+		"""
+		return True
