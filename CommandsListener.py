@@ -14,7 +14,7 @@ from LoggingConfig import logger
 
 def get_event_from_the_command_queue():
 	event = TS.cmd_queue.get() # blocking
-	logger.debug(f"received event")
+	logger.debug(f"getting event from the command queue")
 	return event
 
 def send_sentinel_to_output_listener_thread():
@@ -35,7 +35,6 @@ def handle_done_events_from_output_listener_thread(thread_pool):
 
 def run_command_in_another_process(cmd):
 	logger.debug(f"[Pool thread]: calling Popen for command: {cmd}")
-
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
 	return proc
 
@@ -83,6 +82,7 @@ def send_event_to_output_listener(event):
 
 def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComponent, method:AbstractMethod, context:dict):
 	TS.add_command_to_list_of_commands_run(cmd)
+	# maybe do the check here? 
 	proc = run_command_in_another_process(cmd)
 	store_the_pid_of_process_in_pids_executing_commands(cmd, proc.pid)
 	proc_stdout, proc_stderr = wait_for_process_to_complete_and_get_output_and_err(proc)
