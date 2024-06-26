@@ -17,12 +17,32 @@ class Filtered_DomainComponentsFromLDAPQuery(AbstractFilteredObject):
 		
 		self.info['dc_path'] = domain_components_path
 
+	def display(self):
+		return f"Domain Components Path ({self.info['dc_path']}) from ldap query to ..."
+
 	def captured(self) -> dict:
 		return self.info
 
 	def get_dc_path(self):
 		return self.info['dc_path']
 
+
+
+# msrpc 
+
+class Filtered_FoundDomainTrust(AbstractFilteredObject):
+	def __init__(self, domain_name:str):
+		self.info = dict()
+		self.info['domain_name'] = domain_name
+
+	def display(self):
+		return f"new domain trust for domain ({self.get_domain_name()})"
+
+	def get_domain_name(self):
+		return self.info['domain_name']
+
+	def captured(self) -> dict:
+		return self.info
 
 # list interfaces
 
@@ -31,6 +51,9 @@ class Filtered_NewInterface(AbstractFilteredObject):
 		self.info = dict()
 		self.info['path'] = path
 		self.info['interface'] = interface
+
+	def display(self):
+		return f" new interface ({self.info['interface']})"	
 
 	def captured(self) -> dict:
 		return self.info
@@ -47,6 +70,9 @@ class Filtered_NewNetworkForInterface(AbstractFilteredObject):
 		self.info = dict()
 		self.info['interface'] = interface
 		self.info['network'] = network
+
+	def display(self):
+		return f" network ({self.info['network']}) for interface ({self.info['interface']})"
 
 	def captured(self) -> dict:
 		return self.info
@@ -65,6 +91,9 @@ class Filtered_FoundOurIPForNetwork(AbstractFilteredObject):
 		self.info['network'] = network
 		self.info['ip'] = ip
 
+	def display(self):
+		return f" our ip ({self.info['ip']}) for network ({self.info['network']}) for interface ({self.info['interface']})"
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -81,11 +110,15 @@ class Filtered_FoundOurIPForNetwork(AbstractFilteredObject):
 # NETBIOS
 
 class Filtered_FoundNetBIOSHostnameWithSMB(AbstractFilteredObject):
-	def __init__(self, path, hostname:str):
+	def __init__(self, path, hostname:str, ip:str):
 		self.info = dict()
 		self.info['path'] = path
 		if hostname is not None:
 			self.info['netbios_hostname'] = hostname
+		self.info['ip'] = ip
+
+	def display(self):
+		return f" SMB server with netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
 
 	def captured(self) -> dict:
 		return self.info
@@ -96,13 +129,21 @@ class Filtered_FoundNetBIOSHostnameWithSMB(AbstractFilteredObject):
 	def get_path(self):
 		return self.info['path']
 
+	def get_ip(self):
+		return self.info['ip']
+
 
 class Filtered_FoundNetBIOSGroupForIP(AbstractFilteredObject):
-	def __init__(self, path:dict, group:str, ip:str):
+	def __init__(self, path:dict, group:str, _type:str, ip:str):
 		self.info = dict()
 		self.info['path'] = path
 		self.info['netbios_group'] = group
+		self.info['group_type'] = _type
 		self.info['ip'] = ip
+
+	def display(self):
+		return f"netbios group ({self.info['netbios_group']}#{self.info['group_type']}) for ip ({self.info['ip']})"
+
 
 	def captured(self) -> dict:
 		return self.info
@@ -116,6 +157,9 @@ class Filtered_FoundNetBIOSGroupForIP(AbstractFilteredObject):
 	def get_ip(self):
 		return self.info['ip']
 
+	def get_type(self):
+		return self.info['group_type']
+
 
 class Filtered_FoundPDCIPForNetBIOSGroup(AbstractFilteredObject):
 	def __init__(self, path:dict, group:str, ip:str):
@@ -123,6 +167,10 @@ class Filtered_FoundPDCIPForNetBIOSGroup(AbstractFilteredObject):
 		self.info['path'] = path
 		self.info['netbios_group'] = group
 		self.info['ip'] = ip
+
+	def display(self):
+		return f" PDC role for netbios group ({self.info['netbios_group']}) for ip ({self.info['ip']})"
+
 
 	def captured(self) -> dict:
 		return self.info
@@ -143,6 +191,10 @@ class Filtered_FoundNetBIOSHostnameForIP(AbstractFilteredObject):
 		self.info['path'] = path
 		self.info['netbios_hostname'] = hostname
 		self.info['ip'] = ip
+
+	def display(self):
+		return f" netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
+
 
 	def captured(self) -> dict:
 		return self.info
@@ -167,6 +219,10 @@ class Filtered_NewIPForNetwork(AbstractFilteredObject):
 		if ip is not None:
 			self.info['ip'] = ip
 
+	def display(self):
+		return f" ip ({self.info['ip']}) for network"
+
+
 	def captured(self) -> dict:
 		return self.info
 
@@ -175,4 +231,40 @@ class Filtered_NewIPForNetwork(AbstractFilteredObject):
 
 	def get_path(self):
 		return self.info['path']
-	
+
+
+
+
+# PORTS AND SERVICES
+
+
+
+
+class Filtered_SMBServiceIsUp(AbstractFilteredObject):
+	def __init__(self, port:str):
+		self.port = port
+
+	def display(self):
+		return f"Found SMB service was running on port ({self.port})"
+
+	def get_port(self):
+		return self.port
+
+	def captured(self):
+		return self.port
+
+
+
+class Filtered_MSRPCServiceIsUp(AbstractFilteredObject):
+	def __init__(self, port:str):
+		self.port = port
+
+	def display(self):
+		return f"Found MSRPC service was running on port ({self.port})"
+
+	def get_port(self):
+		return self.port
+
+	def captured(self):
+		return self.port
+

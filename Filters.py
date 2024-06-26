@@ -125,6 +125,47 @@ class PortScan_Filter(AbstractFilter):
 		return [], []
 
 
+class CheckIfSMBServiceIsRunning_Filter(AbstractFilter):
+	_name = 'smb service scan filter'
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+
+		# output we're trying to parse
+		# 445/tcp open  microsoft-ds
+
+		# regular expression - ip group<type>
+		pattern = re.compile(r'(\d+)\/(tcp|udp)\s+open\s+microsoft-ds')
+
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_SMBServiceIsUp(port=match.group(1)))
+		
+		return findings
+
+
+
+class CheckIfMSRPCServiceIsRunning_Filter(AbstractFilter):
+	_name = 'msrpc service scan filter' 
+
+	@staticmethod 
+	def filter(output:str) -> list:
+		findings = []
+
+		# output we're trying to parse
+		# 135/tcp open ms-rpc
+
+		pattern = re.compile(r'(\d+)\/(tcp|udp)\s+open\s+msrpc')
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_MSRPCServiceIsUp(port=match.group(1)))
+
+		return findings
+
+
 
 
 class ArpScan_Filter(AbstractFilter):
@@ -146,6 +187,25 @@ class ArpScan_Filter(AbstractFilter):
 		return findings
 
 
+
+class NBNSGroupMembers_Filter(AbstractFilter):
+	_name = "netbios group membership filter"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+
+		# regular expression - ip group<type>
+		pattern = re.compile(r'(\d+\.\d+\.\d+\.\d+)\s+(\w+)<(00|1c)>')
+
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, match.group(2), match.group(3), match.group(1)))
+		
+		return findings
+
+
 		    
 class NBNSIPTranslation_Filter(AbstractFilter):
 	_name = "translation of ip to hostname through NBNS FILTER"
@@ -156,7 +216,7 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		findings = []
 
 		pattern_00 = re.compile(r'^\s*(\S+)\s+<00>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
-		pattern_group_00 = re.compile(r'^\s*(\S+)\s+<00>\s+-\s+<GROUP>\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
+		pattern_group = re.compile(r'^\s*(\S+)\s+<(00|1c)>\s+-\s+<GROUP>\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		pattern_20 = re.compile(r'^\s*(\S+)\s+<20>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		pattern_1b = re.compile(r'^\s*(\S+)\s+<1b>\s+-\s+[BMH]\s+<ACTIVE>\s*$', re.MULTILINE)
 		
@@ -164,7 +224,7 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 
 		# Find matches
 		matches_00 = pattern_00.findall(output)
-		matches_group_00 = pattern_group_00.findall(output)
+		matches_group = pattern_group.findall(output)
 		matches_20 = pattern_20.findall(output)
 		matches_1b = pattern_1b.findall(output)
 		match_ip = ip_pattern.search(output)
@@ -175,20 +235,21 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		for match in matches_00: # will just be one but yes
 			findings.append(FO.Filtered_FoundNetBIOSHostnameForIP({}, hostname=match, ip=ip_address))
 
-		for match in matches_group_00:
-			findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, group=match, ip=ip_address))
+		for match in matches_group:
+			group = match[0]
+			_type = match[1]
+			findings.append(FO.Filtered_FoundNetBIOSGroupForIP({}, group, _type, ip=ip_address))
 
 		for match in matches_20:
-			findings.append(FO.Filtered_FoundNetBIOSHostnameWithSMB({}, hostname=match))
+			findings.append(FO.Filtered_FoundNetBIOSHostnameWithSMB({}, hostname=match, ip=ip_address))
 
 		for match in matches_1b:
 			findings.append(FO.Filtered_FoundPDCIPForNetBIOSGroup({}, group=match, ip=ip_address))
 
-		print(f"findings: {findings}")
 		return findings
 
 
-class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
+class QueryRootDSEOfDCThroughLDAP_Filter(AbstractFilter):
 	_name = "filter of querying the DC through Ldap to attain naming contexts"
 
 	@staticmethod
@@ -197,23 +258,77 @@ class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
 		findings = []
 
 		# Regular expression to match lines starting with 'namingcontexts:' and followed by 'DC='
-		pattern = re.compile(r'^namingcontexts:\s+DC=[^,]*')
+		pattern = re.compile(r'rootDomainNamingContext:\s*((?:DC=([^,]+),?)+)')
 
 		# Regular expression to capture the 'DC=' fields
-		dc_pattern = re.compile(r'DC=([^,]+)')
-
-		# Parse the lines to extract port numbers
+		#dc_pattern = re.compile(r'DC=([^,]+)')
 		for line in output.splitlines():
-			if pattern.match(line):
-				# Find all 'DC=' fields in the line
-				dcs = dc_pattern.findall(line)
-
-				# create the filtered object for every pattern of this type
-				# ex: foxriver.local; forestDNSZones.foxriver.local ...
-				findings.append(FO.Filtered_DomainComponentsFromLDAPQuery({}, list_dc=dcs))
-		
+			match = pattern.search(line)
+			if match:
+				components = match.group(1).split(',')
+				components = [component.split('=')[1] for component in components]
+				filtered_obj = FO.Filtered_DomainComponentsFromLDAPQuery({}, list_dc=components)
+				findings.append(filtered_obj)
+				
 		return findings
+		
 
 
 class ResponderAnalyzeInterface_Filter(AbstractFilter):
 	pass
+
+
+
+
+class DumpInterfaceEndpointsFromEndpointMapper_Filter(AbstractFilter):
+	_name = "filter dump interface endpoints from endpoint mapper"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomainsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enumdomains through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomainTrustsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain trusts through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		pattern_number = re.compile(r'[0-9]+\s+domains\s+returned')
+		for line in output.splitlines():
+			match = pattern_number.search(line)
+			if match:
+				pass # nothing to be done
+			else:
+				domain_name = line.split(' ')[0] # domain name split by space
+				filtered_obj = FO.Filtered_FoundDomainTrust(domain_name=domain_name)
+				findings.append(filtered_obj)
+
+		return findings
+
+class EnumDomUsersThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain users through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomGroupsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain groups through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings

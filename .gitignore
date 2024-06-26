@@ -2,11 +2,21 @@
 __pycache__/
 *.py[cod]
 
-#ignore rerports 
-go_along.txt
-
 # ignore the outputs
 outputs/
 
 # ignore the reports
 goalong/
+
+# ignore the scripts
+scripts/
+
+# ignore the logs
+debug.log
+app.log
+
+# ignore the final output json
+final.json
+
+# ignore the states
+states/
