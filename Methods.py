@@ -4,6 +4,7 @@ from Events import Run_Event
 
 from AbstractClasses import AbstractMethod
 from AbstractClasses import AbstractNetworkComponent
+from LoggingConfig import logger
 
 
 #################################
@@ -564,6 +565,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		"""
 		nc should be a livehost. 
 		"""
+		logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} for nc: ({nc})")
 		if context is None:
 			# get context through the function
 			context = QueryRootDSEOfDCThroughLDAP.get_context(nc)
@@ -571,9 +573,12 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 				return []
 
 		# if we have the domain name ask the user if he wants to run this eitherway
-		if context['domain_name'] is not None:
+		# For netbios group DC, we don't have the domain naem in the context.
+		if 'domain_name' in context and context['domain_name'] is not None:
 			logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")
-			choice = input(f'we already have the domain name ({context['domain_name']}) for host ({contex['ip']}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
+			domain_name = context['domain_name']
+			ip = context['ip']
+			choice = input(f'we already have the domain name ({domain_name}) for host ({ip}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
 			if choice != 'y':
 				return []
 
@@ -591,17 +596,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 
 	@staticmethod
 	def get_context(nc:AbstractNetworkComponent):
-		# get the host object (if it wasn't a host sending this)
-		host_with_ip = nc.get_host().ip
-		network_name = nc.get_network().network_address
-		interface_name = nc.get_interface().interface_name
-
-		if host_with_ip is None or network_name is None or interface_name is None:
-			print(f"can't obtain the context for the LDAP method")
-			return dict()
-
-		context = {'ip':host_with_ip, 'network':network_name, 'interface':interface_name}
-		return context
+		return nc.get_context()
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -615,7 +610,9 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 			if 'domain_name' in context:
 				if context['domain_name'] is not None:
 					logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")
-					choice = input(f'we already have the domain name ({context['domain_name']}) for host ({contex['ip']}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
+					domain_name = context[domain_name]
+					ip = context['ip']
+					choice = input(f'we already have the domain name ({domain_name}) for host ({ip}), do you want to run method: ({QueryRootDSEOfDCThroughLDAP._name})? (y/n)')
 					if choice != 'y':
 						return False
 			return True

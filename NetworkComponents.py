@@ -757,8 +757,10 @@ class Host(AbstractNetworkComponent):
 			domain = self.get_domain()
 			if domain is not None:
 				context['domain_name'] = domain.get_domain_name()
+			else:
+				context['domain_name'] = None
 			# hostname
-			context['netbios_hostname'] = self.get_netbios_hostname()
+			context['netbios_hostname'] = self.get_netbios_hostname() # might be None
 			return context
 
 
@@ -792,15 +794,15 @@ class Host(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"getting netbios hostname for Host ({self.ip})")
-			nw_obj = self.get_netbios_workstation_obj()
-			if nw_obj is None:
+			netbios_ws = self.get_netbios_workstation_obj()
+			if netbios_ws is None:
 				logger.debug(f"host ({self.ip}) doesn't have an associated netbios workstation")
 				return None
-			if nw_obj.get_hostname() is None:
+			if netbios_ws.get_hostname() is None:
 				logger.debug(f"host ({self.ip}) netbios workstation doesn't have a Hostname")
 				return None
-			logger.debug(f"host ({self.ip}) netbios hostname is ({nw_obj.get_hostname()})")
-			return nw_obj.get_hostname()
+			logger.debug(f"host ({self.ip}) netbios hostname is ({netbios_ws.get_hostname()})")
+			return netbios_ws.get_hostname()
 		return None
 
 	def get_domain(self):
