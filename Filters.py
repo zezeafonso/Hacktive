@@ -249,7 +249,7 @@ class NBNSIPTranslation_Filter(AbstractFilter):
 		return findings
 
 
-class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
+class QueryRootDSEOfDCThroughLDAP_Filter(AbstractFilter):
 	_name = "filter of querying the DC through Ldap to attain naming contexts"
 
 	@staticmethod
@@ -258,23 +258,77 @@ class QueryNamingContextOfDCThroughLDAP_Filter(AbstractFilter):
 		findings = []
 
 		# Regular expression to match lines starting with 'namingcontexts:' and followed by 'DC='
-		pattern = re.compile(r'^namingcontexts:\s+DC=[^,]*', re.IGNORECASE)
+		pattern = re.compile(r'rootDomainNamingContext:\s*((?:DC=([^,]+),?)+)')
 
 		# Regular expression to capture the 'DC=' fields
-		dc_pattern = re.compile(r'DC=([^,]+)')
-
-		# Parse the lines to extract port numbers
+		#dc_pattern = re.compile(r'DC=([^,]+)')
 		for line in output.splitlines():
-			if pattern.match(line):
-				# Find all 'DC=' fields in the line
-				dcs = dc_pattern.findall(line)
-
-				# create the filtered object for every pattern of this type
-				# ex: foxriver.local; forestDNSZones.foxriver.local ...
-				findings.append(FO.Filtered_DomainComponentsFromLDAPQuery({}, list_dc=dcs))
-		
+			match = pattern.search(line)
+			if match:
+				components = match.group(1).split(',')
+				components = [component.split('=')[1] for component in components]
+				filtered_obj = FO.Filtered_DomainComponentsFromLDAPQuery({}, list_dc=components)
+				findings.append(filtered_obj)
+				
 		return findings
+		
 
 
 class ResponderAnalyzeInterface_Filter(AbstractFilter):
 	pass
+
+
+
+
+class DumpInterfaceEndpointsFromEndpointMapper_Filter(AbstractFilter):
+	_name = "filter dump interface endpoints from endpoint mapper"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomainsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enumdomains through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomainTrustsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain trusts through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		pattern_number = re.compile(r'[0-9]+\s+domains\s+returned')
+		for line in output.splitlines():
+			match = pattern_number.search(line)
+			if match:
+				pass # nothing to be done
+			else:
+				domain_name = line.split(' ')[0] # domain name split by space
+				filtered_obj = FO.Filtered_FoundDomainTrust(domain_name=domain_name)
+				findings.append(filtered_obj)
+
+		return findings
+
+class EnumDomUsersThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain users through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings
+
+
+class EnumDomGroupsThroughRPC_Filter(AbstractFilter):
+	_name = "filter enum domain groups through rpc"
+
+	@staticmethod
+	def filter(output:str) -> list:
+		findings = []
+		return findings

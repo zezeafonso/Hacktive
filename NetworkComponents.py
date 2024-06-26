@@ -12,7 +12,96 @@ from LoggingConfig import logger
 
 def throw_run_event_to_command_listener(event:Run_Event) -> None:
 	TS.cmd_queue.put(event)
+	pass
 
+
+"""
+class Forest(AbstractNetworkComponent):
+	#Defines the class for Forests of Domains
+
+	def __init__(self, root_domain_name:str, root_domain_dc:'LdapServer'):
+		self.root_name = root_domain_name
+		self.root_dc = root_domain_dc
+"""
+
+class Domain(AbstractNetworkComponent):
+	"""
+	Defines the class for domains that we find for the network
+	This domain will be inserted in a forest and may or may not 
+	be the root Domain for it. 
+	"""
+	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
+		self.domain_name = domain_name
+		# the domain pdc
+		self.domain_pdc = domain_pdc
+		# list of domain controllers
+		self.domain_dcs = list()
+		if domain_pdc is not None:
+			self.domain_dcs.append(domain_pdc) # add the PDC also 
+		self.trusts = list()
+
+	def get_pdc(self):
+		with TS.shared_lock:
+			return self.domain_pdc
+
+	def check_domain_in_trusts(self, domain):
+		with TS.shared_lock:
+			if domain in self.trusts:
+				return True
+			return False
+
+	def get_domain_name(self):
+		return self.domain_name
+
+
+	def display_json(self):
+		"""
+		method to retrieve the json information to display the domain
+		"""
+		data = dict()
+		data['name'] = self.get_domain_name()
+		pdc = self.get_pdc()
+		if pdc is not None:
+			data['PDC'] = pdc.get_host().get_ip()
+		data['DCs'] = list()
+		print(self.domain_dcs)
+		for dc in self.domain_dcs:
+			data['DCs'].append(dc.get_host().get_ip())
+		data['Trusts'] = list()
+		for domain in self.trusts:
+			data['Trusts'].append(domain.get_domain_name())
+		return data
+
+		
+	def add_dc(self, dc:'LdapServer'):
+		with TS.shared_lock:
+			if dc not in self.domain_dcs:
+				self.domain_dcs.append(dc)
+				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
+
+	def add_pdc(self, pdc:'LdapServer'):
+		with TS.shared_lock:
+			logger.debug(f"Adding pdc ({pdc.get_host().get_ip()}) to Domain ({self.get_domain_name()})")
+			this_pdc = self.get_pdc()
+			if this_pdc is None:
+				logger.debug(f"Domain ({self.get_domain_name()}) had no pdc, adding now")
+				self.domain_pdc = pdc
+			else:
+				logger.debug(f"Domain ({self.get_domain_name()}) had a pdc ({this_pdc.get_host().get_ip()})")
+
+	def add_domain_trust(self, domain):
+		with TS.shared_lock:
+			logger.debug(f"Adding domain ({domain.get_domain_name()}) to domain ({self.get_domain_name()}) trusts")
+			if self.check_domain_in_trusts(domain):
+				logger.debug(f"domain ({domain.get_domain_name()}) was already in trusts")
+				return []
+			else:
+				self.trusts.append(domain)
+				logger.debug(f"domain ({domain.get_domain_name()}) placed in domain trusts ({self.get_domain_name()})")
+				return []
+
+	def auto():
+		pass
 
 
 class Port(AbstractNetworkComponent):
@@ -43,7 +132,7 @@ class Port(AbstractNetworkComponent):
 
 
 class NetBIOSGroupDC:
-	methods = {Methods.QueryNamingContextOfDCThroughLDAP._name: Methods.QueryNamingContextOfDCThroughLDAP}
+	methods = {Methods.QueryRootDSEOfDCThroughLDAP._name: Methods.QueryRootDSEOfDCThroughLDAP}
 
 	def __init__(self, host:'Host', group:'NetBIOSGroup'):
 		self.host = host
@@ -177,12 +266,31 @@ class MSRPCServer:
 	this class will represent it's server.
 	The port for MSRPC is usually 
 	"""
-	methods = []
+	methods = [Methods.DumpInterfaceEndpointsFromEndpointMapper, 
+				Methods.EnumDomainsThroughRPC, Methods.EnumDomainTrustsThroughRPC,
+				Methods.EnumDomainUsersThroughRPC, Methods.EnumDomainGroupsThroughRPC]
 
 	def __init__(self, host='Host', port=str):
 		self.host = host
 		self.shares = list() # list of shares in the SMB server
 		self.port = port # might be None
+
+	def get_context(self):
+		with TS.shared_lock:
+			context = dict()
+			context['network_address'] = self.host.get_network().get_network_address()
+			context['ip'] = self.host.get_ip()
+			context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
+			context['domain_name'] = None
+
+			# for the domain name
+			ldap_server = self.host.get_ldap_server_obj()
+			if ldap_server is not None:
+				domain = ldap_server.get_domain()
+				if domain is not None:
+					domain_name = domain.get_domain_name()
+					context['domain_name'] = domain_name
+			return context
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -195,10 +303,12 @@ class MSRPCServer:
 		"""
 		The function that's responsible for calling the auto methods.
 		"""
-		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
-			for event in list_events:
-				throw_run_event_to_command_listener(event)
+		with TS.shared_lock:
+			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
+			for method in self.methods:
+				list_events = method.create_run_events(self, self.get_context())
+				for event in list_events:
+					throw_run_event_to_command_listener(event)
 		
 
 	def get_auto_function(self):
@@ -217,17 +327,26 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [Methods.CheckIfSMBServiceIsRunning, Methods.CheckIfMSRPCServiceIsRunning]
+	methods = [Methods.CheckIfSMBServiceIsRunning, 
+			Methods.CheckIfMSRPCServiceIsRunning]
 
 	def __init__(self, host:'Host', domain:str=None):
 		self.domain = domain
 		self.host = host
-		if domain is not None:
-			self.check_if_ldap_domain_components_path_is_domain_path(domain)
+		with TS.shared_lock:
+			if domain is not None:
+				logger.debug(f"ldap server ({self.host.get_ip()}) instantiated with ({domain.get_domain_name()})")
+				exit()
+				#self.check_if_ldap_domain_components_path_is_domain_path(domain)
 
 	def get_domain(self):
 		with TS.shared_lock:
 			return self.domain
+
+	def get_host(self):
+		with TS.shared_lock:
+			return self.host
+
 
 	def get_context(self):
 		context = dict()
@@ -258,37 +377,43 @@ class LdapServer:
 		with TS.shared_lock:
 			data = dict()
 			data['LDAP Server'] = dict()
-			data['LDAP Server']['domain'] = self.get_domain()
+			data['LDAP Server']['domain name'] = self.get_domain().get_domain_name()
 			return data
 
 
-	def check_if_ldap_domain_components_path_is_domain_path(self, domain_components_path):
+	def associate_domain_to_ldap_server_if_not_already(self, domain:Domain):
 		"""
-		Checks if the domain components path found in ldap
-		ex: foxriver.local... domaindnszones.foxriver.local 
-		is in fact a domain path. 
-
-		- we check for the initial word of the components path
-		- we check if the ldap server was already associated with a domain name
+		Associates a domain to this host (if not done already).
+		This Host will be a DC for the domain. Then we might check it 
+		it's authorative or not.
 		"""
-		logger.debug(f"Checking if this domain components ({domain_components_path})path is a domain name")
-		first_word_of_dcs = domain_components_path.split('.')[0]
 		with TS.shared_lock:
-			# if it doesn't start by any of these words i think it's the domain name
-			not_domain_first_words = ['DomainDnsZones', 'ForestDnsZones', 'Configuration', 'Schema']
-			if first_word_of_dcs in not_domain_first_words:
-				logger.debug(f"The domain components path started with ({first_word_of_dcs}) therefore is not a domain name")
-				return []
+			logger.debug(f"Associating domain ({domain.get_domain_name()}) to ldapserver ({self.host.get_ip()})")
+			host_domain = self.get_domain()
+			if host_domain is None:
+				logger.debug(f"Ldap server ({self.host.get_ip()}) had no domain")
+				self.domain = domain
+				logger.debug(f"domain ({domain.get_domain_name()}) successfully associated to ldap server ({self.host.get_ip()})")
 			else:
-				if self.domain is not None:
-					if self.domain == domain_components_path:
-						logger.debug(f"The domain components path ({domain_components_path}) was already the domain name for the ldap server")
-					else:
-						logger.warning(f"The ldap server was associated with a different domain name ({self.get_domain()}) than the domain components path ({domain_components_path})")
+				logger.debug(f"Ldap server ({self.host.get_ip()}) already had a domain")
+				if host_domain == domain:
+					logger.debug(f"Ldap server ({self.host.get_ip()}) had already associated this domain")
 				else:
-					self.update_domain_name(domain_components_path)
-				
-			return []
+					logger.debug(f"Ldap server ({self.host.get_ip()}) had a different domain!!!")
+		return 
+
+
+	def found_domain_for_server_methods(self):
+		# returns the methods to call after we found a new domain
+		with TS.shared_lock:
+			host = self.host
+			msrpc_server = host.get_msrpc_server_obj()
+			if msrpc_server is None:
+				return []
+			auto_functions = [msrpc_server.auto_function]
+		return auto_functions
+
+
 
 
 
@@ -617,6 +742,7 @@ class Host(AbstractNetworkComponent):
 		self.netbios_groups = dict() # group_obj: roles
 		self.DNS_hostname = None
 		self.fqdn = None
+		self.AD_domain_roles = dict() # {domain_obj: role} ; the role might be None, DC or PDC
 		self.roles = dict() # class_name: obj; ex: 'NetBIOSWorkstation':nw_obj
 		self.ports = dict()
 
@@ -642,6 +768,20 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"Host ({self.ip}) had no netbios workstation machine associated")
 			return None
 
+	def get_msrpc_server_obj(self):
+		with TS.shared_lock:
+			if self.check_if_host_has_rpc_server_role():
+				return self.roles['MSRPCServer']
+			return None
+
+	def get_ldap_server_obj(self):
+		with TS.shared_lock:
+			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
+			if 'ldap server' not in self.roles:
+				logger.debug(f"Host ({self.get_ip()}) didn't have a ldap server")
+				return None
+			return self.roles['ldap server']
+
 	def get_netbios_hostname(self):
 		"""
 		checks if the host has the netbios workstation role
@@ -660,6 +800,13 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"host ({self.ip}) netbios hostname is ({nw_obj.get_hostname()})")
 			return nw_obj.get_hostname()
 		return None
+
+	def get_associated_domain(self):
+		with TS.shared_lock:
+			if len(self.AD_domain_roles) != 0:
+				domain_list = list(self.AD_domain_roles.keys())
+				return domain_list[0] # only the first (and only) element
+			return None
 
 	def get_ip(self):
 		return self.ip
@@ -765,7 +912,7 @@ class Host(AbstractNetworkComponent):
 		"""
 		the methods for when we find a dc
 		"""
-		dc_methods = [Methods.QueryNamingContextOfDCThroughLDAP]
+		dc_methods = [Methods.QueryRootDSEOfDCThroughLDAP]
 		for method in dc_methods:
 			list_events = method.create_run_events(self)
 			for event in list_events:
@@ -787,21 +934,13 @@ class Host(AbstractNetworkComponent):
 			self.roles['ldap server'] = LdapServer(self)
 			return self.roles['ldap server']
 
-	def get_ldap_server(self):
-		with TS.shared_lock:
-			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
-			if 'ldap server' not in self.roles:
-				logger.debug(f"Host ({self.get_ip()}) didn't have a ldap server")
-				return None
-			return self.roles['ldap server']
-
 	def get_or_add_role_ldap_server(self):
 		"""
 		If this host already has a role of ldap server returns the 
 		ldap server object. Otherwise, creates and associates a new one
 		"""
 		with TS.shared_lock:
-			ldap_server = self.get_ldap_server()
+			ldap_server = self.get_ldap_server_obj()
 			if ldap_server is None:
 				ldap_server = self.add_role_ldap_server()
 				auto_function = ldap_server.get_auto_function()
@@ -919,12 +1058,54 @@ class Host(AbstractNetworkComponent):
 			else:
 				rpc_server_obj = MSRPCServer(self, port)
 				self.roles['MSRPCServer'] = rpc_server_obj
+				logger.debug(f"Added MSRPC server role to ({self.ip})")
 				return {'object':rpc_server_obj, 'methods':[rpc_server_obj.get_auto_function()]}
+
 
 	def found_msrpc_service_running_on_port(self, port):
 		with TS.shared_lock:
 			return self.get_or_add_role_rpc_server(port)
 
+
+
+
+	# Domains
+
+	def associate_domain_to_host_if_not_already(domain:Domain):
+		with TS.shared_lock:
+			logger.debug(f"associating domain ({domain.get_domain_name()}) to host ({self.get_ip()})")
+			domain = self.get_associated_domain()
+			if domain is not None:
+				logger.debug(f"Host ({self.get_ip()}) is already associated to a domain ({domain.get_domain_name()})")
+				return 
+
+			self.AD_domain_roles[domain] = None # only machine level for now
+			logger.debug(f"associated domain ({domain.get_domain_name()}) to host ({self.get_ip()}) successfully")
+			return 
+
+	def associate_DC_role_to_associated_domain(domain:Domain):
+		with TS.shared_lock:
+			logger.debug(f"associating role DC to host's ({self.get_ip()}) associated domain")
+			domain = self.get_associated_domain()
+
+			# if not associated to any domain
+			if domain is None:
+				logger.debug(f"Host ({self.get_ip()}) was not associated to a domain")
+				return 
+			# if it's already a PDC or DC
+			if self.AD_domain_roles[domain] is not None and self.AD_domain_roles[domain] == 'PDC':
+				return 
+
+			self.AD_domain_roles[domain] = 'DC' # hard coded
+
+	def associate_PDC_role_to_associated_domain(domain:Domain):
+		with TS.shared_lock:
+			logger.debug(f"associating role PDC to host's ({self.get_ip()}) associated domain")
+			domain = self.get_associated_domain()
+			if domain is None:
+				logger.debug(f"Host ({self.get_ip()}) was not associated to a domain")
+
+			self.AD_domain_roles[domain] = 'PDC' # hard coded
 
 
 class NetBIOSGroup():
@@ -1371,6 +1552,8 @@ class Interface(AbstractNetworkComponent):
 
 	def get_network_or_create_it(interface_obj, network_str):
 		"""
+		USER INPUT - must choose if we want to add new network
+
 		retrieves the network object with network_str, if 
 		it exists for this interface. Otherwise, creates a new 
 		object network.
@@ -1468,6 +1651,14 @@ class Root(AbstractNetworkComponent):
 	def __init__(self):
 		self.interfaces = {}
 		self.path = {'root':self} # the path to this object
+		self.domains = list() # empty list for the domains we find
+
+	# getters
+
+	def get_root(self):
+		return self.path['root']
+
+	# Functions
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -1477,11 +1668,18 @@ class Root(AbstractNetworkComponent):
 				interface = self.interfaces[_int]
 				data['interfaces'].append(interface.display_json())
 				#data['interface'] = interface.display_json()
+			data['domains'] = list()
+			for domain in self.domains:
+				data['domains'].append(domain.display_json())
 			return data
 
 	def add_interface(self, interface:Interface):
 		# call the methods from the interface
 		self.interfaces[interface.interface_name] = interface
+
+	def get_domains(self) -> list:
+		with TS.shared_lock:
+			return self.domains
 
 	# LOCK.
 	# if new object return it 
@@ -1561,7 +1759,30 @@ class Root(AbstractNetworkComponent):
 				throw_run_event_to_command_listener(event)
 
 
-	# getters
+	def check_for_domain(self, domain_name):
+		with TS.shared_lock:
+			logger.debug("checking if domain ({domain.get_domain_name()}) is present in root")
+			for domain in self.domains:
+				if domain.get_domain_name() == domain_name:
+					logger.debug(f"domain ({domain.get_domain_name()}) is present")
+					return domain
+			logger.debug(f"domain ({domain_name}) is NOT present")
+			return None
 
-	def get_root(self):
-		return self.path['root']
+	def add_domain(self, domain:Domain):
+		with TS.shared_lock:
+			logger.debug(f"Adding domain ({domain.get_domain_name()}) to root")
+			self.domains.append(domain)
+
+	def get_or_create_domain(self, domain_name):
+		with TS.shared_lock:
+			# check if domain is there.
+			domain = self.check_for_domain(domain_name)
+			if domain is None:
+				# create the Domain
+				domain = Domain(domain_name=domain_name)
+				self.add_domain(domain)
+			return {'object':domain, 'methods': []}
+
+
+

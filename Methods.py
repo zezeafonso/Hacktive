@@ -1,6 +1,7 @@
 import queue
 
 from Events import Run_Event
+
 from AbstractClasses import AbstractMethod
 from AbstractClasses import AbstractNetworkComponent
 
@@ -252,16 +253,212 @@ class NBNSIPTranslation(AbstractMethod):
 
 
 
-class QueryNamingContextOfDCThroughLDAP(AbstractMethod):
-	_name = "query naming context of DC through LDAP"
-	_filename = "outputs/naming-context-LDAP"
+class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
+	_name = 'dump interface endpoints from endpoint mapper'
+	_filename = 'outputs/rpcdump-'
+
+	def __init__(self):
+		pass
+
+	@staticmethod 
+	def to_str():
+		return f"{DumpInterfaceEndpointsFromEndpointMapper._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
+		"""
+		nc should be a rpc server
+		"""
+		if context is None:
+			# get context through the function
+			context = DumpInterfaceEndpointsFromEndpointMapper.get_context(nc)
+			if len(context) == 0:
+				return []
+
+		# command to run 
+		context_ip_address = context['ip']
+		cmd = f"rpcdump.py {context_ip_address}"
+
+		# output file 
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = DumpInterfaceEndpointsFromEndpointMapper._filename + str_ip_address + '.out'
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, nc=nc, context=context)]
+
+
+	@staticmethod
+	def get_context(nc:AbstractNetworkComponent):
+		# nothing for now
+		return dict()
+
+
+
+class EnumDomainTrustsThroughRPC(AbstractMethod):
+	"""
+	IT HAS CREDENTIALS: CHANGE THIS
+	"""
+	_name = 'enum domains trusts through rpc'
+	_filename = 'outputs/rpc-dsenumdomtrusts-'
 
 	def __init__(self):
 		pass
 
 	@staticmethod
 	def to_str():
-		return f"{QueryNamingContextOfDCThroughLDAP._name}"
+		return f"{EnumDomainTrustsThroughRPC._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
+		"""
+		nc should be a MSRPC server
+		"""
+		if context is None:
+			# get context through the function
+			context = EnumDomainTrustsThroughRPC.get_context(nc)
+			if len(context) == 0:
+				return []
+
+		if context['domain_name'] is None:
+			return []
+
+		# command to run 
+		context_ip_address = context['ip']
+		cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'dsenumdomtrusts\'"
+
+		# output file 
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = EnumDomainTrustsThroughRPC._filename + str_ip_address + '.out'
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainTrustsThroughRPC, nc=nc, context=context)]
+
+
+
+
+class EnumDomainsThroughRPC(AbstractMethod):
+	"""
+	IT HAS CREDENTIALS: CHANGE THIS
+	"""
+	_name = 'enumdomains through rpc'
+	_filename = 'outputs/rpc-enumdomains-'
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{EnumDomainsThroughRPC._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
+		"""
+		nc should be a MSRPC server
+		"""
+		if context is None:
+			# get context through the function
+			context = EnumDomainsThroughRPC.get_context(nc)
+			if len(context) == 0:
+				return []
+
+		# command to run 
+		context_ip_address = context['ip']
+		cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomains\'"
+
+		# output file 
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = EnumDomainsThroughRPC._filename + str_ip_address + '.out'
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainsThroughRPC, nc=nc, context=context)]
+
+
+class EnumDomainUsersThroughRPC(AbstractMethod):
+	"""
+	IT HAS CREDENTIALS: CHANGE THIS
+	"""
+	_name = 'enum domain users through rpc'
+	_filename = 'outputs/rpc-enumdomusers-'
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{EnumDomainUsersThroughRPC._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
+		"""
+		nc should be a MSRPC server
+		"""
+		if context is None:
+			# get context through the function
+			context = EnumDomainUsersThroughRPC.get_context(nc)
+			if len(context) == 0:
+				return []
+
+		# if we still don't have the domain for this rpc
+		if context['domain_name'] is None:
+			return []
+
+
+		# command to run 
+		context_ip_address = context['ip']
+		cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomusers\'"
+
+		# output file 
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = EnumDomainUsersThroughRPC._filename + str_ip_address + '.out'
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainUsersThroughRPC, nc=nc, context=context)]
+
+
+
+class EnumDomainGroupsThroughRPC(AbstractMethod):
+	"""
+	IT HAS CREDENTIALS: CHANGE THIS
+	"""
+	_name = 'enum domain groups through rpc'
+	_filename = 'outputs/rpc-enumdomgroups-'
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{EnumDomainGroupsThroughRPC._name}"
+
+	@staticmethod
+	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
+		"""
+		nc should be a MSRPC server
+		"""
+		if context is None:
+			# get context through the function
+			context = EnumDomainGroupsThroughRPC.get_context(nc)
+			if len(context) == 0:
+				return []
+
+		# if we still don't have the domain for this rpc 
+		if context['domain_name'] is None:
+			return []
+
+		# command to run 
+		context_ip_address = context['ip']
+		cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomgroups\'"
+
+		# output file 
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = EnumDomainGroupsThroughRPC._filename + str_ip_address + '.out'
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainGroupsThroughRPC, nc=nc, context=context)]
+
+
+
+
+class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
+	_name = "query root dse of DC through LDAP"
+	_filename = "outputs/nmap-script-rootdse-LDAP"
+
+	def __init__(self):
+		pass
+
+	@staticmethod
+	def to_str():
+		return f"{QueryRootDSEOfDCThroughLDAP._name}"
 
 	@staticmethod
 	def create_run_events(nc:AbstractNetworkComponent, context:dict=None) -> list:
@@ -270,17 +467,21 @@ class QueryNamingContextOfDCThroughLDAP(AbstractMethod):
 		"""
 		if context is None:
 			# get context through the function
-			context = QueryNamingContextOfDCThroughLDAP.get_context(nc)
+			context = QueryRootDSEOfDCThroughLDAP.get_context(nc)
 			if len(context) == 0:
 				return []
 
+		# command
 		context_ip_address = context['ip']
-		str_ip_address = context_ip_address.replace('.', '_')
-		# output file
-		output_file = QueryNamingContextOfDCThroughLDAP._filename+'-'+str_ip_address +'.out'
+		cmd = f"sudo nmap -Pn -n -p 389 --script=ldap-rootdse {context_ip_address}"
+		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
 
-		cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=QueryNamingContextOfDCThroughLDAP, nc=nc, context=context)]
+		# output file
+		str_ip_address = context_ip_address.replace('.', '_')
+		output_file = QueryRootDSEOfDCThroughLDAP._filename+'-'+str_ip_address +'.out'
+
+		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
+		return [Run_Event(type='run', filename=output_file, command=cmd, method=QueryRootDSEOfDCThroughLDAP, nc=nc, context=context)]
 
 	@staticmethod
 	def get_context(nc:AbstractNetworkComponent):

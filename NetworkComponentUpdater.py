@@ -242,9 +242,13 @@ def update_components_found_new_domain_components_path_ldap(context_for_updates,
 	+ we received a filtered object from the filter it means that the 
 	service is on. Which means this host (if it doesn't have already) 
 	must have an ldap service associated. 
+	+ gets/creates the ldap server for the host
+	+ associates the domain to the host
+	+ add's this host as a DC to the domain
 
 	Next we must check if any of the names corresponds to a domain name
 	"""
+	global root_obj
 	host_obj = context_for_updates['host']
 	domain_components_path = filtered_obj.get_dc_path()
 
@@ -256,8 +260,23 @@ def update_components_found_new_domain_components_path_ldap(context_for_updates,
 		ldap_server = answer['object']
 		auto_functions += answer['methods']
 
-		# update it's domain name
-		ldap_server.check_if_ldap_domain_components_path_is_domain_path(domain_components_path)
+		# check if the domain exists in the root database
+		# domain = network.get_or_create_domain(domain_components_path)
+		answer = root_obj.get_or_create_domain(domain_components_path)
+		if answer['methods'] is not None:
+			auto_functions += answer['methods'] # if it's a new domain
+		domain = answer['object']
+		
+		# there is only 1 domain for each host
+		#host_obj.associate_domain_to_host_if_not_already(domain) # TODO
+		# associate it with our host, if not done already
+		ldap_server.associate_domain_to_ldap_server_if_not_already(domain)
+		# put this host as a DC for the domain
+		domain.add_dc(ldap_server)
+
+		#auto_functions += host_obj.found_domain_for_host_methods() # TODO 
+		auto_functions += ldap_server.found_domain_for_server_methods()
+		#ldap_server.check_if_ldap_domain_components_path_is_domain_path(domain_components_path)
 
 	return auto_functions
 	
@@ -386,6 +405,44 @@ def found_netbios_hostname_with_smb_active(context, filtered_obj):
 
 
 
+def update_components_found_domain_trust(trusting_domain_name, trusted_domain_name):
+	"""
+	Updates components when a domain trust is found.
+
+	checks if the domains are already present in the databse,
+	updates also their trust relationships
+	"""
+	global root_obj
+
+	with TS.shared_lock:
+		auto_functions = list()
+		# check if the trusting domain exists in the root database
+		answer = root_obj.get_or_create_domain(trusting_domain_name)
+		trusting_domain = answer['object']
+
+		# new domain
+		if answer['methods'] is not None:
+			auto_functions += answer['methods'] 
+
+		# same domains trusting = trusted
+		if trusting_domain_name == trusted_domain_name: 
+			# no need to get or create
+			# no need to add domain_trust
+			return auto_functions
+
+		# get or create the trusted domain
+		answer = root_obj.get_or_create_domain(trusted_domain_name)
+		if answer['methods'] is not None:
+			auto_functions += answer['methods'] # if it's a new domain
+		trusted_domain = answer['object']
+
+		# update the thrusts
+		trusting_domain.add_domain_trust(trusted_domain)
+		return auto_functions
+
+
+
+
 
 """
 Update functions by method
@@ -509,7 +566,7 @@ def update_arp_scan(context, filtered_objects):
 	return auto_functions
 
 
-def update_query_naming_context_of_dc_through_ldap(context, filtered_objects):
+def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	"""
 	updates the components when we find a naminc context through 
 	ldap 
@@ -541,12 +598,13 @@ def update_query_naming_context_of_dc_through_ldap(context, filtered_objects):
 	answer = net_obj.get_ip_host_or_create_it(context['ip'])
 	host_obj = answer['object']
 
+	# new context for other function
 	context_for_updates = {'host': host_obj}
 
 	for filtered_obj in filtered_objects:
 		# FOUND A DOMAIN COMPONENTS PATH
 		if isinstance(filtered_obj, FO.Filtered_DomainComponentsFromLDAPQuery):
-			logger.debug(f"filter for ldap query to ip ({host_obj.ip}) found new domain components path {filtered_obj.get_dc_path()}")
+			logger.debug(f"filter for ldap query to ip ({host_obj.ip}) found new root domain path {filtered_obj.get_dc_path()}")
 			auto_functions += update_components_found_new_domain_components_path_ldap(context_for_updates, filtered_obj)
 
 	return auto_functions
@@ -624,12 +682,48 @@ def update_check_if_msrpc_service_is_running(context:dict, filtered_objects:list
 	host_obj = answer['object']
 
 	for filtered_obj in filtered_objects:
-		# FOUND A DOMAIN COMPONENTS PATH
+		# FOUND MSRPC is up
 		if isinstance(filtered_obj, FO.Filtered_MSRPCServiceIsUp):
 			logger.debug(f"filter for checking if msrpc service is up for ip ({host_obj.ip}) found that it IS UP")
 			answer = host_obj.found_msrpc_service_running_on_port(port=filtered_obj.get_port())
 			auto_functions += answer['methods']
 
+	return auto_functions
+
+
+def update_enum_domain_trusts_through_rpc(context:dict, filtered_objects:list):
+	global root_obj
+
+	# for this update the context will just be the root object
+	if context['network_address'] is None or context['interface_name'] is None or context['ip'] is None:
+		return 
+
+	auto_functions = list() # the list of new objects created
+
+	# context is only the network and interface names
+	net_name = context['network_address']
+	int_name = context['interface_name']
+	host_ip = context['ip']
+
+	answer = root_obj.get_interface_or_create_it(int_name)
+	int_obj = answer['object']
+	answer = int_obj.get_network_or_create_it(net_name)
+	if answer['object'] is None: # not interested in this network
+		return auto_functions 
+	net_obj = answer['object']
+	answer = net_obj.get_ip_host_or_create_it(host_ip)
+	host_obj = answer['object']
+
+
+	for filtered_obj in filtered_objects:
+		# FOUND domain trust
+		if isinstance(filtered_obj, FO.Filtered_FoundDomainTrust):
+			logger.debug(f"filter for enum domain trusts through rpc ({host_obj.get_ip()}) found that trust to ({filtered_obj.get_domain_name()})")
+			trusting_domain = context['domain_name']
+			trusted_domain = filtered_obj.get_domain_name()
+			auto_functions +=  update_components_found_domain_trust(trusting_domain, trusted_domain)
+			
+	return auto_functions
 """
 Update network components (general function)
 """
@@ -642,10 +736,14 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return update_arp_scan(context, filtered_objects)
 	elif method._name == 'ip to hostname through NBNS':
 		return update_ip_to_host_nbns(context, filtered_objects)
-	elif method._name == 'query naming context of DC through LDAP':
-		return update_query_naming_context_of_dc_through_ldap(context, filtered_objects)
+	elif method._name == 'query root dse of DC through LDAP':
+		return update_query_root_dse_of_dc_through_ldap(context, filtered_objects)
 	elif method._name == 'check if SMB service is running':
 		return update_check_if_smb_service_is_running(context, filtered_objects)
 	elif method._name == 'check if MSRPC service is running':
 		return update_check_if_msrpc_service_is_running(context, filtered_objects)
+	elif method._name == 'dump interface endpoints from endpoint mapper':
+		return [] # nothing for now 
+	elif method._name == 'enum domains trusts through rpc':
+		return update_enum_domain_trusts_through_rpc(context, filtered_objects)
 
