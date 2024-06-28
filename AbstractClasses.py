@@ -1,3 +1,4 @@
+
 from abc import ABC, abstractmethod
 
 
@@ -16,8 +17,8 @@ class AbstractNetworkComponent(ABC):
     the user can see them, just like the 'ls' command
     """
     @abstractmethod
-    def auto():
-    	pass
+    def get_context():
+    	return dict()
 
 
 

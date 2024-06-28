@@ -104,13 +104,14 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		"""
 		# check for the context variables
 		if context is None:
-			context = CheckIfSMBServiceIsRunning.get_context(nc)
-			if context is None:
-				logger.warning("No context for CheckIfSMBServiceIsRunning")
-				return []
+			logger.warning("No context for CheckIfSMBServiceIsRunning")
+			return []
 
 		# check for the specific requirements
 		if 'ip' not in context or 'network_address' not in context or 'interface_name' not in context:
+			return []
+
+		if context['domain_name'] is None:
 			return []
 
 		# extract the specific context for this command
@@ -160,10 +161,14 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		Will need the ip, the network and interface name
 		"""
 		if context is None:
-			CheckIfMSRPCServiceIsRunning.get_context(nc) # nothing for now 
+			logger.debug(f"CheckIfMSRPCServiceIsRunning didn't received a context from ({nc})")
+			return []
 		
 		if context['ip'] is None or context['network_address'] is None or context['interface_name'] is None:
 			return [] # nothing to do in this case
+
+		if context['domain_name'] is None:
+			return []
 
 		# extract the specific context for this command
 		ip = context['ip']
@@ -177,13 +182,6 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		cmd = f"sudo nmap -p 135 -n -Pn {ip}"
 		# criar o evento de run com o comando
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfMSRPCServiceIsRunning, nc=nc, context=context)]
-
-
-	def get_context(nc:AbstractNetworkComponent):
-		"""
-		nothing for now 
-		"""
-		pass
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -209,40 +207,28 @@ class NBNSGroupMembers(AbstractMethod):
 		return f"{NBNSGroupMembers._name}"
 
 	@staticmethod
-	def create_run_events(nc:AbstractNetworkComponent) -> list:
+	def create_run_events(nc:AbstractNetworkComponent, context:dict) -> list:
 		"""
 		Creates the run events for this method using a network component.
 		NC should be a NetBIOSGroup in most cases
-		"""	
-		context = NBNSGroupMembers.get_context(nc)
-		
+		"""		
 		# context couldn't extract necessary fields
 		if len(context) == 0:
+			logger.debug(f"NBNSGroupMembers didn't receive any context from ({nc})")
 			return []
 
+		# it is not associated with an object
+		if context['associated_object'] is None:
+			return []
+
+		# construct the command
 		group_id = context['group_id']
+		cmd =  f"nmblookup '{group_id}'"
 		# output file
 		output_file = NBNSGroupMembers._filename + group_id +'.out'
 
-		cmd =  f"nmblookup '{group_id}'"
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=NBNSGroupMembers, nc=nc, context=context)]
 
-
-
-	def get_context(nc:AbstractNetworkComponent):
-		"""
-		Supposes that the nc is a NetBIOSGroup object
-		"""
-		# get the object to which is associated 
-		network_name = nc.associated.network_address
-		interface_name = nc.associated.get_interface().interface_name
-		group_id = nc.id
-
-		if network_name is None or interface_name is None or group_id is None:
-			return {}
-
-		context = {'group_id': group_id, 'network':network_name, 'interface':interface_name}
-		return context
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -273,9 +259,8 @@ class NBNSIPTranslation(AbstractMethod):
 		"""
 		if context is None:
 			# get context
-			context = NBNSIPTranslation.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"NBNSIPTranslation didn't receive a context from ({nc})")
+			return []
 
 		context_ip_address = context['ip']
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -284,18 +269,6 @@ class NBNSIPTranslation(AbstractMethod):
 
 		cmd =  f"nmblookup -A {context_ip_address}"
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=NBNSIPTranslation, nc=nc, context=context)]
-
-	@staticmethod
-	def get_context(nc:AbstractNetworkComponent):
-		# get the host object (if it wasn't a host sending this)
-		host_with_ip = nc.get_host().ip
-	
-		network_name = nc.get_network().network_address
-		interface_name = nc.get_interface().interface_name
-		if host_with_ip is None or network_name is None:
-			return dict()
-		context = {'ip':host_with_ip, 'network':network_name, 'interface':interface_name}
-		return context
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -325,10 +298,8 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 		nc should be a rpc server
 		"""
 		if context is None:
-			# get context through the function
-			context = DumpInterfaceEndpointsFromEndpointMapper.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"DumpInterfaceEndpointsFromEndpointMapper didn't receive a context from ({nc})")
+			return []
 
 		# command to run 
 		context_ip_address = context['ip']
@@ -338,12 +309,6 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 		str_ip_address = context_ip_address.replace('.', '_')
 		output_file = DumpInterfaceEndpointsFromEndpointMapper._filename + str_ip_address + '.out'
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, nc=nc, context=context)]
-
-
-	@staticmethod
-	def get_context(nc:AbstractNetworkComponent):
-		# nothing for now
-		return dict()
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -426,10 +391,8 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		nc should be a MSRPC server
 		"""
 		if context is None:
-			# get context through the function
-			context = EnumDomainsThroughRPC.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"EnumDomainsThroughRPC didn't receive a context from ({nc})")
+			return []
 
 		# command to run 
 		context_ip_address = context['ip']
@@ -471,13 +434,12 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		nc should be a MSRPC server
 		"""
 		if context is None:
-			# get context through the function
-			context = EnumDomainUsersThroughRPC.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"EnumDomainUsersThroughRPC didn't receive a context from ({nc})")
+			return []
 
 		# if we still don't have the domain for this rpc
 		if context['domain_name'] is None:
+			logger.debug(f"couldn't construct event for method EnumDomainUsersThroughRPC, there was no domain name")
 			return []
 
 
@@ -520,13 +482,12 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		nc should be a MSRPC server
 		"""
 		if context is None:
-			# get context through the function
-			context = EnumDomainGroupsThroughRPC.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"EnumDomainGroupsThroughRPC didn't receive a context from ({nc})")
+			return []
 
 		# if we still don't have the domain for this rpc 
 		if context['domain_name'] is None:
+			logger.debug(f"Couln't construct the events for method EnumDomainGroupsThroughRPC there was no domain name")
 			return []
 
 		# command to run 
@@ -567,13 +528,11 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		"""
 		logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} for nc: ({nc})")
 		if context is None:
-			# get context through the function
-			context = QueryRootDSEOfDCThroughLDAP.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"QueryRootDSEOfDCThroughLDAP didn't receive any context from ({nc})")
+			return []
 
 		# if we have the domain name ask the user if he wants to run this eitherway
-		# For netbios group DC, we don't have the domain naem in the context.
+		# For netbios group DC, we don't have the domain name in the context.
 		if 'domain_name' in context and context['domain_name'] is not None:
 			logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")
 			domain_name = context['domain_name']
@@ -639,10 +598,12 @@ class ArpScan(AbstractMethod):
 		"""
 
 		if context is None:
-			# get context
-			context = ArpScan.get_context(nc)
-			if len(context) == 0:
-				return []
+			logger.debug(f"ArpScan didn't receive any context from ({nc})")
+			return []
+
+		# we must be present in the network
+		if context['our_ip'] is None:
+			return []
 
 		# get the str of the network addresss
 		context_net_address = context['network_address']
@@ -655,13 +616,8 @@ class ArpScan(AbstractMethod):
 		return [Run_Event(type='run', filename=output_file, command=cmd, method=ArpScan, nc=nc, context=context)]
 
 	def get_context(nc:AbstractNetworkComponent) -> dict:
-		# get the network object
-		network_name = nc.get_network_address()
-		interface_name = nc.get_interface().get_interface_name()
-		if network_name is None or interface_name is None:
-			return dict()
-		context = {'network':network_name, 'interface':interface_name}
-		return context
+		logger.debug(f"Arp scan, didn't receive any context")
+		return dict()
 
 	@staticmethod
 	def check_for_objective(nc):
@@ -690,13 +646,13 @@ class ListInterfaces(AbstractMethod):
 		return f"{name}"
 
 	@staticmethod
-	def create_run_events(nc:AbstractNetworkComponent) -> list:
+	def create_run_events(nc:AbstractNetworkComponent, context:dict) -> list:
 		method_name = ListInterfaces._name
 		output_file = ListInterfaces._filename
 
-		# get context
-		context = ListInterfaces.get_context(nc)
-		if len(context) == 0:
+		# context can be empty dict, but not None
+		if context is None:
+			logger.debug(f"ListInterfaces didn't receive any context from ({nc})")
 			return []
 
 		cmd = "ip a"

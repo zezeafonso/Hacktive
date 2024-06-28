@@ -1,3 +1,4 @@
+
 import threading 
 import subprocess
 import queue
@@ -70,6 +71,7 @@ def analyze_event(event):
 	TS.remove_command_from_commands_to_analyze(cmd)
 
 	logger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
+	# to know what we extrapolated from the output of the command
 	commands_and_filtered_objs[cmd] = list_filtered_objects
 
 	if list_filtered_objects != []:
@@ -78,12 +80,8 @@ def analyze_event(event):
 
 		# print the state of the network components after the update network components
 		print_state_network_components_after_cmd(cmd)
-
-		if auto_functions is None:
-			return []
-		return auto_functions
-	else:
-		return []
+		return
+	return
 
 
 def outputs_listener(root):
@@ -111,11 +109,9 @@ def outputs_listener(root):
 			continue
 
 		# RECEIVED CORRECT EVENT ---
-		auto_functions = analyze_event(event)
-		for auto_function in auto_functions:
-			logger.debug(f"calling auto function: ({auto_function})")
-			auto_function()
+		analyze_event(event)
 
+		# if no more events to analyze for now
 		if TS.out_queue.empty(): 
 			logger.debug(f"No outputs to parse, queue is empty")
 			TS.cmd_queue.put('Done')

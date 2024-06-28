@@ -31,6 +31,8 @@ class Domain(AbstractNetworkComponent):
 	This domain will be inserted in a forest and may or may not 
 	be the root Domain for it. 
 	"""
+	methods = []
+
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
 		self.domain_name = domain_name
 		# the domain pdc
@@ -40,6 +42,41 @@ class Domain(AbstractNetworkComponent):
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
 		self.trusts = list()
+
+		# the current context
+		self.state = None
+		# the objects that depend on this one for context
+		# - the hosts that belong to this domain
+		# - the forest to which this domain will belong
+		self.dependent_objects = []
+
+		self.check_for_updates_in_state()
+
+	def get_context(self):
+		return dict()
+
+	def add_dependent_object(self, obj):
+		self.dependent_objects.append(obj)
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 
 	def get_pdc(self):
 		with TS.shared_lock:
@@ -76,9 +113,13 @@ class Domain(AbstractNetworkComponent):
 		
 	def add_dc(self, dc:'LdapServer'):
 		with TS.shared_lock:
+			logger.debug("Adding dc to domain (self.domain_name")
 			if dc not in self.domain_dcs:
 				self.domain_dcs.append(dc)
 				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
+
+				self.check_for_updates_in_state()
+				return
 
 	def add_pdc(self, pdc:'LdapServer'):
 		with TS.shared_lock:
@@ -101,43 +142,27 @@ class Domain(AbstractNetworkComponent):
 				logger.debug(f"domain ({domain.get_domain_name()}) placed in domain trusts ({self.get_domain_name()})")
 				return []
 
-	def auto():
-		pass
-
-
-class Port(AbstractNetworkComponent):
-	def __init__(self, port_number:str, service:str):
-		self.port_number = port_number
-		self.service = service
-
-	def display(self):
-		pass
-
-	def updateComponent(self, add_nc:AbstractNetworkComponent):
-		pass
-
-	def auto(self):
-		if self.service == 'domain':
-			return []
-		elif self.service == 'kerberos-sec':
-			return []
-		elif self.service == 'microsoft-ds' or port_number == '445' or port_number == '135':
-			return []
-		elif self.service == 'ldap':
-			return []
-		elif self.service == 'msrpc':
-			return []
-		else:
-			return []
+	def auto_function(self):
+		for method in self.methods:
+			list_events = method.create_run_events(self, self.state)
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 
 
 
 class NetBIOSGroupDC:
-	methods = {Methods.QueryRootDSEOfDCThroughLDAP._name: Methods.QueryRootDSEOfDCThroughLDAP}
+	methods = {Methods.QueryRootDSEOfDCThroughLDAP}
 
 	def __init__(self, host:'Host', group:'NetBIOSGroup'):
 		self.host = host
 		self.group = group
+
+		# the current context of this object
+		self.state = None
+		# the objects that depend on this object for context
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
 
 	def get_host(self):
 		with TS.shared_lock:
@@ -158,13 +183,32 @@ class NetBIOSGroupDC:
 			context['interface_name'] = self.host.get_interface().get_interface_name()
 			return context
 
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 	def display_json(self):
 		with TS.shared_lock:
 			data = dict()
 			data['NetBIOS DC'] = dict()
 			return data
 
-	def auto(self):
+	def auto_function(self):
 		"""
 		for now doesn't do anything.
 		what we want it to do:
@@ -172,15 +216,47 @@ class NetBIOSGroupDC:
 		+ find the other machines that have this group (done in the netbios group)
 		"""
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.get_context())
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 		pass
 
 class NetBIOSGroupPDC:
+	methods = []
+
 	def __init__(self, host:'Host', group:'NetBIOSGroup'):
 		self.host = host
 		self.group = group
+
+		# the current context for this object
+		self.state = None
+		# the objects that depend on this one for context
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
+
+
+	def get_context(self):
+		return dict()
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -188,23 +264,56 @@ class NetBIOSGroupPDC:
 			data['NetBIOS PDC'] = dict()
 			return data
 
-	def auto(self):
+	def auto_function(self):
 		"""
 		for now doesn't do nothing.
 		What we want it to do:
 		+ call the ldapsearch for the naming contexts
 		"""
-		print("CALLED AUTO FOR PDC")
-		pass # for now
+		for method in self.methods:
+			list_events = method.create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
+
+
 
 class NetBIOSMBServer:
 	"""
-	TODO: when we create a NetBIOS SMB Server we should check 
-	if the SMB is running for this machine.
-	Add this to the methods.
+	TODO:
+	- add the method of checking if the smb is actually alive
 	"""
+	methods = []
+
 	def __init__(self, host:'Host'):
 		self.host = host
+
+		# the current context of the object
+		self.state = None
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
+
+	def get_context(self):
+		return dict()
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -213,16 +322,19 @@ class NetBIOSMBServer:
 			return data
 	
 
-	def auto(self):
+	def auto_function(self):
 		"""
-		Nothing for now.
-		what we would like:
-		+ to check if the smb is active -> if it is -> create the actual smb server 
+		The function that automatically calls every method in the 
+		methods list
 		"""
-		pass
+		for method in self.methods:
+			list_events = self.methods[method].create_run_events(self, self.state)
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 
 	def found_domain_methods(self):
 		return []
+
 
 
 
@@ -239,6 +351,35 @@ class SMBServer:
 		self.shares = list() # list of shares in the SMB server
 		self.port = port # might be None
 
+		# the current context of the object
+		self.state = None
+		# the objects that depend on this object for the context
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
+
+	def get_context(self):
+		return dict()
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 	def display_json(self):
 		with TS.shared_lock:
 			data = dict()
@@ -254,7 +395,7 @@ class SMBServer:
 		The function that's responsible for calling the auto methods.
 		"""
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = self.methods[method].create_run_events(self, self.state)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 		
@@ -281,6 +422,14 @@ class MSRPCServer:
 		self.host = host
 		self.port = port # might be None
 
+		self.state = None
+		self.dependent_objects = list()
+
+		# this object will be dependent of host (for the domain name)
+		host.add_dependent_object(self)
+
+		self.check_for_updates_in_state()
+
 	def get_context(self):
 		with TS.shared_lock:
 			context = dict()
@@ -297,6 +446,25 @@ class MSRPCServer:
 				context['domain_name'] = domain.get_domain_name()
 			return context
 
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 	def display_json(self):
 		with TS.shared_lock:
 			data = dict()
@@ -311,7 +479,7 @@ class MSRPCServer:
 		with TS.shared_lock:
 			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
-				list_events = method.create_run_events(self, self.get_context())
+				list_events = method.create_run_events(self, self.state)
 				for event in list_events:
 					throw_run_event_to_command_listener(event)
 		
@@ -339,7 +507,34 @@ class LdapServer:
 
 	def __init__(self, host:'Host'):
 		self.host = host
+
+		self.state = None
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
+
+	def get_context(self):
+		return dict() # for now
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 	def get_domain(self):
 		with TS.shared_lock:
@@ -376,7 +571,7 @@ class LdapServer:
 		calls each method with context.
 		"""
 		for method in self.methods:
-			list_events = method.create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.state)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 
@@ -424,6 +619,18 @@ class NetBIOSWorkstation:
 		self.groups_and_roles = dict() # group_name : [role1, role2]
 		self.smb_server = None
 
+		self.state = None # the current state of the context
+		# the objects that depend on this object
+		# HOST depends for the hostname
+		self.dependent_objects = list()
+		if host is not None:
+			self.dependent_objects.append(host)
+
+		# call the automatic methods
+		self.check_for_updates_in_state()
+
+
+
 
 	def get_hostname(self):
 		with TS.shared_lock:
@@ -444,6 +651,28 @@ class NetBIOSWorkstation:
 		with TS.shared_lock:
 			return [group for group in self.groups_and_roles]
 
+	def get_context(self):
+		return dict() # for now 
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 	
 
 	# FUNCTIONS
@@ -462,13 +691,13 @@ class NetBIOSWorkstation:
 					data['NetBIOSWorkstation']['Groups'][group.get_id()] = role.display_json()
 			return data
 
-	def auto(self):
+	def auto_function(self):
 		# call the automatic methods
 		for method in self.methods:
 			list_events = method.create_run_events(self)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
-		pass
+		return
 
 	def update_hostname(self, hostname:str):
 		"""
@@ -492,6 +721,9 @@ class NetBIOSWorkstation:
 		with TS.shared_lock:
 			logger.debug(f"Associating group ({group.id}) without roles to NetBIOSWorkstation")
 			self.groups_and_roles[group] = []
+
+			self.check_for_updates_in_state()
+			return
 
 	def check_if_belongs_to_group(self, group:'NetBIOSGroup'):
 		"""
@@ -539,6 +771,9 @@ class NetBIOSWorkstation:
 		with TS.shared_lock:
 			self.groups_and_roles[group].append(role)
 
+			# updates this object -> check for updates -> call methods
+			self.check_for_updates_in_state()
+
 	def create_and_associate_netbios_dc_group_role(self, group:'NetBIOSGroup'):
 		"""
 		creates the NetBIOSGroupDC and associates it to a group
@@ -549,19 +784,12 @@ class NetBIOSWorkstation:
 		"""
 		with TS.shared_lock:
 			logger.debug(f"associating netbios DC group role in group ({group.id})")
+
 			netbios_dc = NetBIOSGroupDC(self.host, group)
 			if not self.check_if_role_already_exists_for_group(group, NetBIOSGroupDC):
 				self.add_new_role_to_group(group, netbios_dc)
-				return [netbios_dc.auto]
-			return []
-
-
-	def add_netbios_smb_server(self, group:'NetBIOSGroup'):
-		# check if we alre
-		# if it isn't
-			# create the netbiosGroupsSMBServer
-			# insert the object to this group in dict
-		pass
+				return 
+			return 
 
 	def add_pdc_role_for_group(self, group:'NetBIOSGroup'):
 		"""
@@ -575,8 +803,7 @@ class NetBIOSWorkstation:
 			if not self.check_if_role_already_exists_for_group(group, NetBIOSGroupPDC):
 				role = NetBIOSGroupPDC(self.host, group)
 				self.add_new_role_to_group(group, role)
-				return [role.auto]
-			return []
+			return
 
 
 	def add_group(self, group:'NetBIOSGroup'):
@@ -598,7 +825,7 @@ class NetBIOSWorkstation:
 			logger.debug(f"Adding group ({group.id}) to NetBIOSWorkstation")
 			if self.check_if_belongs_to_group(group):
 				logger.debug(f"Group ({group.id}) already belonged to NetBIOSWorkstation")
-				return []
+				return 
 			else:
 				# place the group in dict without roles
 				self.associate_new_group_without_roles(group)
@@ -606,9 +833,7 @@ class NetBIOSWorkstation:
 				# domain controller role
 				if group.type == '1c':
 					return self.create_and_associate_netbios_dc_group_role(group)
-
-				# if no new feature was added
-				return []
+				return
 
 
 
@@ -691,6 +916,10 @@ class NetBIOSWorkstation:
 		with TS.shared_lock:
 			self.host = host
 
+			# udpated object -> check for updates -> call methods
+			self.check_for_updates_in_state()
+			return 
+
 
 	def add_netbios_smb_server(self):
 		"""
@@ -703,7 +932,8 @@ class NetBIOSWorkstation:
 			# associate it to this object
 			self.smb_server = netbios_smb_server
 
-			return [netbios_smb_server.auto]
+			self.check_for_updates_in_state()
+			return
 
 
 	def found_domain_methods(self):
@@ -724,7 +954,7 @@ class Host(AbstractNetworkComponent):
 		- NetBIOS DC (inside workstation)
 	"""
 	#methods = {Methods.PortScan._name: Methods.PortScan}
-	methods = {Methods.NBNSIPTranslation._name: Methods.NBNSIPTranslation}
+	methods = [Methods.NBNSIPTranslation, Methods.CheckIfMSRPCServiceIsRunning, Methods.CheckIfSMBServiceIsRunning]
 	
 	def __init__(self, path:dict, ip:str=None,hostname:str=None):
 		if hostname is not None:
@@ -742,6 +972,14 @@ class Host(AbstractNetworkComponent):
 		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj
 		self.ports = dict()
 
+		# the current state of the network component
+		self.state = None # it starts as an empty dict
+		# the list of objects that depend on the host
+		self.dependent_objects = list() 
+
+		# call the automatic methods first time
+		self.check_for_updates_in_state()
+
 	# getters
 
 	def get_context(self):
@@ -753,23 +991,52 @@ class Host(AbstractNetworkComponent):
 			context['ip'] = self.get_ip()
 			context['network_address'] = self.get_network().get_network_address()
 			context['interface_name'] = self.get_interface().get_interface_name()
-			# for domain name
+
+			# for domain name 
+			#(HOST IS DEPENDET OF DOMAIN)
 			domain = self.get_domain()
 			if domain is not None:
 				context['domain_name'] = domain.get_domain_name()
 			else:
 				context['domain_name'] = None
+
 			# hostname
+			# (HOST IS DEPENDET OF NETBIOS WORKSTATION)
 			context['netbios_hostname'] = self.get_netbios_hostname() # might be None
 			return context
+
+	def add_dependent_object(self, obj):
+		with TS.shared_lock:
+			self.dependent_objects.append(obj)
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 
 	def get_netbios_workstation_obj(self):
 		with TS.shared_lock:
 			logger.debug(f"getting netbios workstaion obj from Host ({self.ip})")
+
 			if self.check_if_host_has_netbios_workstation_role():
 				return self.roles['NetBIOSWorkstation']
-			logger.debug(f"Host ({self.ip}) had no netbios workstation machine associated")
+			else:
+				logger.debug(f"Host ({self.ip}) had no netbios workstation machine associated")
 			return None
 
 	def get_msrpc_server_obj(self):
@@ -794,15 +1061,19 @@ class Host(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"getting netbios hostname for Host ({self.ip})")
+
 			netbios_ws = self.get_netbios_workstation_obj()
 			if netbios_ws is None:
 				logger.debug(f"host ({self.ip}) doesn't have an associated netbios workstation")
 				return None
+
 			if netbios_ws.get_hostname() is None:
 				logger.debug(f"host ({self.ip}) netbios workstation doesn't have a Hostname")
 				return None
-			logger.debug(f"host ({self.ip}) netbios hostname is ({netbios_ws.get_hostname()})")
-			return netbios_ws.get_hostname()
+
+			hostname = netbios_ws.get_hostname()
+			logger.debug(f"host ({self.ip}) netbios hostname is ({hostname})")
+			return hostname
 		return None
 
 	def get_domain(self):
@@ -858,9 +1129,9 @@ class Host(AbstractNetworkComponent):
 	def display(self):
 		print(f"Host:{self.hostname}")
 
-	def auto(self):
+	def auto_function(self):
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.get_context())
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 		pass
@@ -931,8 +1202,12 @@ class Host(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"Adding a ldap server role to this host ({self.get_ip()})")
-			self.roles['ldap server'] = LdapServer(self)
-			return self.roles['ldap server']
+
+			ldap_server = LdapServer(self)
+			self.roles['ldap server'] = ldap_server
+
+			self.check_for_updates_in_state()
+			return ldap_server
 
 	def get_or_add_role_ldap_server(self):
 		"""
@@ -943,9 +1218,8 @@ class Host(AbstractNetworkComponent):
 			ldap_server = self.get_ldap_server_obj()
 			if ldap_server is None:
 				ldap_server = self.add_role_ldap_server()
-				auto_function = ldap_server.get_auto_function()
-				return {'object': ldap_server, 'methods':[auto_function]}
-			return {'object':ldap_server, 'methods': []}
+				
+			return ldap_server
 
 
 	# NETBIOS
@@ -974,9 +1248,9 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"Associating netbios workstation to Host ({self.ip})")
 			self.roles['NetBIOSWorkstation'] = netbios_workstation
 
-			netbios_workstation.associate_host(self)
-
-			return [netbios_workstation.auto]
+			# because we updated the object -> check for updates -> call methods
+			self.check_for_updates_in_state()
+			return
 
 	def check_if_host_has_netbios_workstation_role(self):
 		with TS.shared_lock:
@@ -1006,7 +1280,6 @@ class Host(AbstractNetworkComponent):
 		gets or creates the netbios workstation role 
 		associates an existing netbios group to it.
 		"""
-		auto_functions = []
 
 		# with lock update the information on the netbios group
 		with TS.shared_lock:
@@ -1014,9 +1287,10 @@ class Host(AbstractNetworkComponent):
 			if netbios_ws is None:
 				self.add_role_netbios_workstation(hostname=None)
 				netbios_ws = self.get_netbios_workstation_obj()
-			auto_functions += netbios_ws.add_group(netbios_group) # empty list of list with auto functions
+			netbios_ws.add_group(netbios_group) # empty list of list with auto functions
 
-		return auto_functions
+			self.check_for_updates_in_state()
+		return
 
 
 
@@ -1039,18 +1313,23 @@ class Host(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding smb server role")
+
 			if self.check_if_host_has_smb_server_role():
 				logger.debug(f"Host ({self.ip}) already had a smb server role")
-				return {'object': self.roles['SMBServer'], 'methods': []}
+				return self.roles['SMBServer'] 
 			else:
 				smb_server_obj = SMBServer(self, port)
 				self.roles['SMBServer'] = smb_server_obj
-				return {'object':smb_server_obj, 'methods': [smb_server_obj.get_auto_function()]}
+
+				# updated this object -> call methods (if case)
+				self.check_for_updates_in_state()
+				return smb_server_obj
 
 
 	def found_smb_service_running_on_port(self, port=str):
 		with TS.shared_lock:
-			return self.get_or_add_role_smb_server(port)
+			smb_server = self.get_or_add_role_smb_server(port)
+			return smb_server
 
 
 
@@ -1072,19 +1351,23 @@ class Host(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding rpc server role")
+
 			if self.check_if_host_has_rpc_server_role():
 				logger.debug(f"host ({self.ip}) already has a rpc server role")
-				return {'object': self.roles['MSRPCServer'], 'methods': []}
+				return self.roles['MSRPCServer']
 			else:
-				rpc_server_obj = MSRPCServer(self, port)
-				self.roles['MSRPCServer'] = rpc_server_obj
+				msrpc_server = MSRPCServer(self, port)
+				self.roles['MSRPCServer'] = msrpc_server
 				logger.debug(f"Added MSRPC server role to ({self.ip})")
-				return {'object':rpc_server_obj, 'methods':[rpc_server_obj.get_auto_function()]}
+
+				self.check_for_updates_in_state()
+				return msrpc_server
 
 
 	def found_msrpc_service_running_on_port(self, port):
 		with TS.shared_lock:
-			return self.get_or_add_role_rpc_server(port)
+			msrpc_server = self.get_or_add_role_rpc_server(port)
+			return msrpc_server
 
 
 
@@ -1096,9 +1379,12 @@ class Host(AbstractNetworkComponent):
 		+ Checks if it has a domain associated
 		+ (if not) adds this new domain to the dictionary
 		+ gives the role of None (machine) to the roles
+
+		calls methods if it was updated
 		"""
 		with TS.shared_lock:
 			logger.debug(f"associating domain ({domain.get_domain_name()}) to host ({self.get_ip()})")
+
 			associated_domain = self.get_domain()
 			if associated_domain is not None:
 				logger.debug(f"Host ({self.get_ip()}) is already associated to a domain ({associated_domain.get_domain_name()})")
@@ -1106,6 +1392,12 @@ class Host(AbstractNetworkComponent):
 
 			self.AD_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) to host ({self.get_ip()}) successfully")
+
+			# the host is dependent on information from the domain
+			domain.add_dependent_object(self)
+
+			# we updated this object (added a new dependency)
+			self.check_for_updates_in_state()
 			return 
 
 	def associate_DC_role_to_associated_domain(self, domain:Domain):
@@ -1133,20 +1425,6 @@ class Host(AbstractNetworkComponent):
 			self.AD_domain_roles[domain] = 'PDC' # hard coded
 
 
-	def found_domain_methods(self):
-		"""
-		Defines the methods to call when we find a domain for this host
-		TODO:
-		+ check if ldap service is running
-		+ check if kerberos service is running
-		+ check if dns service is running
-		"""
-		methods = [Methods.CheckIfMSRPCServiceIsRunning, Methods.CheckIfSMBServiceIsRunning]
-		for method in methods:
-			list_events = method.create_run_events(self, self.get_context())
-			for event in list_events:
-				throw_run_event_to_command_listener(event)
-
 	def found_domain_for_host_methods(self):
 		"""
 		the list of functions to call when we know we found a domain for this host.
@@ -1173,6 +1451,7 @@ class Host(AbstractNetworkComponent):
 
 
 class NetBIOSGroup():
+	methods = [Methods.NBNSGroupMembers]
 
 	def __init__(self, group_name, group_type):
 		"""
@@ -1183,9 +1462,42 @@ class NetBIOSGroup():
 		self.id = group_name.lower()+'#'+group_type
 		self.associated = None # the object to which is associated (network / wins server)
 
+		# the current context of the object
+		self.state = None
+		# the objects that depend on this object for context
+		self.dependent_objects = list()
+
+		self.check_for_updates_in_state()
+
 	def get_id(self):
 		with TS.shared_lock:
 			return self.id
+
+	def get_context(self):
+		context = dict()
+		context['group_name'] = self.name
+		context['group_id'] = self.id
+		context['associated_object'] = self.associated # might be None
+		return context
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -1201,7 +1513,7 @@ class NetBIOSGroup():
 		"""
 		pass
 
-	def auto(self):
+	def auto_function(self):
 		"""
 		Defines the functions that runs the automatic methods 
 		for when we find a new netBIOS group.
@@ -1213,10 +1525,9 @@ class NetBIOSGroup():
 		"""
 		# I want for us to find the other bitches that belong to this one
 		# TODO : add the method for nmblookup that finds the other ip's for this group
-		methods = [Methods.NBNSGroupMembers]
 		list_events = []
-		for method in methods:
-			list_events += method.create_run_events(self)
+		for method in self.methods:
+			list_events += method.create_run_events(self, self.state)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 
@@ -1228,8 +1539,13 @@ class NetBIOSGroup():
 		if isinstance(obj, Network):
 			with TS.shared_lock:
 				if self.associated is not None:
-					print("changing the associated object of netbios group")
+					logger.debug(f"changing the associated object of netbios group ({self.id})")
 				self.associated = obj
+
+				self.check_for_updates_in_state()
+				return
+
+
 
 
 
@@ -1240,7 +1556,7 @@ class Network(AbstractNetworkComponent):
 	- get the dns server for it
 
 	"""
-	methods = {Methods.ArpScan._name: Methods.ArpScan}
+	methods = {Methods.ArpScan}
 	
 	def __init__(self, network_address:str, path:dict):
 		self.network_address = network_address
@@ -1252,6 +1568,15 @@ class Network(AbstractNetworkComponent):
 		self.path['network'] = self
 		self.netbios_groups = dict() # group id : group object
 		self.netbios_workstations = [] # [netbiosworkstation_obj, netbiosworkstaiton_obj]
+		self.our_ip = None # for now we don't have an IP in the network
+
+		# the current context of the object
+		self.state = None
+		# the objects that depend on the context from the network
+		self.dependent_objects = list()
+
+		# too call the automatic methods
+		self.check_for_updates_in_state()
 
 	def get_context(self):
 		"""
@@ -1261,13 +1586,36 @@ class Network(AbstractNetworkComponent):
 			context = dict()
 			context['network_address'] = self.get_network_address()
 			context['interface_name'] = self.get_interface().get_interface_name()
+			context['our_ip'] = self.get_our_ip()
 			return context
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
 
 	def get_network_address(self):
 		n_a = None
 		with TS.shared_lock:
 			n_a = self.network_address
 		return n_a
+
+	def get_our_ip(self):
+		return self.our_ip
 
 	def get_host_through_ip(self, ip):
 		with TS.shared_lock:
@@ -1311,17 +1659,21 @@ class Network(AbstractNetworkComponent):
 				data['network']['netbios workstations'].append(netbios_workstation.display_json())
 			return data
 
-	def auto(self):
-		print("auto network")
+	def auto_function(self):
 		# no need for lock, the methods don't change
 		list_events = []
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.get_context())
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 
 	def add_our_ip(self, ip:str):
-		self.our_ip = ip
+		with TS.shared_lock:
+			self.our_ip = ip
+
+			# because we update the object -> check for relevance
+			self.check_for_updates_in_state()
+			return 
 
 	def attach_host(self, ip:str):
 		with TS.shared_lock:
@@ -1341,11 +1693,13 @@ class Network(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"checking if host ({host_ip}) exists for this network ({self.network_address})")
+
 			if host_ip in self.hosts:
 				logger.debug(f"host ({host_ip}) exists for this network ({self.network_address})")
-				return {'exists':'yes', 'object':self.hosts[host_ip]}
+				return self.hosts[host_ip]
+
 			logger.debug(f"host ({host_ip}) does not exist for this network ({self.network_address})")
-			return {'exists':'no'}
+			return None
 
 
 	def create_host_with_ip(self, ip:str):
@@ -1355,41 +1709,41 @@ class Network(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"creating host ({ip}) for this network ({self.network_address})")
-			new_host_obj = Host(ip=ip, path=self.path)
 
-			self.hosts[ip] = new_host_obj
-			res = {'object': new_host_obj, 'methods':self.found_ip_host_methods(new_host_obj)}
-			return res
+			new_host = Host(ip=ip, path=self.path)
+			self.hosts[ip] = new_host
+
+			# updated this object -> check for updates -> call methods
+			self.check_for_updates_in_state()
+			return new_host
 
 	def get_ip_host_or_create_it(self, ip):
 		"""
 		gets the host object, if it exists. Otherwise, creates
 		a new host object for this network. 
 
-		returns: dict with 'object' (NONE: if the IP is the same
-		as OUR IP in this network) and 'methods' (if object 
-		is new)
+		checks for relevant updates in the network, if so calls the methods.
+		calls the methods automatically for host when it creates it 
 		"""
 		# if host doesn't exist create it and get methods
 		with TS.shared_lock:
 			logger.debug(f'get/create host with ip ({ip})')
-			answer = self.check_for_host_with_ip(ip)
+			host = self.check_for_host_with_ip(ip)
 
-			if answer['exists'] == 'no': # if it doesn't exist
+			if host is None: # if it doesn't exist
 				logger.debug(f'Host ({ip}) didnt exist for this network {self.network_address}')
+
 				# if it's 'our ip' in the network
 				if self.our_ip == ip:
 					logger.debug(f"Host ({ip}) is our IP for this network {self.network_address}")
-					#logger.debug("[Network Component]: IP to retrive is the same as OUR IP in the network!!!")
-					return {'object':None, 'methods':[]}
-
-
-				answer = self.create_host_with_ip(ip)
-				return answer
-			# the host already existed, no methods found
+					return None
+				else:
+					host = self.create_host_with_ip(ip)
+					return host
+			
 			else:
 				logger.debug(f'host ({ip}) already existed for this network returning that object')
-				return {'object': answer['object'], 'methods': []}
+				return host
 
 	# PLEASE USE A LOCK
 	def found_ip_host_methods(self, host:Host):
@@ -1420,23 +1774,21 @@ class Network(AbstractNetworkComponent):
 		with TS.shared_lock:
 			logger.debug(f"associating netbios workstation ({hostname}) to Host ({ip})")
 			ip_host = self.get_host_through_ip(ip)
-			nw_obj = ip_host.get_netbios_workstation_obj()
+			netbios_ws = ip_host.get_netbios_workstation_obj()
 
 			# if host is associated with a netbios machine 
-			if nw_obj is not None:
+			if netbios_ws is not None:
 				logger.debug(f"Host ({ip}) already had a netbios workstation obj associated")
-				if nw_obj.get_hostname() is not None and nw_obj.get_hostname() == hostname:
+				if netbios_ws.get_hostname() is not None and netbios_ws.get_hostname() == hostname:
 					logger.debug(f"Host ({ip}) was already associated to this netbios workstation")
 				else:
 					logger.warning(f"Host ({ip}) is associated to a different netbios workstation")
-				return []
 
-			answer = self.get_or_create_netbios_workstation_through_hostname(hostname)
-			nw_obj = answer['object']
-			auto_functions = answer['methods']
-
-			auto_functions += ip_host.associate_NetBIOSWorkstation(nw_obj)
-			return auto_functions
+			else: # we have to create the netbios ws
+				netbios_ws = self.get_or_create_netbios_workstation_through_hostname(hostname)
+				ip_host.associate_NetBIOSWorkstation(netbios_ws)
+				netbios_ws.associate_host(ip_host)
+			return 
 
 
 	def check_if_NetBIOSWorkstation_is_associated(self, netbios_wk:NetBIOSWorkstation):
@@ -1481,9 +1833,10 @@ class Network(AbstractNetworkComponent):
 		with TS.shared_lock:
 			logger.debug(f"associating netbios workstation to network ({self.network_address})")
 			self.netbios_workstations.append(netbios_wk)
-			# the methods to call for netbios_workstations
-			# methods = [self.netbios_workstation.auto]
-			return []
+			
+			# becaus we updated this object -> check for relevance 
+			self.check_for_updates_in_state()
+			return 
 
 
 	def get_or_create_netbios_workstation_through_hostname(self, hostname:str):
@@ -1494,17 +1847,17 @@ class Network(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			logger.debug(f"associating netbios workstation with hostname ({hostname}) to network ({self.network_address})")
-			obj = self.check_if_NetBIOSWorkstation_is_associated_through_hostname(hostname)
-			if obj != None:
-				return {'object':obj, 'methods': []}
+			netbios_ws = self.check_if_NetBIOSWorkstation_is_associated_through_hostname(hostname)
+
+			if netbios_ws != None:
+				return netbios_ws
 
 			# create the netbios workstation object
-			new_nw_obj = NetBIOSWorkstation(host = None, hostname = hostname)
-			methods = [new_nw_obj.auto]
+			new_netbios_ws = NetBIOSWorkstation(host = None, hostname = hostname)
 
 			# associate the object to this network
-			self.associate_NetBIOSWorkstation(new_nw_obj)
-			return {'object': new_nw_obj, 'methods': methods}
+			self.associate_NetBIOSWorkstation(new_netbios_ws)
+			return new_netbios_ws
 
 
 
@@ -1529,16 +1882,16 @@ class Network(AbstractNetworkComponent):
 		Returns the object and the automatic methods to run 
 		(we found a new netbios group)
 		"""
-		answer = dict()
-		answer['object'] = NetBIOSGroup(group_name, group_type)
-		answer['methods'] = [] # don't call any methods here. 
-		return answer
+		return NetBIOSGroup(group_name, group_type)
 
 	def associate_netbios_group_to_this_network(self, group:NetBIOSGroup):
 		with TS.shared_lock:
 			if not self.check_if_netbios_group_exists(group.name, group.type):
 				group_id = group.name+'#'+group.type
 				self.netbios_groups[group_id] = group
+
+				self.check_for_updates_in_state()
+				return 
 
 
 
@@ -1557,6 +1910,14 @@ class Interface(AbstractNetworkComponent):
 		self.path = path.copy()
 		self.path['interface'] = self
 
+		self.state = None # Corresponds to the (present) context)
+		# the list of objects that depend on the state of this one
+		# No one depends on the interface
+		self.dependent_objects = list() 
+
+		# will call the automatic methods
+		self.check_for_updates_in_state()
+
 	def get_context(self):
 		"""
 		Defines the context in which the methods will be called
@@ -1565,6 +1926,28 @@ class Interface(AbstractNetworkComponent):
 			context = dict()
 			context['interface_name'] = self.get_interface_name()
 			return context 
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			# first run: context != None
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
+
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -1599,22 +1982,23 @@ class Interface(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			if network_name in self.networks:
-				return {'exists': 'yes', 'object': self.networks[network_name]}
-		return {'exists':'no'}
+				return self.networks[network_name]
+		return None
 
 	def create_network_with_network_str(self, network_name:str):
 		"""
 		creates the network; attaches it to the interface obj;
 		returns the list of methods to run
 		"""
-		new_network_obj = Network(network_name, self.path)
 		with TS.shared_lock:
-			# call function that attaches a new network TODO 
-			self.networks[network_name] = new_network_obj
-		res = {'object': new_network_obj, 'methods':self.found_network_methods(new_network_obj)}
-		return res
+			new_network = Network(network_name, self.path) 
+			self.networks[network_name] = new_network
 
-	def get_network_or_create_it(interface_obj, network_str):
+			# because we updated this object -> check for relevance
+			self.check_for_updates_in_state()
+			return new_network
+
+	def get_network_or_create_it(self, network_str):
 		"""
 		USER INPUT - must choose if we want to add new network
 
@@ -1630,18 +2014,19 @@ class Interface(AbstractNetworkComponent):
 		"""
 		# if network doesn't exist create it and get methods
 		with TS.shared_lock:
-			answer = interface_obj.check_for_network_str(network_str)
-			if answer['exists'] == 'no': # doesn't exist
-				# create the interface, and get the auto methods
+			network = self.check_for_network_str(network_str)
+			if network == None: # doesn't exist
+				# create the network, but first ask if we want it 
 				choice = input(f"[I]: add network ({network_str})? (y/n)")
 				# ASK THE USER IF THIS NETWORK IS THE ONE
 				if choice == 'yes' or choice == 'y':
-					answer = interface_obj.create_network_with_network_str(network_str)
-					return answer
+					# checks for updates as well
+					network = self.create_network_with_network_str(network_str)
+					return network
 				else:
-					return {'object':None, 'methods':[]}
+					return None
 			else: # it exists
-				return {'object':answer['object'], 'methods':[]}
+				return network
 
 	def found_network_methods(self, network:Network):
 		"""
@@ -1655,28 +2040,13 @@ class Interface(AbstractNetworkComponent):
 			return None
 		return self.networks[network_name]
 
-	def user_interaction(self, banner:str):
-		self.display()
-		interface_banner = banner+' '+self_interface_name+' >'
-		while True:
-			user_choice = input(interface_banner)
-
-			if user_choice == 'display':
-				self.display()
-			elif user_choice in self.networks:
-				network = self.networks[user_choice]
-				network.user_interaction(interface_banner)
-			else:
-				print("typo, try again")
-				continue
-
 	"""
 	Run this when we find a new interface
 	"""
-	def auto(self):
+	def auto_function(self):
 		# no need for lock, the methods don't change
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.state)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
 
@@ -1717,12 +2087,51 @@ class Root(AbstractNetworkComponent):
 		self.path = {'root':self} # the path to this object
 		self.domains = list() # empty list for the domains we find
 
+		# this will be the current state of the context 
+		# for now is None, because we haven't once checked for it.
+		self.state = None 
+		# the objects that depend on the root for context
+		self.dependent_objects = list()
+
 	# getters
+
+	def get_context(self):
+		return dict
+
+	def check_for_updates_in_state(self):
+		"""
+		Checks for updates in the state of this interface.
+		If so, calls for the state of the objects that depend on this.
+		calls it's methods.
+		"""
+		with TS.shared_lock:
+			new_state = self.get_context()
+			if new_state != self.state:
+				self.state = new_state
+
+				# check for updates in dependent objects
+				for obj in self.dependent_objects:
+					obj.check_for_updates_in_state()
+				
+				# call for out methods
+				self.auto_function()
+			return 
+
 
 	def get_root(self):
 		return self.path['root']
 
 	# Functions
+	def auto_function(self, banner:str = 'console >'):
+		"""
+		Calls each method that is present in the list of methods with the 
+		current state of the object.
+		"""
+		# no need for lock, the methods don't change
+		for method in self.methods:
+			list_events = self.methods[method].create_run_events(self, self.get_context())
+			for event in list_events:
+				throw_run_event_to_command_listener(event)
 
 	def display_json(self):
 		with TS.shared_lock:
@@ -1768,18 +2177,20 @@ class Root(AbstractNetworkComponent):
 		if interface exists, return the object
 		"""
 		if interface_name in self.interfaces:
-			return {'exists': 'yes', 'object': self.interfaces[interface_name]}
-		return {'exists':'no'}
+			return self.interfaces[interface_name]
+		return None
 
 	def create_interface_with_name(self, interface_name:str):
 		"""
 		creates the interface; attaches it to the root obj;
 		returns the list of methods to run
 		"""
-		new_interface_obj = Interface(interface_name, self.path)
-		self.interfaces[interface_name] = new_interface_obj
-		res =  {'object':new_interface_obj, 'methods':self.found_interface_methods(new_interface_obj)}
-		return res
+		new_interface = Interface(interface_name, self.path)
+		self.interfaces[interface_name] = new_interface
+
+		# because we updated the object -> check for relevance
+		self.check_for_updates_in_state()
+		return new_interface
 
 	def found_interface_methods(self, interface:Interface):
 		"""
@@ -1799,12 +2210,12 @@ class Root(AbstractNetworkComponent):
 		"""
 		# if interface doesn't exist create it and get methods
 		with TS.shared_lock:
-			answer = self.check_for_interface_name(interface_name)
-			if answer['exists'] == 'no': # doesn't exist
-				answer = self.create_interface_with_name(interface_name)
-				return answer # returns the same type of object
+			interface = self.check_for_interface_name(interface_name)
+			if interface is None: # doesn't exist
+				interface = self.create_interface_with_name(interface_name)
+				return interface
 			else:
-				return {'object':answer['object'], 'methods':[]}
+				return interface # the correct interface object
 		
 
 	# TODO: do with lock
@@ -1814,13 +2225,6 @@ class Root(AbstractNetworkComponent):
 			self.add_interface(nc_to_add)
 		else:
 			raise SE.NoUpdateComponentForThatClass()
-
-	def auto(self, banner:str = 'console >'):
-		# no need for lock, the methods don't change
-		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self)
-			for event in list_events:
-				throw_run_event_to_command_listener(event)
 
 
 	def check_for_domain(self, domain_name):
@@ -1845,8 +2249,9 @@ class Root(AbstractNetworkComponent):
 			if domain is None:
 				# create the Domain
 				domain = Domain(domain_name=domain_name)
+				# check if it belongs to some forest? 
 				self.add_domain(domain)
-			return {'object':domain, 'methods': []}
+			return domain
 
 
 

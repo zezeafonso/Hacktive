@@ -26,15 +26,13 @@ def update_components_found_new_interface(interface_name):
 	"""
 	global root_obj
 
-	# the auto methods to run after this
-	methods = []
+	# in every situation where you mess with an object you check if anything changes
 
-	# LOCK
 	with TS.shared_lock:
 		logger.debug(f"interface: ({interface_name}) found -> updating components")
-		answer = root_obj.get_interface_or_create_it(interface_name)
-		methods += answer['methods'] # just one method
-		return methods
+		
+		interface = root_obj.get_interface_or_create_it(interface_name) # already calls the methods
+		return 
 
 
 
@@ -51,21 +49,14 @@ def update_components_found_new_network_for_interface(interface_name, network_ad
 	"""
 	global root_obj
 
-	auto_functions = []
-
-	# LOCK
 	with TS.shared_lock:
 		logger.debug(f"network ({network_address}) for interface ({interface_name}) found -> updating components")
 		
-		answer = root_obj.get_interface_or_create_it(interface_name)
-		interface_obj = answer['object']
-		auto_functions += answer['methods']
-		
-		# ASKS THE USER IF HE WANTS THIS NETWORK
-		answer = interface_obj.get_network_or_create_it(network_address)
-		auto_functions += answer['methods']
+		interface = root_obj.get_interface_or_create_it(interface_name)
 
-		return auto_functions
+		# ASKS THE USER IF HE WANTS THIS NETWORK
+		network = interface.get_network_or_create_it(network_address)
+		return 
 
 
 
@@ -86,20 +77,12 @@ def update_components_found_our_ip_for_a_network(interface_name, network_address
 
 	# LOCK
 	with TS.shared_lock:
-		answer = root_obj.get_interface_or_create_it(interface_name)
-		interface_obj = answer['object']
-		auto_functions += answer['methods']
+		interface = root_obj.get_interface_or_create_it(interface_name)
 		
-		answer = interface_obj.get_network_or_create_it(network_address)
-		if answer['object'] is None: # not interested in this network
-			return auto_functions
+		network = interface.get_network_or_create_it(network_address)
 
-		network_obj = answer['object']
-		auto_functions += answer['methods']
-
-		network_obj.add_our_ip(ip)
-
-		return auto_functions
+		network.add_our_ip(ip)
+		return 
 
 
 def update_components_found_NetBIOS_hostname_for_ip(network, hostname, ip):
@@ -111,9 +94,8 @@ def update_components_found_NetBIOS_hostname_for_ip(network, hostname, ip):
 	with the hostname we found.
 	"""
 	with TS.shared_lock:
-		methods = network.associate_netbios_workstation_to_ip_host_through_hostname(hostname, ip)
-		#methods = network_obj.attach_NetBIOS_hostname_to_ip_host(hostname, ip)
-		return methods
+		network.associate_netbios_workstation_to_ip_host_through_hostname(hostname, ip)
+		return 
 
 
 def update_components_found_netbios_hostname_with_smb_active(network, ip):
@@ -125,20 +107,19 @@ def update_components_found_netbios_hostname_with_smb_active(network, ip):
 	for the host ip, that launched this command.
 	"""
 
-	auto_functions = []
-
 	with TS.shared_lock:
 		# retrieve the host object
-		answer = network.get_ip_host_or_create_it(ip)
-		auto_functions += answer['methods']
-		host = answer['object']
+		host = network.get_ip_host_or_create_it(ip)
+		if host is None: # if it's 'our' ip
+			return 
 
 		netbios_ws = host.get_netbios_workstation_obj()
-		if netbios_ws is None:
-			logger.debug(f"No Netbios workstation for this host {ip}")
-		auto_functions += netbios_ws.add_netbios_smb_server()
+		if netbios_ws is None: # if there wasn't a netbios workstation for the host
+			return 
+		
+		netbios_ws.add_netbios_smb_server()
 
-	return auto_functions
+	return
 
 
 def update_components_found_netbios_group(network, group_name, group_type):
@@ -156,24 +137,18 @@ def update_components_found_netbios_group(network, group_name, group_type):
 	this way you should associate the netbios group we find to 
 	that object instead of the network.
 	"""
-	auto_functions = []
-
 	with TS.shared_lock:
-		# if it's a NEW group
+		# only do something if it's a NEW group
 		if not network.check_if_netbios_group_exists(group_name, group_type):
 			# create the group network component
-			answer = network.create_netbios_group(group_name, group_type)
+			netbios_group = network.create_netbios_group(group_name, group_type)
 
 			# associate the netbios group to the network 
-			network.associate_netbios_group_to_this_network(answer['object'])
+			network.associate_netbios_group_to_this_network(netbios_group)
 
 			# associate the netbios group with an object (network, or Wins server)
-			netbios_group = answer['object'] 
 			netbios_group.associate_with_object(network)
-
-			# get the auto methods for netbios group found 
-			answer['methods'] += [netbios_group.auto]
-	return answer
+	return netbios_group
 
 		
 
@@ -185,39 +160,29 @@ def update_components_found_netbios_group_for_ip(network, ip, group_name, group_
 	The ip may also not exist
 	"""
 	with TS.shared_lock:
-		auto_functions = list()
-		
 		# get the NetBIOSgroup object and the methods 
-		answer = update_components_found_netbios_group(network, group_name, group_type)
-		auto_functions += answer['methods']
-		netbios_group = answer['object']
+		netbios_group = update_components_found_netbios_group(network, group_name, group_type)
 
 		# retrieve the host object from ip 
-		answer = network.get_ip_host_or_create_it(ip)
-		auto_functions += answer['methods']
-		host = answer['object']
+		host = network.get_ip_host_or_create_it(ip)
 
-		auto_functions += host.associate_existing_netbios_group_to_host_ip(netbios_group)
-		return auto_functions
+		host.associate_existing_netbios_group_to_host_ip(netbios_group)
+		return
 
 
 def update_components_found_pdc_for_netbios_group(network, ip, netbios_group):
 	"""
 	Checks if the ip already is associated with a 
 	"""
-	auto_functions = []
 
 	with TS.shared_lock:
-		answer = network.get_ip_host_or_create_it(ip)
-		if answer['methods'] != []:
-			auto_functions += answer['methods']
-		host = answer['object']
+		host = network.get_ip_host_or_create_it(ip)
 
 		# get the netbios worksation
 		netbios_ws = host.get_netbios_workstation_obj()
 		if netbios_ws is None:
 			logger.debug(f"There was no network station obj for this ip ({host.get_ip()})")
-			return []
+			return 
 
 		# get or create the group from the netbios workstation
 		netbios_group = netbios_ws.get_group_from_group_id(netbios_group.lower()+'#'+'00')
@@ -225,8 +190,8 @@ def update_components_found_pdc_for_netbios_group(network, ip, netbios_group):
 			logger.debug(f"there was no netbios group with group id: {netbios_group.lower()+'#'+'00'} in the netbios workstation ")
 		
 		# update the roles in the netbios workstation
-		auto_functions += netbios_ws.add_pdc_role_for_group(netbios_group)
-	return auto_functions
+		netbios_ws.add_pdc_role_for_group(netbios_group)
+	return 
 
 
 def update_components_found_new_ip_for_network(network, ip):
@@ -238,44 +203,8 @@ def update_components_found_new_ip_for_network(network, ip):
 	"""
 	with TS.shared_lock:
 		logger.debug(f"updating components found new ip ({ip}) for network ({network.network_address})")
-		answer = network.get_ip_host_or_create_it(ip)
-		return answer['methods'] # we don't need the object
-
-
-def update_components_found_domain_trust(trusting_domain_name, trusted_domain_name):
-	"""
-	Updates components when a domain trust is found.
-
-	checks if the domains are already present in the databse,
-	updates also their trust relationships
-	"""
-	global root_obj
-
-	with TS.shared_lock:
-		auto_functions = list()
-		# check if the trusting domain exists in the root database
-		answer = root_obj.get_or_create_domain(trusting_domain_name)
-		trusting_domain = answer['object']
-
-		# new domain
-		if answer['methods'] is not None:
-			auto_functions += answer['methods'] 
-
-		# same domains trusting = trusted
-		if trusting_domain_name == trusted_domain_name: 
-			# no need to get or create
-			# no need to add domain_trust
-			return auto_functions
-
-		# get or create the trusted domain
-		answer = root_obj.get_or_create_domain(trusted_domain_name)
-		if answer['methods'] is not None:
-			auto_functions += answer['methods'] # if it's a new domain
-		trusted_domain = answer['object']
-
-		# update the thrusts
-		trusting_domain.add_domain_trust(trusted_domain)
-		return auto_functions
+		host = network.get_ip_host_or_create_it(ip)
+		return
 
 
 def update_components_found_new_domain_components_path_ldap(host, domain_components_path):
@@ -295,26 +224,63 @@ def update_components_found_new_domain_components_path_ldap(host, domain_compone
 	"""
 	global root_obj
 
-	auto_functions = []
-
 	with TS.shared_lock:
 		# create or get the ldap server role for this host
-		answer = host.get_or_add_role_ldap_server()
-		ldap_server = answer['object']
-		auto_functions += answer['methods']
+		ldap_server = host.get_or_add_role_ldap_server()
 
 		# check if the domain exists in the root database
-		answer = root_obj.get_or_create_domain(domain_components_path)
-		if answer['methods'] is not None:
-			auto_functions += answer['methods'] # if it's a new domain
-		domain = answer['object']
+		domain = root_obj.get_or_create_domain(domain_components_path)
 		
 		# there is only 1 domain for each host
+		# put the host as a dependent object of the domain.
 		host.associate_domain_to_host_if_not_already(domain) 
 
 		# put this host as a DC for the domain
 		domain.add_dc(ldap_server)
+	return
 
-		auto_functions += host.found_domain_for_host_methods() 
 
-	return auto_functions
+
+def update_components_found_smb_service_is_running(host, port):
+	"""
+	Updates the components when we find that an smb service is running
+	for a host
+	"""
+	smb_server = host.found_smb_service_running_on_port(port)
+	return
+
+
+def update_components_found_msrpc_service_is_running(host, port):
+	"""
+	Updates the components when we find that a msrpc service is running 
+	for a host
+	"""
+	msrpc_server = host.found_msrpc_service_running_on_port(port)
+	return
+
+
+
+def update_components_found_domain_trust(trusting_domain_name, trusted_domain_name):
+	"""
+	Updates components when a domain trust is found.
+
+	checks if the domains are already present in the databse,
+	updates also their trust relationships
+	"""
+	global root_obj
+
+	with TS.shared_lock:
+		# check if the trusting domain exists in the root database
+		trusting_domain = root_obj.get_or_create_domain(trusting_domain_name)
+
+		# same domains trusting = trusted
+		if trusting_domain_name == trusted_domain_name: 
+			# no need to add, since they are the same
+			return
+
+		# get or create the trusted domain
+		trusted_domain_name = root_obj.get_or_create_domain(trusted_domain_name)
+
+		# update the thrusts
+		trusting_domain.add_domain_trust(trusted_domain)
+		return auto_functions

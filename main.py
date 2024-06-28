@@ -45,7 +45,7 @@ def main():
 	# Thread for handling user input Daemon
 	# TODO: send shared lock as well 
 	#user_interaction_thread = threading.Thread(target=root.user_interaction, args=(commands_queue, shared_lock, input_queue, stop_event, "console >"))
-	user_interaction_thread = threading.Thread(target=root.auto, args=("console >",))
+	user_interaction_thread = threading.Thread(target=root.auto_function, args=())
 	user_interaction_thread.start()
 
 	# Wait for user input thread to finish
