@@ -39,3 +39,10 @@ Já está também, sempre que fazemos um get_context e encontramos o domain tent
 
 Também quero melhorar o Nmap e essas coisas. 
 Mas por agora era os users e os groups e ficava aquela cena. 
+
+nos testes mostra que estamos a adicionar as coisas ao domain errado. Estamos a associar as coisas ao sevenkigdoms e é ao north.sevenkingdoms.local.
+
+
+FOUND interesting:
+- podemos saber quem é o root domain através do root DSE!!!
+é pesquisar pelo rootDomainNamingContext em vez do default
