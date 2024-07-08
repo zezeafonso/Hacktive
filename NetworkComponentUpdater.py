@@ -285,4 +285,4 @@ def update_components_found_domain_trust(trusting_domain_name, trusted_domain_na
 
 		# update the thrusts
 		trusting_domain.add_domain_trust(trusted_domain)
-		return auto_functions
+		return 
