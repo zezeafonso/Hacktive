@@ -69,11 +69,12 @@ def write_output_of_command_to_its_respective_file(out_file, pid, output):
 		logger.debug(f"[Pool thread {pid}] writting to file: {out_file}")
 		with open(out_file, 'w') as file:
 			file.write(output)
+		return
 	except FileNotFoundError as e:
 		raise Exception("File Not Found")
 
-def create_event_for_output_listener(cmd, output, method, nc, context):
-	return Done_Event('done', cmd, output, method, nc, context)
+def create_event_for_output_listener(cmd, output, return_code, method, nc, context):
+	return Done_Event('done', cmd, output, returncode, method, nc, context)
 
 def send_event_to_output_listener(event):
 	TS.out_queue.put(event)
