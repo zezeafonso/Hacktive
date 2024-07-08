@@ -80,7 +80,7 @@ def update_components_found_our_ip_for_a_network(interface_name, network_address
 		interface = root_obj.get_interface_or_create_it(interface_name)
 		
 		network = interface.get_network_or_create_it(network_address)
-		if network is None: # not interested in this network 
+		if network is None: # not interested in this network TODO
 			return 
 
 		network.add_our_ip(ip)
@@ -281,7 +281,7 @@ def update_components_found_domain_trust(trusting_domain_name, trusted_domain_na
 			return
 
 		# get or create the trusted domain
-		trusted_domain_name = root_obj.get_or_create_domain(trusted_domain_name)
+		trusted_domain = root_obj.get_or_create_domain(trusted_domain_name)
 
 		# update the thrusts
 		trusting_domain.add_domain_trust(trusted_domain)
