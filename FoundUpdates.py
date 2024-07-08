@@ -256,7 +256,7 @@ def update_enum_domain_trusts_through_rpc(context:dict, filtered_objects:list):
 
 
 
-def update_enum_domain_users_through_rpc(context:dict, filtered_objs:list):
+def update_enum_domain_users_through_rpc(context:dict, filtered_objects:list):
 	global root_obj
 
 	# we need to know the domain 
