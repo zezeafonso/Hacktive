@@ -247,11 +247,11 @@ def update_enum_domain_trusts_through_rpc(context:dict, filtered_objects:list):
 	for filtered_obj in filtered_objects:
 		# FOUND domain trust
 		if isinstance(filtered_obj, FO.Filtered_FoundDomainTrust):
-			logger.debug(f"filter for enum domain trusts through rpc ({host.get_ip()}) found that trust to ({filtered_obj.get_domain_name()})")
+			logger.debug(f"filter for enum domain trusts through rpc ({host.get_ip()}) belonging to domain ({context['domain_name']}) found that trust to ({filtered_obj.get_domain_name()})")
 
-			trusting_domain = context['domain_name']
-			trusted_domain = filtered_obj.get_domain_name()
-			NCU.update_components_found_domain_trust(trusting_domain, trusted_domain)
+			trusting_domain_name = context['domain_name']
+			trusted_domain_name = filtered_obj.get_domain_name()
+			NCU.update_components_found_domain_trust(trusting_domain_name, trusted_domain_name)
 	return 
 
 

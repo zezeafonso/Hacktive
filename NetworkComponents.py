@@ -224,9 +224,12 @@ class Domain(AbstractNetworkComponent):
 	def add_domain_trust(self, domain):
 		with TS.shared_lock:
 			logger.debug(f"Adding domain ({domain.get_domain_name()}) to domain ({self.get_domain_name()}) trusts")
+
+			# if we already have this trust
 			if self.check_domain_in_trusts(domain):
 				logger.debug(f"domain ({domain.get_domain_name()}) was already in trusts")
 				return []
+			# otherwise
 			else:
 				self.trusts.append(domain)
 				logger.debug(f"domain ({domain.get_domain_name()}) placed in domain trusts ({self.get_domain_name()})")

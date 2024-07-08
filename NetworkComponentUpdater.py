@@ -275,7 +275,7 @@ def update_components_found_domain_trust(trusting_domain_name, trusted_domain_na
 
 		# same domains trusting = trusted
 		if trusting_domain_name == trusted_domain_name: 
-			# no need to add, since they are the same
+			logger.debug(f"No need to add this trust: the domains are the same ({trusting_domain_name}) ({trusted_domain_name})")
 			return
 
 		# get or create the trusted domain
