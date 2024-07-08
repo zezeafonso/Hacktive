@@ -300,5 +300,5 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return [] # nothing for now 
 	elif method._name == 'enum domains trusts through rpc':
 		return update_enum_domain_trusts_through_rpc(context, filtered_objects)
-	elif method_name == 'enum domain users through rpc':
+	elif method._name == 'enum domain users through rpc':
 		return update_enum_domain_users_through_rpc(context, filtered_objects)
