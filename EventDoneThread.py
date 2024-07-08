@@ -66,6 +66,8 @@ def analyze_event(event):
 	# error cases:
 	# THE COMMAND WASN'T SUCCESSFULL
 	if return_code != 0:
+		print(f"({cmd}) produced a non 0 return code")
+		logger.warning(f"({cmd}) produced a non 0 return code")
 		# remove command from analyze
 		TS.remove_command_from_commands_to_analyze(cmd)
 		commands_and_filtered_objs[cmd] = []
