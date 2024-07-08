@@ -35,6 +35,9 @@ class DomainUser(AbstractNetworkComponent):
 		self.username = username
 		self.rid = rid 
 
+	def get_context(self):
+		return 
+
 	def display_json(self):
 		data = dict()
 		data['username'] = self.get_username()
