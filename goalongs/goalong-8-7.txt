@@ -1,0 +1,5 @@
+Em termos de código:
+	-> ainda temos de passar os métodos para atributos para ficar mais simples saber quando já correram e essas coisas.
+	-> ainda temos de passar as coisas para mais ficheiros e folders.
+
+Vamos testar agora no GOAD a ver se tá tudo bem.

@@ -1,4 +1,4 @@
-
+import copy
 import queue
 import threading 
 import multiprocessing
@@ -46,14 +46,22 @@ class Domain(AbstractNetworkComponent):
 		# the current context
 		self.state = None
 		# the objects that depend on this one for context
-		# - the hosts that belong to this domain
+		# - the hosts that belongs to this domain
 		# - the forest to which this domain will belong
 		self.dependent_objects = []
 
 		self.check_for_updates_in_state()
 
 	def get_context(self):
-		return dict()
+		"""
+		get the context for this domain
+		"""
+		context = dict()
+		context['domain_name'] = self.get_domain_name
+		context['domain_pdc'] = self.domain_pdc
+		context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
+		context['trusts'] = copy.deepcopy(self.trusts)
+		return context
 
 	def add_dependent_object(self, obj):
 		self.dependent_objects.append(obj)
