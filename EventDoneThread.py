@@ -79,7 +79,7 @@ def analyze_event(event):
 
 	logger.debug(f" filtering output in: {f._name}")
 	list_filtered_objects = f.filter(output) # returns filtered objects
-	ogger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
+	logger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
 
 	TS.remove_command_from_commands_to_analyze(cmd)
 
