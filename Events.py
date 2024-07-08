@@ -32,7 +32,7 @@ class Run_Event(Event):
 	
 
 class Done_Event(Event):
-	def __init__(self, type:str, command:str, output:str, return_code, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
+	def __init__(self, type:str, command:str, output:str, return_code:int, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
 		super().__init__(type)
 		self.command = command
 		self.output = output

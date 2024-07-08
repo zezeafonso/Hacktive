@@ -73,8 +73,10 @@ def write_output_of_command_to_its_respective_file(out_file, pid, output):
 	except FileNotFoundError as e:
 		raise Exception("File Not Found")
 
-def create_event_for_output_listener(cmd, output, return_code, method, nc, context):
-	return Done_Event('done', cmd, output, returncode, method, nc, context)
+def create_event_for_output_listener(cmd, output, returncode, method, nc, context):
+	event = Done_Event('done', cmd, output, returncode, method, nc, context)
+	logger.debug(f"Created event successfully")
+	return event
 
 def send_event_to_output_listener(event):
 	TS.out_queue.put(event)
