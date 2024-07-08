@@ -57,30 +57,41 @@ def analyze_event(event):
 
 	# extract the fields from event
 	output = event.output
+	return_code = event.return_code
 	method = event.method
 	nc = event.network_component
 	context = event.context
 	cmd = event.command
 
+	# error cases:
+	# THE COMMAND WASN'T SUCCESSFULL
+	if return_code != 0:
+		# remove command from analyze
+		TS.remove_command_from_commands_to_analyze(cmd)
+		commands_and_filtered_objs[cmd] = []
+		print_state_network_components_after_cmd(cmd)
+		return
+
 	# know the correct filter
 	f = MethodsToFilters.methods_to_filters[method]
-	logger.debug(f" filtering output in: {f._name}")
 
+	logger.debug(f" filtering output in: {f._name}")
 	list_filtered_objects = f.filter(output) # returns filtered objects
+	ogger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
 
 	TS.remove_command_from_commands_to_analyze(cmd)
 
-	logger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
 	# to know what we extrapolated from the output of the command
 	commands_and_filtered_objs[cmd] = list_filtered_objects
+	# no succesfull filter
+	if list_filtered_objects == []: 
+		return 
 
-	if list_filtered_objects != []:
-		# update the network components with these captured information from the filter
-		auto_functions = FU.update_network_components(method, context, list_filtered_objects)
+	# update the network components with these captured information from the filter
+	auto_functions = FU.update_network_components(method, context, list_filtered_objects)
 
-		# print the state of the network components after the update network components
-		print_state_network_components_after_cmd(cmd)
-		return
+	# print the state of the network components after the update network components
+	print_state_network_components_after_cmd(cmd)
 	return
 
 

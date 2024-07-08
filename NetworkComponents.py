@@ -25,6 +25,47 @@ class Forest(AbstractNetworkComponent):
 		self.root_dc = root_domain_dc
 """
 
+class DomainUser(AbstractNetworkComponent):
+	"""
+	Defines the class for a domain user and the attributes of interest.
+	"""
+	methods = [] # i even doubt he will have one
+
+	def __init__(self, username:str, rid:str=None):
+		self.username = username
+		self.rid = rid 
+
+	def display_json(self):
+		data = dict()
+		data['username'] = self.get_username()
+		data['rid'] = self.get_rid()
+		return data
+
+	def get_username(self):
+		with TS.shared_lock:
+			return self.username
+
+	def get_rid(self):
+		with TS.shared_lock:
+			return self.rid
+
+
+	def set_rid(self, rid:str):
+		with TS.shared_lock:
+			logger.debug(f"setting the rid ({rid}) for user({self.username})")
+			if self.rid != None:
+				logger.debug(f"User already had rid ({self.rid})")
+				return 
+			self.rid = rid 
+			return 
+
+
+
+
+
+
+
+
 class Domain(AbstractNetworkComponent):
 	"""
 	Defines the class for domains that we find for the network
@@ -42,6 +83,13 @@ class Domain(AbstractNetworkComponent):
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
 		self.trusts = list()
+
+		self.users = list() # list of user objects (should be private)
+		self.list_usernames = list() # the list of user usernames 
+
+		self.groups = list() # list of group objects (should be private)
+		self.list_groupnames = list() # the list of group names
+
 
 		# the current context
 		self.state = None
@@ -61,10 +109,37 @@ class Domain(AbstractNetworkComponent):
 		context['domain_pdc'] = self.domain_pdc
 		context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
 		context['trusts'] = copy.deepcopy(self.trusts)
+		context['usernames'] = copy.deepcopy(self.list_usernames)
+		context['groupnames'] = copy.deepcopy(self.list_groupnames)
 		return context
 
+	def get_list_usernames(self):
+		with TS.shared_lock:
+			return self.list_usernames
+
+	def get_list_groupnames(self):
+		with TS.shared_lock:
+			return self.list_groupnames
+
 	def add_dependent_object(self, obj):
-		self.dependent_objects.append(obj)
+		"""
+		Adds a dependent object.
+		A dependent object is an object that uses information from this one object, to know if he can launch a new method or if he knows more information that it needs.
+
+		calls the check_for_updates_in_state 
+		"""
+		with TS.shared_lock:
+			logger.debug(f"Adding object ({obj}) to list of dependent objects for this domain ({self.domain_name})")
+			if obj in self.dependent_objects:
+				logger.debug(f"Object ({obj}) already in list of dependent objects")
+				return 
+
+			# put the object in dependent objects
+			self.dependent_objects.append(obj)
+			# call its check for updates so he can see this information
+			obj.check_for_updates_in_state()
+
+
 
 	def check_for_updates_in_state(self):
 		"""
@@ -116,6 +191,10 @@ class Domain(AbstractNetworkComponent):
 		data['Trusts'] = list()
 		for domain in self.trusts:
 			data['Trusts'].append(domain.get_domain_name())
+
+		data['Users'] = list()
+		for user in self.users:
+			data['Users'].append(user.display_json())
 		return data
 
 		
@@ -155,6 +234,26 @@ class Domain(AbstractNetworkComponent):
 			list_events = method.create_run_events(self, self.state)
 			for event in list_events:
 				throw_run_event_to_command_listener(event)
+
+
+	def get_or_create_user_from_username(self, username):
+		"""
+		Attempts to retrieve the user with this username.
+		If it fails it will create a new user with this username
+		"""
+		with TS.shared_lock:
+			# if we have the user 
+			if username in self.list_usernames:
+				for user in self.users:
+					if user.get_username() == username:
+						return user
+
+			# create the user, add it to users, add it to list_usernames
+			user = DomainUser(username= username, rid = None)
+			self.users.append(user)
+			self.list_usernames.append(username)
+			return user
+
 
 
 
@@ -432,6 +531,7 @@ class MSRPCServer:
 
 		self.state = None
 		self.dependent_objects = list()
+		self.objects_im_dependent = list()
 
 		# this object will be dependent of host (for the domain name)
 		host.add_dependent_object(self)
@@ -452,6 +552,13 @@ class MSRPCServer:
 			domain = host.get_domain()
 			if domain is not None:
 				context['domain_name'] = domain.get_domain_name()
+				domain.add_dependent_object(self)
+
+				# get the list of usernames
+				context['domain_usernames'] = copy.deepcopy(domain.get_list_usernames())
+				# get list of groupnames
+				context['domain_groupnames'] = copy.deepcopy(domain.get_list_groupnames())
+
 			return context
 
 	def check_for_updates_in_state(self):
@@ -523,7 +630,22 @@ class LdapServer:
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
 
 	def get_context(self):
-		return dict() # for now
+		with TS.shared_lock:
+			context = dict()
+
+			context['network_address'] = self.host.get_network().get_network_address()
+			context['ip'] = self.host.get_ip()
+			context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
+			context['domain_name'] = None
+
+			# for the domain name
+			host = self.host
+			domain = host.get_domain()
+			if domain is not None:
+				context['domain_name'] = domain.get_domain_name()
+				# add since we will need information from the domain object
+				domain.add_dependent_object(self)
+			return context
 
 	def check_for_updates_in_state(self):
 		"""
@@ -977,7 +1099,7 @@ class Host(AbstractNetworkComponent):
 		self.DNS_hostname = None
 		self.fqdn = None
 		self.AD_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
-		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj
+		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj; 'LdapServer'
 		self.ports = dict()
 
 		# the current state of the network component
@@ -1382,6 +1504,32 @@ class Host(AbstractNetworkComponent):
 
 	# Domains
 
+	def add_ldap_server_to_domain_dependent_objects(self):
+		"""
+		Adds the ldap server of this host to the domain list of dependent objects.
+
+		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values
+		"""
+		with TS.shared_lock:
+			if 'ldap_server' in self.roles and self.get_domain() is not None:
+				domain = self.get_domain()
+				domain.add_dependent_object(self.roles['ldap_server'])
+			return 
+
+
+	def add_msrpc_server_to_domain_dependent_objects(self):
+		"""
+		Adds the MSRPC server of this host to the domain list of dependent objects.
+
+		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values.
+		"""
+		with TS.shared_lock:
+			if 'MSRPCServer' in self.roles and self.get_domain() is not None:
+				domain = self.get_domain()
+				domain.add_dependent_object(self.roles['MSRPCServer'])
+			return 
+
+
 	def associate_domain_to_host_if_not_already(self, domain:Domain):
 		"""
 		+ Checks if it has a domain associated
@@ -1403,6 +1551,9 @@ class Host(AbstractNetworkComponent):
 
 			# the host is dependent on information from the domain
 			domain.add_dependent_object(self)
+			# msrpc and ldap are also dependent on information from the domain
+			self.add_msrpc_server_to_domain_dependent_objects()
+			self.add_ldap_server_to_domain_dependent_objects()
 
 			# we updated this object (added a new dependency)
 			self.check_for_updates_in_state()

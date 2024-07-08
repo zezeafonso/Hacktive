@@ -253,6 +253,31 @@ def update_enum_domain_trusts_through_rpc(context:dict, filtered_objects:list):
 			trusted_domain = filtered_obj.get_domain_name()
 			NCU.update_components_found_domain_trust(trusting_domain, trusted_domain)
 	return 
+
+
+
+def update_enum_domain_users_through_rpc(context:dict, filtered_objs:list):
+	global root_obj
+
+	# we need to know the domain 
+	if context['domain_name'] is None:
+		return 
+
+	auto_functions = list() # the list of new objects created
+
+	domain = root_obj.get_or_create_domain(context['domain_name'])
+	for filtered_obj in filtered_objects:
+		# found domain user
+		if isinstance(filtered_obj, FO.Filtered_DomainUserThroughRPC):
+			logger.debug(f"filter for enum domain users through rpc found user ({filtered_obj.get_user()}) with rid ({filtered_obj.get_rid()})")
+
+			username = filtered_obj.get_user()
+			rid = filtered_obj.get_rid()
+			NCU.update_components_found_user_for_domain(domain, username, rid)
+
+	return 
+
+
 """
 Update network components (general function)
 """
@@ -275,3 +300,5 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return [] # nothing for now 
 	elif method._name == 'enum domains trusts through rpc':
 		return update_enum_domain_trusts_through_rpc(context, filtered_objects)
+	elif method_name == 'enum domain users through rpc':
+		return update_enum_domain_users_through_rpc(context, filtered_objects)

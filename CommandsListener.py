@@ -90,7 +90,8 @@ def thread_pool_run_normal_command(out_file:str, cmd:str, nc:AbstractNetworkComp
 	# know what to send to filter
 	output = proc_stdout if proc.returncode == 0 else proc_stderr
 	write_output_of_command_to_its_respective_file(out_file, proc.pid, output)
-	event = create_event_for_output_listener(cmd, output, method, nc, context)
+
+	event = create_event_for_output_listener(cmd, output, proc.returncode, method, nc, context)
 	send_event_to_output_listener(event)
 	return
 

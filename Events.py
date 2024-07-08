@@ -32,14 +32,15 @@ class Run_Event(Event):
 	
 
 class Done_Event(Event):
-	def __init__(self, type:str, command:str, output:str, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
+	def __init__(self, type:str, command:str, output:str, return_code, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
 		super().__init__(type)
 		self.command = command
 		self.output = output
+		self.return_code = return_code
 		self.method = method
 		self.network_component = nc 
 		self.context = context
 
 	def get_attributes(self):
-		return self.command, self.output,self.method, self.network_component, self.context
+		return self.command, self.output, self.return_code, self.method, self.network_component, self.context
 

@@ -286,3 +286,18 @@ def update_components_found_domain_trust(trusting_domain_name, trusted_domain_na
 		# update the thrusts
 		trusting_domain.add_domain_trust(trusted_domain)
 		return 
+
+
+def update_components_found_user_for_domain(domain, username, rid):
+	"""
+	UPdates components when a user is found for a domain 
+
+	checks if the user is already placed in that domain.
+	domain : mandatory
+	username: mandatory
+	rid: non-mandatory
+	"""
+	with TS.shared_lock:
+		user = domain.get_or_create_user_from_username(username)
+		user.set_rid(rid)
+		return 

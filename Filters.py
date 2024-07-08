@@ -206,7 +206,7 @@ class NBNSGroupMembers_Filter(AbstractFilter):
 		return findings
 
 
-		    
+			
 class NBNSIPTranslation_Filter(AbstractFilter):
 	_name = "translation of ip to hostname through NBNS FILTER"
 
@@ -310,6 +310,7 @@ class EnumDomainTrustsThroughRPC_Filter(AbstractFilter):
 			if match:
 				pass # nothing to be done
 			else:
+
 				domain_name = line.split(' ')[0] # domain name split by space
 				filtered_obj = FO.Filtered_FoundDomainTrust(domain_name=domain_name)
 				findings.append(filtered_obj)
@@ -321,7 +322,23 @@ class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 
 	@staticmethod
 	def filter(output:str) -> list:
-		findings = []
+		# Read the file
+		with open('rpc_output.txt', 'r') as file:
+			lines = file.readlines()
+
+		# Define a regular expression pattern
+		pattern = re.compile(r"user:\[([^\]]+)\] rid:\[([^\]]+)\]")
+
+		# Iterate over each line and search for matches
+		for line in output.splitlines():
+			match = pattern.search(line)
+			if match:
+				user = match.group(1)
+				rid_hex = match.group(2)
+				rid_dec = int(rid_hex, 16)
+				rid_str = str(rid_dec)
+
+				findings.append(FO.Filtered_DomainUserThroughRPC(user, rid_str))
 		return findings
 
 

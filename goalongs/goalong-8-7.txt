@@ -9,6 +9,33 @@ Entretanto já corrigi alguns, a maior parte era só bugs fracos.
 
 Agora temos um bug mais a sério parece ficar em deadlock, ou simplesmente à espera de algo.
 	-> o commands listener não está a receber o evento 'Done' o último de todos do event-done-thread. Por isso ele deve estar meio perdido nalguma operação.
+	-> penso que o bug era simplesmente porque da maneira como estávamos a fazer o comando do rpcclient sem especificar user anónimo sem password ele não estava a fazer nada. 
 
 entretanto descobri isto:
 	-> Dava jeito quando recebemos um return code diferente do normal não damos parse do output. Podemos simplesmente escrever o output para o ficheiro do comando.
+
+
+estamos a adicionar mal as domains truts:
+	-> pode ser o filter incorreto.
+
+temos de fazer os filters dos bacanos para depois podermos testar se temos mais users e assim. 
+
+14:15
+
+fiz: 
+	-> adicionei o check para ver se o comando correu corretamente. Quando foi erro, e colocamos que não filtrou nada.
+
+os métodos do enumdomusers e enumdomgroups têm de saber qual é o seu domínio antes de poderem ser lançados, caso contrário não sei onde colocar a informação. 
+	-> isto por acaso estava nos métodos.
+
+Importante: 
+	-> Alguns próximos métodos vão precisar de saber a lista de usernames e groups para poderem correr, por isso isto vai ter que fazer parte do estado do Domain e os MS-RPC's ou hosts vão ter que fazer parte dos depedent objects. 
+
+Acho que os domains users está feito. 
+Preciso de confirmar quem é que é adicionado como dependent object dos domains. 
+
+Quando descobrimos um domain vamos ver se ele já tem os roles do MSRPC e do LDAP e adicionamos. Agora tenho de fazer ao contrário, caso encontremos o MSRPC e o dlap depois.
+Já está também, sempre que fazemos um get_context e encontramos o domain tentamos juntarmo-nos aos dependent objects do domain. Desta forma, ele é adicionado como deve ser. 
+
+Também quero melhorar o Nmap e essas coisas. 
+Mas por agora era os users e os groups e ficava aquela cena. 
