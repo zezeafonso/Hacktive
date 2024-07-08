@@ -322,10 +322,6 @@ class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 
 	@staticmethod
 	def filter(output:str) -> list:
-		# Read the file
-		with open('rpc_output.txt', 'r') as file:
-			lines = file.readlines()
-
 		# Define a regular expression pattern
 		pattern = re.compile(r"user:\[([^\]]+)\] rid:\[([^\]]+)\]")
 
