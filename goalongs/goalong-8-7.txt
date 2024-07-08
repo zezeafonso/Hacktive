@@ -3,3 +3,12 @@ Em termos de código:
 	-> ainda temos de passar as coisas para mais ficheiros e folders.
 
 Vamos testar agora no GOAD a ver se tá tudo bem.
+
+temos alguns bugs.
+Entretanto já corrigi alguns, a maior parte era só bugs fracos.
+
+Agora temos um bug mais a sério parece ficar em deadlock, ou simplesmente à espera de algo.
+	-> o commands listener não está a receber o evento 'Done' o último de todos do event-done-thread. Por isso ele deve estar meio perdido nalguma operação.
+
+entretanto descobri isto:
+	-> Dava jeito quando recebemos um return code diferente do normal não damos parse do output. Podemos simplesmente escrever o output para o ficheiro do comando.

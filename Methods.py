@@ -352,7 +352,7 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		# command to run 
 		context_ip_address = context['ip']
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'dsenumdomtrusts\'"
-		cmd = f"rpcclient {context_ip_address} -c=\'dsenumdomtrusts\'"
+		cmd = f"rpcclient {context_ip_address} -c=\'dsenumdomtrusts\' -U=\'%\'"
 
 		# output file 
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -398,7 +398,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		# command to run 
 		context_ip_address = context['ip']
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomains\'"
-		cmd = f"rpcclient {context_ip_address} -c=\'enumdomains\'"
+		cmd = f"rpcclient {context_ip_address} -c=\'enumdomains\' -U=\'%\'"
 
 		# output file 
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -448,7 +448,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		# command to run 
 		context_ip_address = context['ip']
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomusers\'"
-		cmd = f"rpcclient {context_ip_address} -c=\'enumdomusers\'"
+		cmd = f"rpcclient {context_ip_address} -c=\'enumdomusers\' -U=\'%\'"
 
 		# output file 
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -496,7 +496,7 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		# command to run 
 		context_ip_address = context['ip']
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomgroups\'"
-		cmd = f"rpcclient {context_ip_address} -c=\'enumdomgroups\'"
+		cmd = f"rpcclient {context_ip_address} -c=\'enumdomgroups\' -U=\'%\'"
 
 		# output file 
 		str_ip_address = context_ip_address.replace('.', '_')
