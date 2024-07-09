@@ -33,7 +33,7 @@ class DomainGroup(AbstractNetworkComponent):
 
 	def __init__(self, groupname:str, rid:str=None):
 		self.groupname = groupname
-		self.rid = rid
+		self.rid = rid # might be None
 
 	def get_context(self):
 		return 
@@ -52,7 +52,7 @@ class DomainGroup(AbstractNetworkComponent):
 		with TS.shared_lock:
 			return self.rid
 
-	def set_rid(self):
+	def set_rid(self, rid):
 		"""
 		self.groupname (mandatory)
 		"""

@@ -72,6 +72,7 @@ def analyze_event(event):
 		TS.remove_command_from_commands_to_analyze(cmd)
 		commands_and_filtered_objs[cmd] = []
 		print_state_network_components_after_cmd(cmd)
+		print(f"everything done for: ({cmd})")
 		return
 
 	# know the correct filter
@@ -94,6 +95,7 @@ def analyze_event(event):
 
 	# print the state of the network components after the update network components
 	print_state_network_components_after_cmd(cmd)
+	print(f"everything done for: ({cmd})")
 	return
 
 
