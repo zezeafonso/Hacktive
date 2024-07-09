@@ -3,9 +3,13 @@
 ## Goals
 To finish RPC enumeration and then improve the code structure. 
 
+### updated Goals
+Use more threads to check for the updates in state. Or do this in just one thread but change the way we check for methods or state, because like this, each update takes a lot of time to happen since we're checking for so much irrelevant information.
+
 ## Bugs fixed
 
 ## Code Implementations
-Implementing the RPC group enumerations.
+Implementing the RPC group enumerations. 1 hour more or less (with the bugs)
+
 
 
