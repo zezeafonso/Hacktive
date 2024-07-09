@@ -31,7 +31,7 @@ class DomainGroup(AbstractNetworkComponent):
 	"""
 	methods = [] # I even doubt that he will have one
 
-	def __init__(self, groupname:std, rid:str=None):
+	def __init__(self, groupname:str, rid:str=None):
 		self.groupname = groupname
 		self.rid = rid
 
@@ -142,7 +142,7 @@ class Domain(AbstractNetworkComponent):
 
 		self.check_for_updates_in_state()
 
-		
+
 
 	def get_context(self):
 		"""
