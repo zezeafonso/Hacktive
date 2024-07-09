@@ -297,5 +297,20 @@ def update_components_found_user_for_domain(domain, username, rid):
 	"""
 	with TS.shared_lock:
 		user = domain.get_or_create_user_from_username(username)
-		user.set_rid(rid)
+		if rid is not None:
+			user.set_rid(rid)
 		return 
+
+def update_components_found_group_for_domain(domain, groupname, rid):
+	"""
+	Updates components when a group is found for a domain 
+
+	checks if the group is already placed in that domain.
+	domain, groupname: mandatory
+	rid: non-mandatory
+	"""
+	with TS.shared_lock:
+		group = domain.get_or_create_group_from_groupname(groupname)
+		if rid is not None:
+			group.set_rid(rid)
+		return

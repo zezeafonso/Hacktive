@@ -263,8 +263,6 @@ def update_enum_domain_users_through_rpc(context:dict, filtered_objects:list):
 	if context['domain_name'] is None:
 		return 
 
-	auto_functions = list() # the list of new objects created
-
 	domain = root_obj.get_or_create_domain(context['domain_name'])
 	for filtered_obj in filtered_objects:
 		# found domain user
@@ -276,6 +274,28 @@ def update_enum_domain_users_through_rpc(context:dict, filtered_objects:list):
 			NCU.update_components_found_user_for_domain(domain, username, rid)
 
 	return 
+
+
+def update_enum_domain_groups_through_rpc(context:dict, filtered_objects:list):
+	global root_obj
+
+	# we need to know the domain
+	domain_name = context['domain_name']
+	if domain_name is None:
+		return 
+
+	domain = root_obj.get_or_create_domain(domain_name)
+	for filtered_obj in filtered_objects:
+		if isinstance(filtered_obj, FO.Filtered_DomainGroupThroughRPC):
+			groupname = filtered_obj.get_group()
+			rid = filtered_obj.get_rid()
+
+			logger.debug(f"filter for enum domain groups through rpc found group ({groupname}) with rid ({rid})")
+
+			NCU.update_components_found_group_for_domain(domain, groupname, rid)
+
+	return 
+
 
 
 """
@@ -302,3 +322,5 @@ def update_network_components(method:AbstractMethod, context:dict, filtered_obje
 		return update_enum_domain_trusts_through_rpc(context, filtered_objects)
 	elif method._name == 'enum domain users through rpc':
 		return update_enum_domain_users_through_rpc(context, filtered_objects)
+	elif method._name == 'enum domain groups through rpc':
+		return update_enum_domain_groups_through_rpc(context, filtered_objects)

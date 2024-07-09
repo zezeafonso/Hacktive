@@ -25,6 +25,48 @@ class Forest(AbstractNetworkComponent):
 		self.root_dc = root_domain_dc
 """
 
+class DomainGroup(AbstractNetworkComponent):
+	"""
+	Defines the class for a Domain group and the attributes of interest.
+	"""
+	methods = [] # I even doubt that he will have one
+
+	def __init__(self, groupname:std, rid:str=None):
+		self.groupname = groupname
+		self.rid = rid
+
+	def get_context(self):
+		return 
+
+	def display_json(self):
+		data = dict()
+		data['groupname'] = self.get_groupname()
+		data['rid'] = self.get_rid()
+		return data
+
+	def get_groupname(self):
+		with TS.shared_lock:
+			return self.groupname
+
+	def get_rid(self):
+		with TS.shared_lock:
+			return self.rid
+
+	def set_rid(self):
+		"""
+		self.groupname (mandatory)
+		"""
+		with TS.shared_lock:
+			logger.debug(f"setting the rid ({rid}) for group ({self.groupname})")
+			if self.rid != None:
+				logger.debug(f"group already had rid ({self.rid})")
+				return 
+			self.rid = rid 
+			return 
+
+
+
+
 class DomainUser(AbstractNetworkComponent):
 	"""
 	Defines the class for a domain user and the attributes of interest.
@@ -85,13 +127,10 @@ class Domain(AbstractNetworkComponent):
 		self.domain_dcs = list()
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
-		self.trusts = list()
 
+		self.trusts = list() # list of domain trusts
 		self.users = list() # list of user objects (should be private)
-		self.list_usernames = list() # the list of user usernames 
-
 		self.groups = list() # list of group objects (should be private)
-		self.list_groupnames = list() # the list of group names
 
 
 		# the current context
@@ -103,6 +142,8 @@ class Domain(AbstractNetworkComponent):
 
 		self.check_for_updates_in_state()
 
+		
+
 	def get_context(self):
 		"""
 		get the context for this domain
@@ -112,24 +153,42 @@ class Domain(AbstractNetworkComponent):
 		context['domain_pdc'] = self.domain_pdc
 		context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
 		context['trusts'] = copy.deepcopy(self.trusts)
-		context['usernames'] = copy.deepcopy(self.list_usernames)
-		context['groupnames'] = copy.deepcopy(self.list_groupnames)
+		context['usernames'] = copy.deepcopy(self.get_list_usernames())
+		context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
 		return context
 
 	def get_list_usernames(self):
+		"""
+		Goes to each user known to the domain and attempts to extract the username.
+		returns a list of all usernames
+		"""
 		with TS.shared_lock:
-			return self.list_usernames
+			list_usernames = list()
+			for user in self.users: 
+				username = user.get_username()
+				if username is not None:
+					list_usernames.append(username)
+			return list_usernames
 
 	def get_list_groupnames(self):
+		"""
+		Goes to each group known to the domain and attempts to extract the groupname.
+		returns a list of all the groupnames
+		"""
 		with TS.shared_lock:
-			return self.list_groupnames
+			list_groupnames = list()
+			for group in self.groups:
+				groupname = group.get_groupname()
+				if groupname is not None:
+					list_groupnames.append(groupname)
+			return list_groupnames
 
 	def add_dependent_object(self, obj):
 		"""
 		Adds a dependent object.
 		A dependent object is an object that uses information from this one object, to know if he can launch a new method or if he knows more information that it needs.
 
-		calls the check_for_updates_in_state 
+		calls the check_for_updates_in_state for the object appended.
 		"""
 		with TS.shared_lock:
 			logger.debug(f"Adding object ({obj}) to list of dependent objects for this domain ({self.domain_name})")
@@ -152,6 +211,8 @@ class Domain(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			new_state = self.get_context()
+
+			# if state changed
 			if new_state != self.state:
 				self.state = new_state
 
@@ -159,7 +220,7 @@ class Domain(AbstractNetworkComponent):
 				for obj in self.dependent_objects:
 					obj.check_for_updates_in_state()
 				
-				# call for out methods
+				# call for our methods
 				self.auto_function()
 			return 
 
@@ -249,17 +310,37 @@ class Domain(AbstractNetworkComponent):
 		"""
 		with TS.shared_lock:
 			# if we have the user 
-			if username in self.list_usernames:
-				for user in self.users:
-					if user.get_username() == username:
-						return user
+			for user in self.users:
+				if user.get_username() == username:
+					return user
 
-			# create the user, add it to users, add it to list_usernames
+			# create the user, add it to users
 			user = DomainUser(username= username, rid = None)
 			self.users.append(user)
-			self.list_usernames.append(username)
+
+			# new state
+			self.check_for_updates_in_state()
 			return user
 
+
+	def get_or_create_group_from_groupname(self, groupname):
+		"""
+		Attempts to retrieve the group with this groupname.
+		If it fails it will create a new group with this groupname
+		"""
+		with TS.shared_lock:
+			# if we have the group
+			for group in self.groups:
+				if group.get_groupname() == groupname:
+					return group
+
+			# create the group, add it to the groups
+			group = DomainGroup(groupname= groupname, rid =None)
+			self.groups.append(group)
+
+			# new state
+			self.check_for_updates_in_state()
+			return group
 
 
 
