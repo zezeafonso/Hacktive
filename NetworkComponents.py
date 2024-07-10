@@ -36,6 +36,7 @@ class DomainGroup(AbstractNetworkComponent):
 		self.rid = rid # might be None
 
 	def get_context(self):
+		logger.debug(f"Getting context for Domain Group ({self.groupname})")
 		return 
 
 	def display_json(self):
@@ -78,6 +79,7 @@ class DomainUser(AbstractNetworkComponent):
 		self.rid = rid 
 
 	def get_context(self):
+		logger.debug(f"getting context for domain user ({self.username})")
 		return 
 
 	def display_json(self):
@@ -148,14 +150,16 @@ class Domain(AbstractNetworkComponent):
 		"""
 		get the context for this domain
 		"""
-		context = dict()
-		context['domain_name'] = self.get_domain_name
-		context['domain_pdc'] = self.domain_pdc
-		context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
-		context['trusts'] = copy.deepcopy(self.trusts)
-		context['usernames'] = copy.deepcopy(self.get_list_usernames())
-		context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
-		return context
+		logger.debug(f"getting context for domain ({self.domain_name})")
+		with TS.shared_lock:
+			context = dict()
+			context['domain_name'] = self.get_domain_name
+			context['domain_pdc'] = self.domain_pdc
+			context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
+			context['trusts'] = copy.deepcopy(self.trusts)
+			context['usernames'] = copy.deepcopy(self.get_list_usernames())
+			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
+			return context
 
 	def get_list_usernames(self):
 		"""
@@ -371,6 +375,7 @@ class NetBIOSGroupDC:
 		Defines the context in which the methods will be called
 		"""
 		with TS.shared_lock:
+			logger.debug(f"getting context for NetBIOSGroupDC ({self.host.get_ip()})")
 			context = dict()
 			context['ip'] = self.host.get_ip()
 			context['network_address'] = self.host.get_network().get_network_address()
@@ -431,6 +436,7 @@ class NetBIOSGroupPDC:
 
 
 	def get_context(self):
+		logger.debug(f"getting context for netBIOSGroupPDC ({self.host.get_ip()})")
 		return dict()
 
 	def check_for_updates_in_state(self):
@@ -488,6 +494,7 @@ class NetBIOSMBServer:
 		self.check_for_updates_in_state()
 
 	def get_context(self):
+		logger.debug(f"getting context for NetBIOSSMBServer ({self.host.get_ip()})")
 		return dict()
 
 	def check_for_updates_in_state(self):
@@ -553,6 +560,7 @@ class SMBServer:
 		self.check_for_updates_in_state()
 
 	def get_context(self):
+		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		return dict()
 
 	def check_for_updates_in_state(self):
@@ -626,6 +634,7 @@ class MSRPCServer:
 		self.check_for_updates_in_state()
 
 	def get_context(self):
+		logger.debug(f"getting context for MSRPCserver ({self.host.get_ip()})")
 		with TS.shared_lock:
 			context = dict()
 
@@ -717,6 +726,7 @@ class LdapServer:
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
 
 	def get_context(self):
+		logger.debug(f"getting context for LdapServer ({self.host.get_ip()})")
 		with TS.shared_lock:
 			context = dict()
 
@@ -762,14 +772,6 @@ class LdapServer:
 	def get_host(self):
 		with TS.shared_lock:
 			return self.host
-
-	def get_context(self):
-		context = dict()
-		context['ip'] = self.host.get_ip()
-		context['network_address'] = self.host.get_network().get_network_address()
-		context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
-		context['domain_name'] = self.get_domain()
-		return context
 
 	
 	# Functions
@@ -869,6 +871,7 @@ class NetBIOSWorkstation:
 			return [group for group in self.groups_and_roles]
 
 	def get_context(self):
+		logger.debug(f"getting context for netbios_workstation")
 		return dict() # for now 
 
 	def check_for_updates_in_state(self):
@@ -1204,6 +1207,7 @@ class Host(AbstractNetworkComponent):
 		Defines the context in which the methods will be called
 		"""
 		with TS.shared_lock:
+			logger.debug(f"getting context for Host ({self.ip})")
 			context = dict()
 			context['ip'] = self.get_ip()
 			context['network_address'] = self.get_network().get_network_address()
@@ -1720,10 +1724,12 @@ class NetBIOSGroup():
 			return self.id
 
 	def get_context(self):
-		context = dict()
-		context['group_name'] = self.name
-		context['group_id'] = self.id
-		context['associated_object'] = self.associated # might be None
+		with TS.shared_lock:
+			logger.debug(f"getting context for NetBIOSGroup ({self.name})")
+			context = dict()
+			context['group_name'] = self.name
+			context['group_id'] = self.id
+			context['associated_object'] = self.associated # might be None
 		return context
 
 	def check_for_updates_in_state(self):
@@ -1829,6 +1835,7 @@ class Network(AbstractNetworkComponent):
 		Defines the context in which the methods will be called
 		"""
 		with TS.shared_lock:
+			logger.debug(f"getting context for network ({self.network_address})")
 			context = dict()
 			context['network_address'] = self.get_network_address()
 			context['interface_name'] = self.get_interface().get_interface_name()
@@ -2169,6 +2176,7 @@ class Interface(AbstractNetworkComponent):
 		Defines the context in which the methods will be called
 		"""
 		with TS.shared_lock:
+			logger.debug(f"getting context for Interface ({self.interface_name})")
 			context = dict()
 			context['interface_name'] = self.get_interface_name()
 			return context 
@@ -2342,6 +2350,7 @@ class Root(AbstractNetworkComponent):
 	# getters
 
 	def get_context(self):
+		logger.debug(f"getting context for Root")
 		return dict
 
 	def check_for_updates_in_state(self):
