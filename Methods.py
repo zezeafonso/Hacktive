@@ -951,10 +951,6 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		if context['ip'] is None :
 			logger.debug(f"context for QueryRootDSEOfDCThroughLDAP doesn't have an ip")
 			return False
-		# if we don't have a group id for the object
-		if context['domain_name'] is None:
-			logger.debug(f"context for QueryRootDSEOfDCThroughLDAP doesn't have a domain_name")
-			return False
 		return True
 
 

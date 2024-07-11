@@ -714,7 +714,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = []
+	methods = [Methods.QueryRootDSEOfDCThroughLDAP]
 
 	def __init__(self, host:'Host'):
 		self.host = host
@@ -1398,17 +1398,6 @@ class Host(AbstractNetworkComponent):
 			self.netbios_groups[group].append(role)
 			if role == '1b':
 				return [self.found_dc_methods] # the method to be run automatic
-
-
-	def found_dc_methods(self):
-		"""
-		the methods for when we find a dc
-		"""
-		dc_methods = [Methods.QueryRootDSEOfDCThroughLDAP]
-		for method in dc_methods:
-			list_events = method.create_run_events(self)
-			for event in list_events:
-				throw_run_event_to_command_listener(event)
 		
 	def found_hostname_methods(self, hostname:str):
 		"""
