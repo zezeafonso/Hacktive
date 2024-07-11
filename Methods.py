@@ -117,7 +117,8 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if CheckIfSMBServiceIsRunning.check_if_args_were_already_used(args):
@@ -207,7 +208,8 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if CheckIfMSRPCServiceIsRunning.check_if_args_were_already_used(args):
@@ -298,7 +300,8 @@ class NBNSGroupMembers(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			group_id = context['group_id']
-			list_args = list(group_id)
+			list_args = list()
+			list_args.append(group_id)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if NBNSGroupMembers.check_if_args_were_already_used(args):
@@ -381,7 +384,8 @@ class NBNSIPTranslation(AbstractMethod):
 
 		with TS.shared_lock:
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if NBNSIPTranslation.check_if_args_were_already_used(args):
@@ -461,7 +465,8 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if DumpInterfaceEndpointsFromEndpointMapper.check_if_args_were_already_used(args):
@@ -545,7 +550,8 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainTrustsThroughRPC.check_if_args_were_already_used(args):
@@ -631,7 +637,8 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainsThroughRPC.check_if_args_were_already_used(args):
@@ -713,7 +720,8 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainUsersThroughRPC.check_if_args_were_already_used(args):
@@ -803,7 +811,8 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainGroupsThroughRPC.check_if_args_were_already_used(args):
@@ -887,7 +896,8 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
-			list_args = list(ip)
+			list_args = list()
+			list_args.append(ip)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if QueryRootDSEOfDCThroughLDAP.check_if_args_were_already_used(args):
@@ -986,7 +996,8 @@ class ArpScan(AbstractMethod):
 		with TS.shared_lock:
 			# extract the specific context for this command
 			network_address = context['network_address']
-			list_args = list(network_address)
+			list_args = list()
+			list_args.append(network_address)
 			# check if this method was already called with these arguments
 			args = tuple(list_args) # the tuple of args used 
 			if ArpScan.check_if_args_were_already_used(args):
