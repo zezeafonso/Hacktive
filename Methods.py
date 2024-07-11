@@ -625,7 +625,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 			logger.debug(f"EnumDomainsThroughRPC didn't receive a context from ({nc})")
 			return []
 
-		if not EnumDomainsThroughRP.check_context(context):
+		if not EnumDomainsThroughRPC.check_context(context):
 			return []
 
 		with TS.shared_lock:
