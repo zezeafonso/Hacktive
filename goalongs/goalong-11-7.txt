@@ -1,0 +1,15 @@
+# Daily Report
+
+## Goals
+Test what we implemented yesterday.
+Begin implementing the idea of the visitor set of update functions.
+
+### updated Goals
+
+
+### IDEAS
+
+
+### IDEAS for tommorrow
+
+## Work

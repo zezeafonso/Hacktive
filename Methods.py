@@ -5,6 +5,7 @@ from Events import Run_Event
 from AbstractClasses import AbstractMethod
 from AbstractClasses import AbstractNetworkComponent
 from LoggingConfig import logger
+import ThreadShares as TS
 
 
 #################################
