@@ -119,7 +119,7 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if CheckIfSMBServiceIsRunning.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -209,7 +209,7 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if CheckIfMSRPCServiceIsRunning.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -300,7 +300,7 @@ class NBNSGroupMembers(AbstractMethod):
 			group_id = context['group_id']
 			list_args = list(group_id)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if NBNSGroupMembers.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -383,7 +383,7 @@ class NBNSIPTranslation(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if NBNSIPTranslation.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -463,7 +463,7 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if DumpInterfaceEndpointsFromEndpointMapper.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -547,7 +547,7 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainTrustsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -633,7 +633,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -715,7 +715,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainUsersThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -805,7 +805,7 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if EnumDomainGroupsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -889,7 +889,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 			ip = context['ip']
 			list_args = list(ip)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if QueryRootDSEOfDCThroughLDAP.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
@@ -992,7 +992,7 @@ class ArpScan(AbstractMethod):
 			network_address = context['network_address']
 			list_args = list(network_address)
 			# check if this method was already called with these arguments
-			args = (list_args) # the tuple of args used 
+			args = tuple(list_args) # the tuple of args used 
 			if ArpScan.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
