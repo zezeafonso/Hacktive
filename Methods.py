@@ -123,7 +123,7 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 			if CheckIfSMBServiceIsRunning.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			CheckIfSMBServiceIsRunning._previous_args.add(_args)
+			CheckIfSMBServiceIsRunning._previous_args.add(args)
 
 		# get the output file name
 		str_ip = str(ip).replace('.','_')
@@ -213,7 +213,7 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 			if CheckIfMSRPCServiceIsRunning.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			CheckIfMSRPCServiceIsRunning._previous_args.add(_args)
+			CheckIfMSRPCServiceIsRunning._previous_args.add(args)
 
 
 		# extract the specific context for this command
@@ -304,7 +304,7 @@ class NBNSGroupMembers(AbstractMethod):
 			if NBNSGroupMembers.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			NBNSGroupMembers._previous_args.add(_args)
+			NBNSGroupMembers._previous_args.add(args)
 
 		# construct the command
 		cmd =  f"nmblookup '{group_id}'"
@@ -387,7 +387,7 @@ class NBNSIPTranslation(AbstractMethod):
 			if NBNSIPTranslation.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			NBNSIPTranslation._previous_args.add(_args)
+			NBNSIPTranslation._previous_args.add(args)
 
 		context_ip_address = context['ip']
 		str_ip_address = context_ip_address.replace('.', '_')
@@ -467,7 +467,7 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 			if DumpInterfaceEndpointsFromEndpointMapper.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			DumpInterfaceEndpointsFromEndpointMapper._previous_args.add(_args)
+			DumpInterfaceEndpointsFromEndpointMapper._previous_args.add(args)
 
 
 		# command to run 
@@ -551,7 +551,7 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 			if EnumDomainTrustsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			EnumDomainTrustsThroughRPC._previous_args.add(_args)
+			EnumDomainTrustsThroughRPC._previous_args.add(args)
 
 		# command to run 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {ip} -c=\'dsenumdomtrusts\'"
@@ -637,7 +637,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 			if EnumDomainsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			EnumDomainsThroughRPC._previous_args.add(_args)
+			EnumDomainsThroughRPC._previous_args.add(args)
 
 		# command to run 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomains\'"
@@ -719,7 +719,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 			if EnumDomainUsersThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			EnumDomainUsersThroughRPC._previous_args.add(_args)
+			EnumDomainUsersThroughRPC._previous_args.add(args)
 
 		# if we still don't have the domain for this rpc
 		if context['domain_name'] is None:
@@ -809,7 +809,7 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 			if EnumDomainGroupsThroughRPC.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			EnumDomainGroupsThroughRPC._previous_args.add(_args)
+			EnumDomainGroupsThroughRPC._previous_args.add(args)
 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomgroups\'"
 		cmd = f"rpcclient {ip} -c=\'enumdomgroups\' -U=\'%\'"
@@ -893,7 +893,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 			if QueryRootDSEOfDCThroughLDAP.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			QueryRootDSEOfDCThroughLDAP._previous_args.add(_args)
+			QueryRootDSEOfDCThroughLDAP._previous_args.add(args)
 
 		# command
 		cmd = f"sudo nmap -Pn -n -p 389 --script=ldap-rootdse {ip}"
@@ -996,7 +996,7 @@ class ArpScan(AbstractMethod):
 			if ArpScan.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			ArpScan._previous_args.add(_args)
+			ArpScan._previous_args.add(args)
 
 		str_network_address = str(network_address).replace('/','_')
 		str_network_address = str_network_address.replace('.', '_')
