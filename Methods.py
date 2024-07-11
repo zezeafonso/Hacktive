@@ -146,7 +146,8 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		checks if the args were already used, if so don't create the run events. 
 		MUST BE USED WITH A LOCK
 		"""
-		if args in CheckIfSMBServiceIsRunning._previous_args: # O(1) average
+		if arg in CheckIfSMBServiceIsRunning._previous_args: # O(1) average
+			logger.debug(f"arg for CheckIfSMBServiceIsRunning was already used ({arg})")
 			return True
 		return False
 
@@ -242,7 +243,8 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		"""
 		checks if the args were already used, if so don't create the run events. 
 		"""
-		if args in CheckIfMSRPCServiceIsRunning._previous_args: # O(1) average
+		if arg in CheckIfMSRPCServiceIsRunning._previous_args: # O(1) average
+			logger.debug(f"arg for CheckIfMSRPCServiceIsRunning was already used ({arg})")
 			return True
 		return False
 
@@ -328,7 +330,8 @@ class NBNSGroupMembers(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in NBNSGroupMembers._previous_args:
+		if arg in NBNSGroupMembers._previous_args:
+			logger.debug(f"arg for NBNSGroupMembers was already used ({arg})")
 			return True 
 		return False 
 
@@ -411,7 +414,8 @@ class NBNSIPTranslation(AbstractMethod):
 		the run events
 		MUST be used with a lock.
 		"""
-		if args in NBNSIPTranslation._previous_args:
+		if arg in NBNSIPTranslation._previous_args:
+			logger.debug(f"arg for NBNSIPTranslation was already used ({arg})")
 			return True 
 		return False
 
@@ -503,7 +507,8 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in DumpInterfaceEndpointsFromEndpointMapper._previous_args:
+		if arg in DumpInterfaceEndpointsFromEndpointMapper._previous_args:
+			logger.debug(f"arg for DumpInterfaceEndpointsFromEndpointMapper was already used ({arg})")
 			return True 
 		return False 
 
@@ -587,7 +592,8 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in EnumDomainTrustsThroughRPC._previous_args:
+		if arg in EnumDomainTrustsThroughRPC._previous_args:
+			logger.debug(f"arg for EnumDomainTrustsThroughRPC was already used ({arg})")
 			return True 
 		return False 
 
@@ -670,7 +676,8 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in EnumDomainsThroughRPC._previous_args:
+		if arg in EnumDomainsThroughRPC._previous_args:
+			logger.debug(f"arg for EnumDomainsThroughRPC was already used ({arg})")
 			return True 
 		return False 
 
@@ -760,7 +767,8 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in EnumDomainUsersThroughRPC._previous_args:
+		if arg in EnumDomainUsersThroughRPC._previous_args:
+			logger.debug(f"arg for EnumDomainUsersThroughRPC was already used ({arg})")
 			return True 
 		return False 
 
@@ -843,7 +851,8 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in EnumDomainGroupsThroughRPC._previous_args:
+		if arg in EnumDomainGroupsThroughRPC._previous_args:
+			logger.debug(f"arg for EnumDomainGroupsThroughRPC was already used ({arg})")
 			return True 
 		return False
 
@@ -927,7 +936,8 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in QueryRootDSEOfDCThroughLDAP._previous_args:
+		if arg in QueryRootDSEOfDCThroughLDAP._previous_args:
+			logger.debug(f"arg for QueryRootDSEOfDCThroughLDAP was already used ({arg})")
 			return True 
 		return False 
 
@@ -1012,7 +1022,8 @@ class ArpScan(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if args in ArpScan._previous_args:
+		if arg in ArpScan._previous_args:
+			logger.debug(f"arg for ArpScan was already used ({arg})")
 			return True 
 		return False 
 
