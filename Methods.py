@@ -408,7 +408,7 @@ class NBNSIPTranslation(AbstractMethod):
 
 
 	@staticmethod
-	def check_if_args_were_already_used(args:tuple):
+	def check_if_args_were_already_used(arg:tuple):
 		"""
 		checks if the args were already used, if so don't create 
 		the run events
