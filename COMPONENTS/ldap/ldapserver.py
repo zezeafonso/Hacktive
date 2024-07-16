@@ -3,7 +3,7 @@ from LOGGER.loggerconfig import logger
 from THREADS.sharedvariables import shared_lock
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
-from queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
+from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
 
 class LdapServer:
 	"""
