@@ -8,7 +8,7 @@ from COMPONENTS.interface.interface import Interface
 from COMPONENTS.domains.domain import Domain
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
-from listinterfaces.method import ListInterfaces
+from COMPONENTS.root.listinterfaces.method import ListInterfaces
 
 
 class Root():

@@ -5,11 +5,11 @@ from THREADS.sharedvariables import shared_lock
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
-from COMPONENTS.host.host import Host
-from COMPONENTS.netbiosgroup.netbiosgroup import NetBIOSGroup
-from COMPONENTS.netbiosworkstation.netbiosworkstation import NetBIOSWorkstation
+from COMPONENTS.hosts.host import Host
+from COMPONENTS.netbios.netbiosgroup import NetBIOSGroup
+from COMPONENTS.netbios.netbiosworkstation import NetBIOSWorkstation
 
-import methods as M
+from COMPONENTS.network.arpscan.method import ArpScan
 
 
 class Network(AbstractNetworkComponent):
@@ -18,7 +18,7 @@ class Network(AbstractNetworkComponent):
 	- get the dns server for it
 
 	"""
-	methods = {M.ArpScan}
+	methods = {ArpScan}
 	
 	def __init__(self, network_address:str, path:dict):
 		self.network_address = network_address

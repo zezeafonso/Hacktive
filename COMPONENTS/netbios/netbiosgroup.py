@@ -1,6 +1,13 @@
+from LOGGER.loggerconfig import logger
+from THREADS.sharedvariables import root_obj, shared_lock
+from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
+
+from COMPONENTS.netbios.nbnsgroupmembers.method import NBNSGroupMembers
+
+
 
 class NetBIOSGroup():
-	methods = [Methods.NBNSGroupMembers]
+	methods = [NBNSGroupMembers]
 
 	def __init__(self, group_name, group_type):
 		"""
@@ -19,11 +26,11 @@ class NetBIOSGroup():
 		self.check_for_updates_in_state()
 
 	def get_id(self):
-		with TS.shared_lock:
+		with shared_lock:
 			return self.id
 
 	def get_context(self):
-		with TS.shared_lock:
+		with shared_lock:
 			logger.debug(f"getting context for NetBIOSGroup ({self.name})")
 			context = dict()
 			context['group_name'] = self.name
@@ -37,7 +44,7 @@ class NetBIOSGroup():
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with TS.shared_lock:
+		with shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -51,7 +58,7 @@ class NetBIOSGroup():
 			return 
 
 	def display_json(self):
-		with TS.shared_lock:
+		with shared_lock:
 			data = dict()
 			data['NetBIOSGroup'] = dict()
 			data['NetBIOSGroup']['id'] = self.id
@@ -80,19 +87,18 @@ class NetBIOSGroup():
 		for method in self.methods:
 			list_events += method.create_run_events(self, self.state)
 			for event in list_events:
-				throw_run_event_to_command_listener(event)
+				send_run_event_to_run_commands_thread(event)
 
 	def associate_with_object(self, obj):
 		"""
 		Associates this network group, with something, most likely 
 		the network or subnet where we are present.
 		"""
-		if isinstance(obj, Network):
-			with TS.shared_lock:
-				if self.associated is not None:
-					logger.debug(f"changing the associated object of netbios group ({self.id})")
-				self.associated = obj
+		with shared_lock:
+			if self.associated is not None:
+				logger.debug(f"changing the associated object of netbios group ({self.id})")
+			self.associated = obj
 
-				self.check_for_updates_in_state()
-				return
+			self.check_for_updates_in_state()
+			return
 
