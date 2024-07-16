@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.ldap.founddomaincomponentsfromldapquery import Filtered_DomainComponentsFromLDAPQuery
+from COMPONENTS.filteredobjects.filteredfounddomaincomponentsfromldapquery import Filtered_FoundDomainComponentsFromLDAPQuery
 
 class QueryRootDSEOfDCThroughLDAP_Filter(AbstractFilter):
 	_name = "filter of querying the DC through Ldap to attain naming contexts"
@@ -21,7 +21,7 @@ class QueryRootDSEOfDCThroughLDAP_Filter(AbstractFilter):
 			if match:
 				components = match.group(1).split(',')
 				components = [component.split('=')[1] for component in components]
-				filtered_obj = Filtered_DomainComponentsFromLDAPQuery({}, list_dc=components)
+				filtered_obj = Filtered_FoundDomainComponentsFromLDAPQuery({}, list_dc=components)
 				findings.append(filtered_obj)
 				
 		return findings

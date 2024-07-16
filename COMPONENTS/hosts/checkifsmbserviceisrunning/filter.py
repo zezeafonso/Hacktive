@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.host.foundsmbserviceisup import Filtered_SMBServiceIsUp
+from COMPONENTS.filteredobjects.filteredfoundsmbserviceisup import Filtered_FoundSMBServiceIsUp
 
 class CheckIfSMBServiceIsRunning_Filter(AbstractFilter):
 	_name = 'smb service scan filter'
@@ -19,6 +19,6 @@ class CheckIfSMBServiceIsRunning_Filter(AbstractFilter):
 		for line in output.splitlines():
 			match = pattern.search(line)
 			if match:
-				findings.append(Filtered_SMBServiceIsUp(port=match.group(1)))
+				findings.append(Filtered_FoundSMBServiceIsUp(port=match.group(1)))
 		
 		return findings

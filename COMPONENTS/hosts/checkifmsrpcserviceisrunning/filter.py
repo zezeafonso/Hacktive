@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.host.foundmsrpcserviceisup import Filtered_MSRPCServiceIsUp
+from COMPONENTS.filteredobjects.filteredfoundmsrpcserviceisup import Filtered_FoundMSRPCServiceIsUp
 
 class CheckIfMSRPCServiceIsRunning_Filter(AbstractFilter):
 	_name = 'msrpc service scan filter' 
@@ -17,6 +17,6 @@ class CheckIfMSRPCServiceIsRunning_Filter(AbstractFilter):
 		for line in output.splitlines():
 			match = pattern.search(line)
 			if match:
-				findings.append(Filtered_MSRPCServiceIsUp(port=match.group(1)))
+				findings.append(Filtered_FoundMSRPCServiceIsUp(port=match.group(1)))
 
 		return findings

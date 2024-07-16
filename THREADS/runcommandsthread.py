@@ -5,7 +5,7 @@ from LOGGER.loggerconfig import logger
 import EXCEPTIONS.commandexceptions as SE
 from THREADS.events import Done_Event
 from THREADS.events import Run_Event
-import sharedvariables as SV
+import THREADS.sharedvariables as SV
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from LOGGER.loggerconfig import logger

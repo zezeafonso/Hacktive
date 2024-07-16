@@ -4,8 +4,8 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
-from filter import EnumDomainsThroughRPC_Filter
-from updater import updater
+from COMPONENTS.domains.enumdomainsthroughrpc.filter import EnumDomainsThroughRPC_Filter
+from COMPONENTS.domains.enumdomainsthroughrpc.updater import updater
 from LOGGER.loggerconfig import logger
 
 

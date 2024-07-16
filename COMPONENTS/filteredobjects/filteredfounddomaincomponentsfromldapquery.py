@@ -1,6 +1,6 @@
 from COMPONENTS.abstract.abstractfilteredobj import AbstractFilteredObject
 
-class Filtered_DomainComponentsFromLDAPQuery(AbstractFilteredObject):
+class Filtered_FoundDomainComponentsFromLDAPQuery(AbstractFilteredObject):
 	def __init__(self, path:dict, list_dc:list):
 		self.info = dict()
 		self.info['path'] = path

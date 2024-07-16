@@ -4,8 +4,8 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
-from filter import QueryRootDSEOfDCThroughLDAP_Filter
-from updater import update_query_root_dse_of_dc_through_ldap
+from COMPONENTS.ldap.queryrootdseofdcthroughldap.filter import QueryRootDSEOfDCThroughLDAP_Filter
+from COMPONENTS.ldap.queryrootdseofdcthroughldap.updater import update_query_root_dse_of_dc_through_ldap
 
 from LOGGER.loggerconfig import logger
 

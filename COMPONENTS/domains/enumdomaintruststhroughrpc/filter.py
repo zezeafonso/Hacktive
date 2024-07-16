@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.msrpc.foundomaintrust import Filtered_FoundDomainTrust
+from COMPONENTS.filteredobjects.filteredfounddomaintrust import Filtered_FoundDomainTrust
 
 class EnumDomainTrustsThroughRPC_Filter(AbstractFilter):
 	_name = "filter enum domain trusts through rpc"

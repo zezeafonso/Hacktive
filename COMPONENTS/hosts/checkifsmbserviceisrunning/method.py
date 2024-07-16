@@ -4,8 +4,8 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
-from filter import CheckIfSMBServiceIsRunning_Filter
-from updater import update_check_if_smb_service_is_running
+from COMPONENTS.hosts.checkifsmbserviceisrunning.filter import CheckIfSMBServiceIsRunning_Filter
+from COMPONENTS.hosts.checkifsmbserviceisrunning.updater import update_check_if_smb_service_is_running
 from LOGGER.loggerconfig import logger
 
 

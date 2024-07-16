@@ -5,8 +5,8 @@ from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
 from LOGGER.loggerconfig import logger
-from filter import PortScan_Filter
-from updater import updater
+from COMPONENTS.hosts.portscan.filter import PortScan_Filter
+from COMPONENTS.hosts.portscan.updater import updater
 
 class PortScan(AbstractMethod):
 	_name = 'port scan'

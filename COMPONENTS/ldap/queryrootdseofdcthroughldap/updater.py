@@ -3,6 +3,7 @@ from LOGGER.loggerconfig import logger
 from THREADS.sharedvariables import shared_lock
 from THREADS.sharedvariables import root_obj
 from COMPONENTS.ldap.componentupdater import found_new_domain_components_path_ldap
+from COMPONENTS.filteredobjects.filteredfounddomaincomponentsfromldapquery import Filtered_FoundDomainComponentsFromLDAPQuery
 
 
 def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
@@ -34,7 +35,7 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 
 	for filtered_obj in filtered_objects:
 		# FOUND A DOMAIN COMPONENTS PATH
-		if isinstance(filtered_obj, FO.Filtered_DomainComponentsFromLDAPQuery):
+		if isinstance(filtered_obj, Filtered_FoundDomainComponentsFromLDAPQuery):
 			logger.debug(f"filter for ldap query to ip ({host.ip}) found new root domain path {filtered_obj.get_dc_path()}")
 
 			domain_components_path = filtered_obj.get_dc_path()

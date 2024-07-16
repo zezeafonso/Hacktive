@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.msrpc.founddomaingroupthroughrpc import Filtered_DomainGroupThroughRPC
+from COMPONENTS.filteredobjects.filteredfounddomaingroupthroughrpc import Filtered_FoundDomainGroupThroughRPC
 
 
 
@@ -23,5 +23,5 @@ class EnumDomGroupsThroughRPC_Filter(AbstractFilter):
 				rid_dec = int(rid_hex, 16)
 				rid_str = str(rid_dec)
 
-				findings.append(Filtered_DomainGroupThroughRPC(group, rid_str))
+				findings.append(Filtered_FoundDomainGroupThroughRPC(group, rid_str))
 		return findings

@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.msrpc.founddomainuserthroughrpc import Filtered_DomainUserThroughRPC
+from COMPONENTS.filteredobjects.filteredfounddomainuserthroughrpc import Filtered_FoundDomainUserThroughRPC
 
 class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 	_name = "filter enum domain users through rpc"
@@ -21,5 +21,5 @@ class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 				rid_dec = int(rid_hex, 16)
 				rid_str = str(rid_dec)
 
-				findings.append(Filtered_DomainUserThroughRPC(user, rid_str))
+				findings.append(Filtered_FoundDomainUserThroughRPC(user, rid_str))
 		return findings
