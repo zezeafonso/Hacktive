@@ -53,7 +53,7 @@ def store_the_pid_of_process_in_pids_executing_commands(cmd, pid):
 	try: 
 		logger.debug(f"[Pool thread {cmd}]: storing PID: {pid}")
 
-		SV.add_pid_to_cmd_pid_dict(cmd, pid, SV.shared_lock)
+		SV.add_pid_to_cmd_pid_dict(cmd, pid)
 	except SE.CommandAlreadyBeingRun as e:
 		raise Exception(f"Command {cmd} is already being run")
 
@@ -69,7 +69,7 @@ def wait_for_process_to_complete_and_get_output_and_err(proc):
 def remove_the_pid_of_process_from_the_pids_executing_commands(cmd, pid):
 	# remove pid from list of running processes
 	try:
-		SV.del_pid_from_cmd_pid_dict(cmd, pid, SV.shared_lock)
+		SV.del_pid_from_cmd_pid_dict(cmd, pid)
 	except SE.CommandNotBeingRun as e:
 		raise Exception(f"Command {cmd} was not being run")
 

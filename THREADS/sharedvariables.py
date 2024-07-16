@@ -73,7 +73,7 @@ def initialize_root_obj(obj) -> None:
 
 
 
-def add_pid_to_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock) -> None:
+def add_pid_to_cmd_pid_dict(cmd:str, pid:int) -> None:
 	global cmd_pid_dict
 
 	if cmd in cmd_pid_dict:
@@ -82,7 +82,7 @@ def add_pid_to_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock) -> None:
 	logger.debug(f"added pid {pid} to cmd_pid")
 
 
-def del_pid_from_cmd_pid_dict(cmd:str, pid:int, lock:threading.Lock):
+def del_pid_from_cmd_pid_dict(cmd:str, pid:int):
 	global cmd_pid_dict
 
 	if cmd not in cmd_pid_dict:
