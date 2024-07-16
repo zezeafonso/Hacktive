@@ -3,8 +3,6 @@ from LOGGER.loggerconfig import logger
 from THREADS.sharedvariables import shared_lock
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
-from COMPONENTS.hosts.host import Host
-
 from queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
 
 class LdapServer:
@@ -20,7 +18,7 @@ class LdapServer:
 	"""
 	methods = [QueryRootDSEOfDCThroughLDAP]
 
-	def __init__(self, host:Host):
+	def __init__(self, host):
 		self.host = host
 
 		self.state = None
