@@ -24,7 +24,7 @@ class Run_Event(Event):
 	"""
 	Intended for the runcommandsthread.
 	"""
-	def __init__(self, type:str, filename:str, command:str, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
+	def __init__(self, type:str, filename:str, command:str, method:AbstractMethod, context:dict):
 		super().__init__(type)
 		self.out_file = filename
 		self.command = command
@@ -41,7 +41,7 @@ class Done_Event(Event):
 	"""
  	Inteded for the parseoutputs thread
   	"""
-	def __init__(self, type:str, command:str, output:str, return_code:int, method:AbstractMethod, nc:AbstractNetworkComponent, context:dict):
+	def __init__(self, type:str, command:str, output:str, return_code:int, method:AbstractMethod, context:dict):
 		super().__init__(type)
 		self.command = command
 		self.output = output
