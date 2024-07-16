@@ -60,6 +60,7 @@ def initialize():
 	cmd_queue = queue.Queue()
 	cmd_pid_dict = dict()
 	shared_lock = threading.RLock() # this way you can request the lock multiple times
+	print(shared_lock)
 
 	commands_for_analysis_list = list() # use with locks in threads
 	commands_run_set = set()
