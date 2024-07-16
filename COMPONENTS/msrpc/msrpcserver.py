@@ -5,7 +5,7 @@ from LOGGER.loggerconfig import logger
 from THREADS.sharedvariables import shared_lock
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
-from dumpinterfaceendpointsfromendpointmapper.method import DumpInterfaceEndpointsFromEndpointMapper
+from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.method import DumpInterfaceEndpointsFromEndpointMapper
 
 class MSRPCServer:
 	"""
