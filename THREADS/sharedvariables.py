@@ -12,7 +12,7 @@ the methods or attributes that a network component might have
 might be accessed in the same type that these components
 are being updated with more.
 """
-global shared_lock
+shared_lock = None
 
 """
 At all times we should know what processID is running what command.
@@ -23,21 +23,21 @@ TODO: when you take the command from the dictionary place it into
 a list of commands that were already run, this way we can always 
 check if we already ran a specific command previously
 """
-global cmd_pid_dict
+cmd_pid_dict = None
 
 """
 The queue that we use to pass 'RUN' events, it's called commands queue
 for me to remember that I know that this queue is the one being used 
 to issue the events where the commands are present
 """
-global cmd_queue
+cmd_queue = None
 
 """
 The queue that we use to pass 'DONE' events, it's called outputs queue 
 for me to remember that I know that this queue is the one being used to
 issue the events where the outputs are present 
 """
-global out_queue 
+out_queue = None 
 
 """
 The root obj that is the root of the components in our application. 

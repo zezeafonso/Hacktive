@@ -7,8 +7,6 @@ from THREADS.parseoutputsthread import outputs_listener
 import THREADS.sharedvariables as sharedvariables
 from LOGGER.loggerconfig import logger
 
-
-import FoundUpdates as FU
 import output_json as OJ
 
 
