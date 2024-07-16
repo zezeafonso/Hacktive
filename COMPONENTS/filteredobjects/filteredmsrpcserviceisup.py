@@ -1,6 +1,6 @@
 from COMPONENTS.abstract.abstractfilteredobj import AbstractFilteredObject
 
-class Filtered_MSRPCServiceIsUp(AbstractFilteredObject):
+class Filtered_FoundMSRPCServiceIsUp(AbstractFilteredObject):
 	def __init__(self, port:str):
 		self.port = port
 

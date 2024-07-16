@@ -1,6 +1,6 @@
 from COMPONENTS.abstract.abstractfilteredobj import AbstractFilteredObject
 
-class Filtered_NewInterface(AbstractFilteredObject):
+class Filtered_FoundNewInterface(AbstractFilteredObject):
 	def __init__(self, path:dict, interface:str):
 		self.info = dict()
 		self.info['path'] = path
