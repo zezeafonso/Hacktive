@@ -45,7 +45,7 @@ In some, multiple, places in our code we need to access so we make
 it, global in this module.
 Whenever you need it, just import this module and use it.
 """
-
+root_obj = None
 
 
 def initialize():
