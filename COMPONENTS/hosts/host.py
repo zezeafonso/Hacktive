@@ -18,7 +18,6 @@ import THREADS.sharedvariables as SV
 from THREADS.sharedvariables import shared_lock
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
-from COMPONENTS.interface.interface import Interface
 from COMPONENTS.domains.domain import Domain
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from COMPONENTS.ldap.ldapserver import LdapServer
