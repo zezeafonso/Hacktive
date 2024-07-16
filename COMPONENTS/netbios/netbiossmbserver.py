@@ -55,7 +55,7 @@ class NetBIOSMBServer:
 		methods list
 		"""
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.state)
+			list_events = self.methods[method].create_run_events(self.state)
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 

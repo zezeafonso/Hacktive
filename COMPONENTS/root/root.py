@@ -65,7 +65,7 @@ class Root():
 		"""
 		# no need for lock, the methods don't change
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.get_context())
+			list_events = self.methods[method].create_run_events(self.get_context())
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 

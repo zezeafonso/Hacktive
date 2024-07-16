@@ -53,7 +53,7 @@ class NetBIOSGroupPDC:
 		+ call the ldapsearch for the naming contexts
 		"""
 		for method in self.methods:
-			list_events = method.create_run_events(self, self.get_context())
+			list_events = method.create_run_events(self, self.state)
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 

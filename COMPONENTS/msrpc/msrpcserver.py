@@ -86,7 +86,7 @@ class MSRPCServer:
 		with shared_lock:
 			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
-				list_events = method.create_run_events(self, self.state)
+				list_events = method.create_run_events(self.state)
 				for event in list_events:
 					send_run_event_to_run_commands_thread(event)
 		

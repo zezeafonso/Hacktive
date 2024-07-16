@@ -1,3 +1,7 @@
+from LOGGER.loggerconfig import logger
+from THREADS.sharedvariables import shared_lock
+from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
+
 
 class SMBServer:
 	"""
@@ -29,7 +33,7 @@ class SMBServer:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with TS.shared_lock:
+		with shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -43,7 +47,7 @@ class SMBServer:
 			return 
 
 	def display_json(self):
-		with TS.shared_lock:
+		with shared_lock:
 			data = dict()
 			data['SMB Server'] = dict()
 			data['SMB Server']['port'] = self.port
@@ -57,9 +61,9 @@ class SMBServer:
 		The function that's responsible for calling the auto methods.
 		"""
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self, self.state)
+			list_events = self.methods[method].create_run_events(self.state)
 			for event in list_events:
-				throw_run_event_to_command_listener(event)
+				send_run_event_to_run_commands_thread(event)
 		
 
 	def get_auto_function(self):

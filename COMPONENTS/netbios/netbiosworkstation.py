@@ -111,7 +111,7 @@ class NetBIOSWorkstation:
 	def auto_function(self):
 		# call the automatic methods
 		for method in self.methods:
-			list_events = method.create_run_events(self)
+			list_events = method.create_run_events(self.state)
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 		return
