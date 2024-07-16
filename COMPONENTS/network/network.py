@@ -126,7 +126,7 @@ class Network(AbstractNetworkComponent):
 		# no need for lock, the methods don't change
 		list_events = []
 		for method in self.methods:
-			list_events = method.create_run_events(self.state))
+			list_events = method.create_run_events(self.state)
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 
