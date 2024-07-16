@@ -1,6 +1,6 @@
 from COMPONENTS.abstract.abstractfilteredobj import AbstractFilteredObject
 
-class Filtered_SMBServiceIsUp(AbstractFilteredObject):
+class Filtered_FoundSMBServiceIsUp(AbstractFilteredObject):
 	def __init__(self, port:str):
 		self.port = port
 
