@@ -25,8 +25,8 @@ from COMPONENTS.netbios.netbiosworkstation import NetBIOSWorkstation
 from COMPONENTS.msrpc.msrpcserver import MSRPCServer
 from COMPONENTS.smb.smbserver import SMBServer
 
-from checkifmsrpcserviceisrunning.method import CheckIfMSRPCServiceIsRunning
-from checkifsmbserviceisrunning.method import CheckIfSMBServiceIsRunning
+from COMPONENTS.hosts.checkifmsrpcserviceisrunning.method import CheckIfMSRPCServiceIsRunning
+from COMPONENTS.hosts.checkifsmbserviceisrunning.method import CheckIfSMBServiceIsRunning
 from COMPONENTS.netbios.nbnsiptranslations.method import NBNSIPTranslation
 
 
