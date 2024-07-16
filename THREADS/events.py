@@ -1,6 +1,6 @@
-from AbstractClasses import AbstractNetworkComponent
-from AbstractClasses import AbstractFilter
-from AbstractClasses import AbstractMethod
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
+from COMPONENTS.abstract.abstractmethod import AbstractMethod
+
 
 #########################
 # Class EVENT
