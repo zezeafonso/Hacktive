@@ -1,10 +1,11 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.netbios.foundnetbioshostnameforip import Filtered_FoundNetBIOSHostnameForIP
-from FILTEREDOBJECTS.netbios.foundnetbiosgroupforip import Filtered_FoundNetBIOSGroupForIP
-from FILTEREDOBJECTS.netbios.foundpdcipfornetbiosgroup import Filtered_FoundPDCIPForNetBIOSGroup
-from FILTEREDOBJECTS.netbios.foundnetbioshostnamewithsmb import Filtered_FoundNetBIOSHostnameWithSMB
+from COMPONENTS.filteredobjects.filteredfoundnetbioshostnameforip import Filtered_FoundNetBIOSHostnameForIP
+from COMPONENTS.filteredobjects.filteredfoundnetbiosgroupforip import Filtered_FoundNetBIOSGroupForIP
+from COMPONENTS.filteredobjects.filteredfoundpdcipfornetbiosgroup import Filtered_FoundPDCIPForNetBIOSGroup
+from COMPONENTS.filteredobjects.filteredfoundnetbioshostnamewithsmb import Filtered_FoundNetBIOSHostnameWithSMB
+
 			
 class NBNSIPTranslation_Filter(AbstractFilter):
 	_name = "translation of ip to hostname through NBNS FILTER"

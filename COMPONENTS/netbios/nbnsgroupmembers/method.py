@@ -5,8 +5,8 @@ from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
 from LOGGER.loggerconfig import logger
-from filter import NBNSGroupMembers_Filter
-from updater import update
+from COMPONENTS.netbios.nbnsgroupmembers.filter import NBNSGroupMembers_Filter
+from COMPONENTS.netbios.nbnsgroupmembers.updater import update
 
 
 class NBNSGroupMembers(AbstractMethod):

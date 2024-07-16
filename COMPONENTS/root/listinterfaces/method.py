@@ -4,8 +4,8 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 from THREADS.events import Run_Event
 
 from LOGGER.loggerconfig import logger
-from filter import ListInterfaces_Filter
-from updater import update_list_interfaces
+from COMPONENTS.root.listinterfaces.filter import ListInterfaces_Filter
+from COMPONENTS.root.listinterfaces.updater import update_list_interfaces
 
 
 

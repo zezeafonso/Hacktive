@@ -2,9 +2,11 @@ import re
 import ipaddress
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.interface.foundnetworkforinterface import Filtered_NewNetworkForInterface
-from FILTEREDOBJECTS.root.foundnewinterface import Filtered_NewInterface
-from FILTEREDOBJECTS.network.foundouripfornetwork import Filtered_FoundOurIPForNetwork
+from COMPONENTS.filteredobjects.filteredfoundnewinterface import Filtered_FoundNewInterface
+from COMPONENTS.filteredobjects.filteredfoundnewnetworkforinterface import Filtered_FoundNewNetworkForInterface
+from COMPONENTS.filteredobjects.filteredfoundouripfornetwork import Filtered_FoundOurIPForNetwork
+
+
 
 class ListInterfaces_Filter(AbstractFilter): 
 	_filename = "outputs/ListInterfaces.out"
@@ -52,7 +54,7 @@ class ListInterfaces_Filter(AbstractFilter):
 					network_str = str(network)
 
 					# FOUND NETWORK AND IP
-					findings.append(Filtered_NewNetworkForInterface(interface=current_interface, network=network_str))
+					findings.append(Filtered_FoundNewNetworkForInterface(interface=current_interface, network=network_str))
 					findings.append(Filtered_FoundOurIPForNetwork(interface=current_interface, network=network_str, ip=ip_str))
 
 			# if we're reading a new interface
@@ -63,7 +65,7 @@ class ListInterfaces_Filter(AbstractFilter):
 				if current_interface != 'lo':
 					interface_of_interest = True
 					# interface found
-					findings.append(Filtered_NewInterface(path=[], interface=current_interface))
+					findings.append(Filtered_FoundNewInterface(path=[], interface=current_interface))
 				else:
 					interface_of_interest = False
 		return findings

@@ -5,8 +5,8 @@ from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
 from LOGGER.loggerconfig import logger
-from filter import ArpScan_Filter
-from updater import update_arp_scan
+from COMPONENTS.network.arpscan.filter import ArpScan_Filter
+from COMPONENTS.network.arpscan.updater import update_arp_scan
 
 
 class ArpScan(AbstractMethod):

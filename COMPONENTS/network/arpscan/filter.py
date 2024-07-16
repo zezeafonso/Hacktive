@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.network.foundnewipfornetwork import Filtered_NewIPForNetwork
+from COMPONENTS.filteredobjects.filteredfoundnewipfornetwork import Filtered_FoundNewIPForNetwork
 
 class ArpScan_Filter(AbstractFilter):
 	_name = "arp scan filter"
@@ -17,6 +17,6 @@ class ArpScan_Filter(AbstractFilter):
 
 		for ip in alive_hosts:
 			# found ip for the network, we don't know the network
-			findings.append(Filtered_NewIPForNetwork([], ip))
+			findings.append(Filtered_FoundNewIPForNetwork([], ip))
 
 		return findings

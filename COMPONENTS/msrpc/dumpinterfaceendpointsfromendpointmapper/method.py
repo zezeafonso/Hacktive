@@ -5,8 +5,8 @@ from THREADS.events import Run_Event
 from THREADS.sharedvariables import shared_lock
 
 from LOGGER.loggerconfig import logger
-from filter import DumpInterfaceEndpointsFromEndpointMapper_Filter
-from updater import update
+from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.filter import DumpInterfaceEndpointsFromEndpointMapper_Filter
+from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.updater import update
 
 
 class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):

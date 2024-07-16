@@ -1,7 +1,7 @@
 import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
-from FILTEREDOBJECTS.netbios.foundnetbiosgroupforip import Filtered_FoundNetBIOSGroupForIP
+from COMPONENTS.filteredobjects.filteredfoundnetbiosgroupforip import Filtered_FoundNetBIOSGroupForIP
 
 class NBNSGroupMembers_Filter(AbstractFilter):
 	_name = "netbios group membership filter"
