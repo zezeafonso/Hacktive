@@ -32,9 +32,9 @@ class Domain(AbstractNetworkComponent):
 		self.domain_pdc = domain_pdc
 		# list of domain controllers
 		self.domain_dcs = list()
-		self.ldap_servers = list() # list of ldap servers
-		self.msrpc_servers = list() # list of msrpc servers 
-		self.smb_servers = list() # list of smb servers
+		self.ldap_servers = list() # list of ldap servers (ip)
+		self.msrpc_servers = list() # list of msrpc servers (ip)
+		self.smb_servers = list() # list of smb servers (ip)
   
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
@@ -71,23 +71,6 @@ class Domain(AbstractNetworkComponent):
 			context['msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
 			return context
 
-	def get_msrpc_servers(self): 
-		"""
-		Retrieves the list of msrpc servers 
-  		"""
-		with sharedvariables.shared_lock:
-			return self.msrpc_servers
-
-	def get_msrpc_servers_addresses(self): 
-		"""
-  		gets the names of the msrpc servers 
-    	"""
-		with sharedvariables.shared_lock:
-			servers = self.get_msrpc_servers()
-			list_addresses = list()
-			for server in servers:
-				list_addresses.append(server.get_ip())
-			return list_addresses
  
 	def get_list_usernames(self):
 		"""
@@ -196,16 +179,19 @@ class Domain(AbstractNetworkComponent):
 		
 	def add_dc(self, dc:'LdapServer'):
 		"""
-		Adds a domain controller to this domain. 
+		Adds a domain controller (ldap) to this domain. 
 		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
   		"""
 		with sharedvariables.shared_lock:
 			logger.debug("Adding dc to domain (self.domain_name")
+   
+			# check if it's already in the dcs
 			if dc not in self.domain_dcs:
 				self.domain_dcs.append(dc)
 				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
     
 				# add machine to list of msrpc_servers 
+				self.add_msrpc_server(dc.get_host().get_ip())
 				# add machine to list of ldap_servers
 				# add machine to list of smb_servers
 
@@ -289,3 +275,26 @@ class Domain(AbstractNetworkComponent):
 			# new state
 			self.check_for_updates_in_state()
 			return group
+
+
+	"""
+ 	MSRPC
+  	"""
+   
+	def get_msrpc_servers(self): 
+		"""
+		Retrieves the list of msrpc servers 
+		(the ips of the msrpc servers listed)
+  		"""
+		with sharedvariables.shared_lock:
+			return self.msrpc_servers
+
+	def add_msrpc_server(self, rpc_ip):
+		"""
+  		Adds an ip to the msrpc_servers list.
+		Checks if the ip is already in the list.
+    	"""
+		list_msrpc_server_ips = self.get_msrpc_servers()
+		if rpc_ip not in list_msrpc_server_ips:
+			logger.debug(f"Adding {rpc_ip} to the list of msrpc servers of domain {self.domain_name}")
+			self.msrpc_servers.append(rpc_ip)
