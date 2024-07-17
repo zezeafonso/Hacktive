@@ -31,15 +31,13 @@ class Domain(AbstractNetworkComponent):
 		self.domain_name = domain_name
 		# the domain pdc
 		self.domain_pdc = domain_pdc
-		# list of domain controllers
-		self.domain_dcs = list()
 		self.ldap_servers = list() # list of ldap servers (ip)
 		self.msrpc_servers = list() # list of msrpc servers (ip)
 		self.smb_servers = list() # list of smb servers (ip)
-		self.machines = dict() # the machines that belong and their role
+		self.machines = dict() # the machines that belong and their role (from roles)
   
 		if domain_pdc is not None:
-			self.domain_dcs.append(domain_pdc) # add the PDC also 
+			self.machines[domain_pdc.get_host()] = "DC"
 
 		self.trusts = list() # list of domain trusts
 		self.users = list() # list of user objects (should be private)
@@ -66,7 +64,6 @@ class Domain(AbstractNetworkComponent):
 			context = dict()
 			context['domain_name'] = self.get_domain_name
 			context['domain_pdc'] = self.domain_pdc
-			context['domain_dcs'] = copy.deepcopy(self.domain_dcs)
 			context['trusts'] = copy.deepcopy(self.trusts)
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
 			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
@@ -166,9 +163,11 @@ class Domain(AbstractNetworkComponent):
 		if pdc is not None:
 			data['PDC'] = pdc.get_host().get_ip()
 		data['DCs'] = list()
-		print(self.domain_dcs)
-		for dc in self.domain_dcs:
-			data['DCs'].append(dc.get_host().get_ip())
+		data['machines'] = list()
+		for machine in self.machines:
+			if self.machines[machine] == "DC":
+				data['DCs'].append(machine.get_ip())
+			data['machines'].append(machine.get_ip())
 		data['Trusts'] = list()
 		for domain in self.trusts:
 			data['Trusts'].append(domain.get_domain_name())
@@ -204,17 +203,6 @@ class Domain(AbstractNetworkComponent):
 			self.check_for_updates_in_state()
 
 			return 
-			if dc not in self.domain_dcs:
-				self.domain_dcs.append(dc)
-				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
-    
-				# add machine to list of msrpc_servers 
-				self.add_msrpc_server(dc.get_host().get_ip())
-				# add machine to list of ldap_servers
-				# add machine to list of smb_servers
-
-				self.check_for_updates_in_state()
-				return
 
 	def add_pdc(self, pdc:'LdapServer'):
 		with sharedvariables.shared_lock:
