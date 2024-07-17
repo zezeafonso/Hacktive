@@ -66,7 +66,7 @@ def analyze_event(event):
 
 	# know the correct filter
 	f = method._filter
-	u = method._updater
+	func_update = method._updater
 
 	logger.debug(f" filtering output in: {f._name}")
 	list_filtered_objects = f.filter(output) # returns filtered objects
@@ -81,8 +81,7 @@ def analyze_event(event):
 		return 
 
 	# update the network components with these captured information from the filter
-	u(context, list_filtered_objects)
-	#FU.update_network_components(method, context, list_filtered_objects)
+	func_update(context, list_filtered_objects)
 
 	# print the state of the network components after the update network components
 	print_state_network_components_after_cmd(cmd)

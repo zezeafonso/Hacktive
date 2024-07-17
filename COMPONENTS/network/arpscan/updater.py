@@ -7,7 +7,7 @@ from COMPONENTS.network.componentupdater import found_new_ip_for_network
 
 
 def update_arp_scan(context, filtered_objects):
-
+	print(context)
 	# for this update the context will just be the root object
 	if context['network_address'] is None or context['interface_name'] is None:
 		return 
