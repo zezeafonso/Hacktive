@@ -2,7 +2,8 @@ import copy
 
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.method import DumpInterfaceEndpointsFromEndpointMapper
@@ -31,7 +32,7 @@ class MSRPCServer:
 
 	def get_context(self):
 		logger.debug(f"getting context for MSRPCserver ({self.host.get_ip()})")
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			context = dict()
 
 			context['network_address'] = self.host.get_network().get_network_address()
@@ -59,7 +60,7 @@ class MSRPCServer:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -73,7 +74,7 @@ class MSRPCServer:
 			return 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['MSRPC Server'] = dict()
 			data['MSRPC Server']['port'] = self.port
@@ -83,7 +84,7 @@ class MSRPCServer:
 		"""
 		The function that's responsible for calling the auto methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
 				list_events = method.create_run_events(self.state)

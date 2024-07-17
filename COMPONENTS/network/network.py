@@ -1,7 +1,7 @@
 from LOGGER.loggerconfig import logger
 
-import THREADS.sharedvariables as SV
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
@@ -44,7 +44,7 @@ class Network(AbstractNetworkComponent):
 		"""
 		Defines the context in which the methods will be called
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting context for network ({self.network_address})")
 			context = dict()
 			context['network_address'] = self.get_network_address()
@@ -58,7 +58,7 @@ class Network(AbstractNetworkComponent):
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -73,7 +73,7 @@ class Network(AbstractNetworkComponent):
 
 	def get_network_address(self):
 		n_a = None
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			n_a = self.network_address
 		return n_a
 
@@ -81,7 +81,7 @@ class Network(AbstractNetworkComponent):
 		return self.our_ip
 
 	def get_host_through_ip(self, ip):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting host associated to the network ({self.network_address}) through ip ({ip})")
 			if ip not in self.hosts:
 				logger.debug(f"This network ({self.network_address}) is not associated with a host with ip: ({ip})")
@@ -104,7 +104,7 @@ class Network(AbstractNetworkComponent):
 	# Functions
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['network'] = dict()
 			data['network']['address'] = self.network_address
@@ -131,7 +131,7 @@ class Network(AbstractNetworkComponent):
 				send_run_event_to_run_commands_thread(event)
 
 	def add_our_ip(self, ip:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			self.our_ip = ip
 
 			# because we update the object -> check for relevance
@@ -139,7 +139,7 @@ class Network(AbstractNetworkComponent):
 			return 
 
 	def attach_host(self, ip:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if ip in self.hosts:
 				pass
 			else:
@@ -154,7 +154,7 @@ class Network(AbstractNetworkComponent):
 		"""
 		if host exists, return the object
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({host_ip}) exists for this network ({self.network_address})")
 
 			if host_ip in self.hosts:
@@ -170,7 +170,7 @@ class Network(AbstractNetworkComponent):
 		creates the host; attaches it to the network obj;
 		returns the list of methods to run
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"creating host ({ip}) for this network ({self.network_address})")
 
 			new_host = Host(ip=ip, path=self.path)
@@ -189,7 +189,7 @@ class Network(AbstractNetworkComponent):
 		calls the methods automatically for host when it creates it 
 		"""
 		# if host doesn't exist create it and get methods
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f'get/create host with ip ({ip})')
 			host = self.check_for_host_with_ip(ip)
 
@@ -234,7 +234,7 @@ class Network(AbstractNetworkComponent):
 				create it 
 				associate it with the ip host
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating netbios workstation ({hostname}) to Host ({ip})")
 			ip_host = self.get_host_through_ip(ip)
 			netbios_ws = ip_host.get_netbios_workstation_obj()
@@ -259,7 +259,7 @@ class Network(AbstractNetworkComponent):
 		How we check if a netbios workstation is already associated
 		to this network object
 		"""		
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"checking if network ({self.network_address}) has the netbios workstation")
 			if netbios_wk in self.netbios_workstations:
 				logger.debug(f"network ({self.network_address}) has the netbios workstation")
@@ -275,7 +275,7 @@ class Network(AbstractNetworkComponent):
 		with such a hostname.
 		If it does returns the object
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"checking if network ({self.network_address}) has a netbios workstation with hostname: ({hostname})")
 			for netbios_wk in self.netbios_workstations:
 				if netbios_wk.hostname is not None:
@@ -293,7 +293,7 @@ class Network(AbstractNetworkComponent):
 
 		returns list of function 
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating netbios workstation to network ({self.network_address})")
 			self.netbios_workstations.append(netbios_wk)
 			
@@ -308,7 +308,7 @@ class Network(AbstractNetworkComponent):
 		a hostname. If it does returns it, if it doesn't creates it, 
 		associates it and returns it.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating netbios workstation with hostname ({hostname}) to network ({self.network_address})")
 			netbios_ws = self.check_if_NetBIOSWorkstation_is_associated_through_hostname(hostname)
 
@@ -332,7 +332,7 @@ class Network(AbstractNetworkComponent):
 
 
 	def check_if_netbios_group_exists(self, group_name:str, _type:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			res = False
 			group_id = group_name.lower() + '#'+_type
 			if group_id in self.netbios_groups:
@@ -348,7 +348,7 @@ class Network(AbstractNetworkComponent):
 		return NetBIOSGroup(group_name, group_type)
 
 	def associate_netbios_group_to_this_network(self, group:NetBIOSGroup):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if not self.check_if_netbios_group_exists(group.name, group.type):
 				group_id = group.name+'#'+group.type
 				self.netbios_groups[group_id] = group

@@ -1,7 +1,7 @@
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 
 
 class DomainGroup(AbstractNetworkComponent):
@@ -25,18 +25,18 @@ class DomainGroup(AbstractNetworkComponent):
 		return data
 
 	def get_groupname(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.groupname
 
 	def get_rid(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.rid
 
 	def set_rid(self, rid):
 		"""
 		self.groupname (mandatory)
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"setting the rid ({rid}) for group ({self.groupname})")
 			if self.rid != None:
 				logger.debug(f"group already had rid ({self.rid})")

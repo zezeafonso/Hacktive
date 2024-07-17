@@ -1,5 +1,6 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import root_obj, shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.netbios.nbnsgroupmembers.method import NBNSGroupMembers
@@ -26,11 +27,11 @@ class NetBIOSGroup():
 		self.check_for_updates_in_state()
 
 	def get_id(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.id
 
 	def get_context(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting context for NetBIOSGroup ({self.name})")
 			context = dict()
 			context['group_name'] = self.name
@@ -44,7 +45,7 @@ class NetBIOSGroup():
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -58,7 +59,7 @@ class NetBIOSGroup():
 			return 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['NetBIOSGroup'] = dict()
 			data['NetBIOSGroup']['id'] = self.id
@@ -94,7 +95,7 @@ class NetBIOSGroup():
 		Associates this network group, with something, most likely 
 		the network or subnet where we are present.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if self.associated is not None:
 				logger.debug(f"changing the associated object of netbios group ({self.id})")
 			self.associated = obj

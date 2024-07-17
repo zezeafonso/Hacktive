@@ -1,4 +1,5 @@
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as sharedvariables
+
 from LOGGER.loggerconfig import logger
 
 
@@ -11,11 +12,10 @@ def found_new_interface(interface_name):
 	interface network component was created)
 	"""
 	
-
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		logger.debug(f"interface: ({interface_name}) found -> updating components")
 		
-		interface = root_obj.get_interface_or_create_it(interface_name) # already calls the methods
+		interface = sharedvariables.root_obj.get_interface_or_create_it(interface_name) # already calls the methods
 		return 
 
 

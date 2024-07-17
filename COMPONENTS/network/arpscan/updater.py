@@ -1,5 +1,6 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as sharedvariables
+
 from COMPONENTS.filteredobjects.filterednewipfornetwork import Filtered_NewIPForNetwork
 from COMPONENTS.network.componentupdater import found_new_ip_for_network
 
@@ -15,9 +16,9 @@ def update_arp_scan(context, filtered_objects):
 	net_name = context['network_address']
 	int_name = context['interface_name']
 
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		# retrieve interface and network objects (both methods have locks)
-		interface = root_obj.get_interface_or_create_it(int_name)
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
 		network = interface.get_network_or_create_it(net_name)
 
 	for filtered_obj in filtered_objects:

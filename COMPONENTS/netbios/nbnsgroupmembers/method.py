@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from LOGGER.loggerconfig import logger
 from COMPONENTS.netbios.nbnsgroupmembers.filter import NBNSGroupMembers_Filter
@@ -36,7 +37,7 @@ class NBNSGroupMembers(AbstractMethod):
 			return []
 
 		# must be locked accessing shared memory
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			group_id = context['group_id']
 			list_args = list()

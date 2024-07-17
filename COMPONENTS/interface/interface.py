@@ -1,7 +1,6 @@
 from LOGGER.loggerconfig import logger
 
-import THREADS.sharedvariables as SV
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
@@ -35,7 +34,7 @@ class Interface(AbstractNetworkComponent):
 		"""
 		Defines the context in which the methods will be called
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting context for Interface ({self.interface_name})")
 			context = dict()
 			context['interface_name'] = self.get_interface_name()
@@ -47,7 +46,7 @@ class Interface(AbstractNetworkComponent):
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			# first run: context != None
 			if new_state != self.state:
@@ -64,7 +63,7 @@ class Interface(AbstractNetworkComponent):
 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['interface'] = dict()
 			data['interface']['name'] = self.interface_name
@@ -80,7 +79,7 @@ class Interface(AbstractNetworkComponent):
 
 	# LOCK
 	def attach_network(self, network_name:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if network_name in self.networks:
 				pass
 			else:
@@ -94,7 +93,7 @@ class Interface(AbstractNetworkComponent):
 		"""
 		if network exists, return the object
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if network_name in self.networks:
 				return self.networks[network_name]
 		return None
@@ -104,7 +103,7 @@ class Interface(AbstractNetworkComponent):
 		creates the network; attaches it to the interface obj;
 		returns the list of methods to run
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_network = Network(network_name, self.path) 
 			self.networks[network_name] = new_network
 
@@ -127,7 +126,7 @@ class Interface(AbstractNetworkComponent):
 		new network obj)
 		"""
 		# if network doesn't exist create it and get methods
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			network = self.check_for_network_str(network_str)
 			if network == None: # doesn't exist
 				# create the network, but first ask if we want it 

@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from LOGGER.loggerconfig import logger
 from COMPONENTS.network.arpscan.filter import ArpScan_Filter
@@ -34,7 +35,7 @@ class ArpScan(AbstractMethod):
 		if not ArpScan.check_context(context):
 			return []
 
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			network_address = context['network_address']
 			list_args = list()

@@ -1,6 +1,7 @@
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
@@ -29,7 +30,7 @@ class LdapServer:
 
 	def get_context(self):
 		logger.debug(f"getting context for LdapServer ({self.host.get_ip()})")
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			context = dict()
 
 			context['network_address'] = self.host.get_network().get_network_address()
@@ -52,7 +53,7 @@ class LdapServer:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -66,20 +67,20 @@ class LdapServer:
 			return 
 
 	def get_domain(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			host = self.get_host()
 			domain = host.get_domain()
 			return domain
 
 	def get_host(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.host
 
 	
 	# Functions
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['LDAP Server'] = dict()
 			data['LDAP Server']['domain name'] = self.get_host().get_domain().get_domain_name()

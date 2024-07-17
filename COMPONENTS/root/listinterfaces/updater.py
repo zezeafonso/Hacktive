@@ -1,4 +1,5 @@
-from THREADS.sharedvariables import root_obj
+import THREADS.sharedvariables as sharedvariables
+
 from COMPONENTS.root.componentupdater import found_new_interface
 from COMPONENTS.network.componentupdater import found_our_ip_for_a_network
 from COMPONENTS.interface.componentupdater import found_new_network_for_interface
@@ -11,7 +12,6 @@ def update_list_interfaces(context:dict, filtered_objects:list):
 	"""
 	Defines the components we update when we list the interfaces available
 	"""
-	global root_obj
 
 	for filtered_obj in filtered_objects:
 		# FOUND NEW INTERFACE

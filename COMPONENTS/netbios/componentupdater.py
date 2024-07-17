@@ -1,5 +1,6 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as sharedvariables
+
 
 def found_netbios_hostname_with_smb_active(network, ip):
 	"""
@@ -10,7 +11,7 @@ def found_netbios_hostname_with_smb_active(network, ip):
 	for the host ip, that launched this command.
 	"""
 
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		# retrieve the host object
 		host = network.get_ip_host_or_create_it(ip)
 		if host is None: # if it's 'our' ip
@@ -40,7 +41,7 @@ def found_netbios_group(network, group_name, group_type):
 	this way you should associate the netbios group we find to 
 	that object instead of the network.
 	"""
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		# only do something if it's a NEW group
 		if not network.check_if_netbios_group_exists(group_name, group_type):
 			# create the group network component
@@ -61,7 +62,7 @@ def found_netbios_group_for_ip(network, ip, group_name, group_type):
 	The group may not yet exist in our objects. 
 	The ip may also not exist
 	"""
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		# get the NetBIOSgroup object and the methods 
 		netbios_group = found_netbios_group(network, group_name, group_type)
 
@@ -77,7 +78,7 @@ def found_pdc_for_netbios_group(network, ip, netbios_group):
 	Checks if the ip already is associated with a 
 	"""
 
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		host = network.get_ip_host_or_create_it(ip)
 
 		# get the netbios worksation
@@ -104,6 +105,6 @@ def found_netbios_hostname_for_ip(network, hostname, ip):
 	we get or create a Netbios_worstation role for that ip, 
 	with the hostname we found.
 	"""
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		network.associate_netbios_workstation_to_ip_host_through_hostname(hostname, ip)
 		return 

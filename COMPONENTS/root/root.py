@@ -1,7 +1,7 @@
 from LOGGER.loggerconfig import logger
 
-import THREADS.sharedvariables as SV
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.interface.interface import Interface
@@ -40,7 +40,7 @@ class Root():
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -70,7 +70,7 @@ class Root():
 				send_run_event_to_run_commands_thread(event)
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['interfaces'] = list()
 			for _int in self.interfaces:
@@ -87,13 +87,13 @@ class Root():
 		self.interfaces[interface.interface_name] = interface
 
 	def get_domains(self) -> list:
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.domains
 
 	# LOCK.
 	# if new object return it 
 	def attach_interface(self, interface_name:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if interface_name in self.interfaces:
 				pass
 			else:
@@ -140,7 +140,7 @@ class Root():
 		of new interface)
 		"""
 		# if interface doesn't exist create it and get methods
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			interface = self.check_for_interface_name(interface_name)
 			if interface is None: # doesn't exist
 				interface = self.create_interface_with_name(interface_name)
@@ -150,7 +150,7 @@ class Root():
 
 
 	def check_for_domain(self, domain_name):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug("checking if domain ({domain.get_domain_name()}) is present in root")
 			for domain in self.domains:
 				if domain.get_domain_name() == domain_name:
@@ -160,12 +160,12 @@ class Root():
 			return None
 
 	def add_domain(self, domain:Domain):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding domain ({domain.get_domain_name()}) to root")
 			self.domains.append(domain)
 
 	def get_or_create_domain(self, domain_name):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# check if domain is there.
 			domain = self.check_for_domain(domain_name)
 			if domain is None:

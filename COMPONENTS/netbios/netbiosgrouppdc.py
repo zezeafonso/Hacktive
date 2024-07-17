@@ -1,4 +1,5 @@
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 from LOGGER.loggerconfig import logger
 
@@ -27,7 +28,7 @@ class NetBIOSGroupPDC:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -41,7 +42,7 @@ class NetBIOSGroupPDC:
 			return 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['NetBIOS PDC'] = dict()
 			return data

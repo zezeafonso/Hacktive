@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.filter import QueryRootDSEOfDCThroughLDAP_Filter
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.updater import update_query_root_dse_of_dc_through_ldap
@@ -35,7 +36,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		if not QueryRootDSEOfDCThroughLDAP.check_context(context):
 			return []
 
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
 			list_args = list()
@@ -65,7 +66,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 
 		returns True if we should run it 
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if 'domain_name' in context:
 				if context['domain_name'] is not None:
 					logger.debug(f"creating run events for method: {QueryRootDSEOfDCThroughLDAP._name} but we already have a domain name for this host")

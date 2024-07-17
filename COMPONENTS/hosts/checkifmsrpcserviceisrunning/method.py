@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from COMPONENTS.hosts.checkifmsrpcserviceisrunning.filter import CheckIfMSRPCServiceIsRunning_Filter
 from COMPONENTS.hosts.checkifmsrpcserviceisrunning.updater import update_check_if_msrpc_service_is_running
@@ -37,7 +38,7 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 			return []
 
 		# must be locked accessing shared memory:
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
 			list_args = list()

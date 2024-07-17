@@ -1,5 +1,6 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import root_obj, shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 
 def found_new_network_for_interface(interface_name, network_address):
@@ -13,10 +14,10 @@ def found_new_network_for_interface(interface_name, network_address):
 	a new network or interface objects)
 	"""
 
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		logger.debug(f"network ({network_address}) for interface ({interface_name}) found -> updating components")
 		
-		interface = root_obj.get_interface_or_create_it(interface_name)
+		interface = sharedvariables.root_obj.get_interface_or_create_it(interface_name)
 
 		# ASKS THE USER IF HE WANTS THIS NETWORK
 		network = interface.get_network_or_create_it(network_address)

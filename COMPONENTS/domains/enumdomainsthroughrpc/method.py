@@ -2,7 +2,7 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 
 from COMPONENTS.domains.enumdomainsthroughrpc.filter import EnumDomainsThroughRPC_Filter
 from COMPONENTS.domains.enumdomainsthroughrpc.updater import updater
@@ -36,7 +36,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		if not EnumDomainsThroughRPC.check_context(context):
 			return []
 
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
 			list_args = list()

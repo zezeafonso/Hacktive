@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from COMPONENTS.hosts.checkifsmbserviceisrunning.filter import CheckIfSMBServiceIsRunning_Filter
 from COMPONENTS.hosts.checkifsmbserviceisrunning.updater import update_check_if_smb_service_is_running

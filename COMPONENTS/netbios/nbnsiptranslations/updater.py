@@ -1,5 +1,6 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as sharedvariables
+
 
 from COMPONENTS.netbios.componentupdater import found_netbios_hostname_for_ip
 from COMPONENTS.netbios.componentupdater import found_netbios_hostname_with_smb_active
@@ -23,8 +24,8 @@ def update_ip_to_host_nbns(context, filtered_objects):
 	int_name = context['interface_name']
 
 	# retrieve interface and network objects (both methods have locks)
-	with shared_lock:
-		interface = root_obj.get_interface_or_create_it(int_name)
+	with sharedvariables.shared_lock:
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
 		network = interface.get_network_or_create_it(net_name)
 
 	for filtered_obj in filtered_objects:

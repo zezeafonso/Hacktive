@@ -1,7 +1,7 @@
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock
-from THREADS.sharedvariables import root_obj
+import THREADS.sharedvariables as sharedvariables
+
 from COMPONENTS.ldap.componentupdater import found_new_domain_components_path_ldap
 from COMPONENTS.filteredobjects.filteredfounddomaincomponentsfromldapquery import Filtered_FoundDomainComponentsFromLDAPQuery
 
@@ -26,8 +26,8 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	host_name = context['ip']
 
 	# retrieve interface and network objects (both methods have locks)
-	with shared_lock:
-		interface = root_obj.get_interface_or_create_it(int_name)
+	with sharedvariables.shared_lock:
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
 		network = interface.get_network_or_create_it(net_name)
 		if network is None: # not interested in this network
 			return 

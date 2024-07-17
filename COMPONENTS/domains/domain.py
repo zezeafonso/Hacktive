@@ -7,7 +7,7 @@ from COMPONENTS.domains.domaingroup import DomainGroup
 
 
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 

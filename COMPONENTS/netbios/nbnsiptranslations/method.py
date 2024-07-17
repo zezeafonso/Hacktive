@@ -2,7 +2,8 @@ from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponen
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from THREADS.events import Run_Event
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from LOGGER.loggerconfig import logger
 from COMPONENTS.netbios.nbnsiptranslations.filter import NBNSIPTranslation_Filter
@@ -36,7 +37,7 @@ class NBNSIPTranslation(AbstractMethod):
 		if not NBNSIPTranslation.check_context(context):
 			return []
 
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			ip = context['ip']
 			list_args = list()
 			list_args.append(ip)

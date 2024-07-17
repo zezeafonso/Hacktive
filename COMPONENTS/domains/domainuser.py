@@ -1,7 +1,8 @@
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 class DomainUser(AbstractNetworkComponent):
 	"""
@@ -24,16 +25,16 @@ class DomainUser(AbstractNetworkComponent):
 		return data
 
 	def get_username(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.username
 
 	def get_rid(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.rid
 
 
 	def set_rid(self, rid:str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"setting the rid ({rid}) for user({self.username})")
 			if self.rid != None:
 				logger.debug(f"User already had rid ({self.rid})")

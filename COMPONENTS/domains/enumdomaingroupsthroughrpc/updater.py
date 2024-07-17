@@ -1,5 +1,5 @@
 from LOGGER.loggerconfig import logger
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as shared_variables
 from COMPONENTS.filteredobjects.filteredfounddomaingroupthroughrpc import Filtered_FoundDomainGroupThroughRPC
 from COMPONENTS.domains.componentupdater import found_group_for_domain
 
@@ -11,8 +11,8 @@ def update_enum_domain_groups_through_rpc(context:dict, filtered_objects:list):
 	if domain_name is None:
 		return 
 
-	with shared_lock:
-		domain = root_obj.get_or_create_domain(domain_name)
+	with shared_variables.shared_lock:
+		domain = shared_variables.root_obj.get_or_create_domain(domain_name)
   
 	for filtered_obj in filtered_objects:
 		if isinstance(filtered_obj, Filtered_FoundDomainGroupThroughRPC):

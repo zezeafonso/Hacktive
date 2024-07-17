@@ -1,6 +1,7 @@
 from LOGGER.loggerconfig import logger
 
-from THREADS.sharedvariables import shared_lock, root_obj
+import THREADS.sharedvariables as sharedvariables
+
 
 
 from COMPONENTS.filteredobjects.filteredfounddomaintrust import Filtered_FoundDomainTrust
@@ -20,8 +21,8 @@ def update_enum_domain_trusts_through_rpc(context:dict, filtered_objects:list):
 	int_name = context['interface_name']
 	host_ip = context['ip']
 
-	with shared_lock:
-		interface = root_obj.get_interface_or_create_it(int_name)
+	with sharedvariables.shared_lock:
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
 		network = interface.get_network_or_create_it(net_name)
 		if network is None: # not interested in this network
 			return 

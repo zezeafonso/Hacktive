@@ -14,8 +14,7 @@ of the code.
 """
 from LOGGER.loggerconfig import logger
 
-import THREADS.sharedvariables as SV
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.domains.domain import Domain
@@ -76,7 +75,7 @@ class Host(AbstractNetworkComponent):
 		"""
 		Defines the context in which the methods will be called
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting context for Host ({self.ip})")
 			context = dict()
 			context['ip'] = self.get_ip()
@@ -97,7 +96,7 @@ class Host(AbstractNetworkComponent):
 			return context
 
 	def add_dependent_object(self, obj):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			self.dependent_objects.append(obj)
 
 	def check_for_updates_in_state(self):
@@ -106,7 +105,7 @@ class Host(AbstractNetworkComponent):
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -121,7 +120,7 @@ class Host(AbstractNetworkComponent):
 
 
 	def get_netbios_workstation_obj(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting netbios workstaion obj from Host ({self.ip})")
 
 			if self.check_if_host_has_netbios_workstation_role():
@@ -131,13 +130,13 @@ class Host(AbstractNetworkComponent):
 			return None
 
 	def get_msrpc_server_obj(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if self.check_if_host_has_rpc_server_role():
 				return self.roles['MSRPCServer']
 			return None
 
 	def get_ldap_server_obj(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
 			if 'ldap server' not in self.roles:
 				logger.debug(f"Host ({self.get_ip()}) didn't have a ldap server")
@@ -150,7 +149,7 @@ class Host(AbstractNetworkComponent):
 		checks if the netbios workstation object has a hostname
 		returns the hostname
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting netbios hostname for Host ({self.ip})")
 
 			netbios_ws = self.get_netbios_workstation_obj()
@@ -168,30 +167,30 @@ class Host(AbstractNetworkComponent):
 		return None
 
 	def get_domain(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if len(self.AD_domain_roles) != 0:
 				domain_list = list(self.AD_domain_roles.keys())
 				return domain_list[0] # only the first (and only) element
 			return None
 
 	def get_ip(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.ip
 
 	def get_root(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.path['root']
 
 	def get_interface(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.path['interface']
 
 	def get_network(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.path['network']
 
 	def get_host(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.path['host']
 
 	
@@ -202,7 +201,7 @@ class Host(AbstractNetworkComponent):
 				
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['Host'] = dict()
 			data['Host']['ip'] = self.get_ip()
@@ -280,7 +279,7 @@ class Host(AbstractNetworkComponent):
 		"""
 		adds a ldap server role to this host.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding a ldap server role to this host ({self.get_ip()})")
 
 			ldap_server = LdapServer(self)
@@ -294,7 +293,7 @@ class Host(AbstractNetworkComponent):
 		If this host already has a role of ldap server returns the 
 		ldap server object. Otherwise, creates and associates a new one
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			ldap_server = self.get_ldap_server_obj()
 			if ldap_server is None:
 				ldap_server = self.add_role_ldap_server()
@@ -309,7 +308,7 @@ class Host(AbstractNetworkComponent):
 		Adds the role of netbios workstation. 
 		If it already exists it does nothing.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if 'NetBIOSWorkstation' not in self.roles:
 				nbw_obj = NetBIOSWorkstation(host=self, hostname=netbios_hostname)
 				self.roles['NetBIOSWorkstation'] = nbw_obj
@@ -324,7 +323,7 @@ class Host(AbstractNetworkComponent):
 		Updates the NetBIOSWorkstation object to point to this host
 		as well
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Associating netbios workstation to Host ({self.ip})")
 			self.roles['NetBIOSWorkstation'] = netbios_workstation
 
@@ -333,7 +332,7 @@ class Host(AbstractNetworkComponent):
 			return
 
 	def check_if_host_has_netbios_workstation_role(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({self.ip}) has a netbios workstation role")
 			if 'NetBIOSWorkstation' not in self.roles:
 				logger.debug(f"Host ({self.ip}) does not have a netbios workstation role")
@@ -346,7 +345,7 @@ class Host(AbstractNetworkComponent):
 		Adds the role of netbios workstation to the host.
 		It also creates the object, hostname might be empty. 
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding netbios workstation role")
 			if self.check_if_host_has_netbios_workstation_role():
 				logger.debug(f"Host ({self.ip}) already had netbios workstation role")
@@ -362,7 +361,7 @@ class Host(AbstractNetworkComponent):
 		"""
 
 		# with lock update the information on the netbios group
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			netbios_ws = self.get_netbios_workstation_obj()
 			if netbios_ws is None:
 				self.add_role_netbios_workstation(hostname=None)
@@ -377,7 +376,7 @@ class Host(AbstractNetworkComponent):
 	# SMB
 
 	def check_if_host_has_smb_server_role(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Checking if host ({self.ip}) has a smb server role")
 			if 'SMBServer' not in self.roles:
 				logger.debug(f"Host ({self.ip}) does not have a smb server role")
@@ -391,7 +390,7 @@ class Host(AbstractNetworkComponent):
 		Add and SMB server role to the host.
 		First checks if it already has
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding smb server role")
 
 			if self.check_if_host_has_smb_server_role():
@@ -407,7 +406,7 @@ class Host(AbstractNetworkComponent):
 
 
 	def found_smb_service_running_on_port(self, port=str):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			smb_server = self.get_or_add_role_smb_server(port)
 			return smb_server
 
@@ -417,7 +416,7 @@ class Host(AbstractNetworkComponent):
 
 
 	def check_if_host_has_rpc_server_role(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Checking if host ({self.ip}) has rpc server role")
 			if 'MSRPCServer' not in self.roles:
 				logger.debug(f"Host ({self.ip}) does not have a rpc server role")
@@ -429,7 +428,7 @@ class Host(AbstractNetworkComponent):
 		"""
 		get's the existing rpc server role or adds a new one
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding rpc server role")
 
 			if self.check_if_host_has_rpc_server_role():
@@ -445,7 +444,7 @@ class Host(AbstractNetworkComponent):
 
 
 	def found_msrpc_service_running_on_port(self, port):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			msrpc_server = self.get_or_add_role_rpc_server(port)
 			return msrpc_server
 
@@ -460,7 +459,7 @@ class Host(AbstractNetworkComponent):
 
 		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if 'ldap_server' in self.roles and self.get_domain() is not None:
 				domain = self.get_domain()
 				domain.add_dependent_object(self.roles['ldap_server'])
@@ -473,7 +472,7 @@ class Host(AbstractNetworkComponent):
 
 		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if 'MSRPCServer' in self.roles and self.get_domain() is not None:
 				domain = self.get_domain()
 				domain.add_dependent_object(self.roles['MSRPCServer'])
@@ -488,7 +487,7 @@ class Host(AbstractNetworkComponent):
 
 		calls methods if it was updated
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating domain ({domain.get_domain_name()}) to host ({self.get_ip()})")
 
 			associated_domain = self.get_domain()
@@ -510,7 +509,7 @@ class Host(AbstractNetworkComponent):
 			return 
 
 	def associate_DC_role_to_associated_domain(self, domain:Domain):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating role DC to host's ({self.get_ip()}) associated domain")
 			domain = self.get_domain()
 
@@ -525,7 +524,7 @@ class Host(AbstractNetworkComponent):
 			self.AD_domain_roles[domain] = 'DC' # hard coded
 
 	def associate_PDC_role_to_associated_domain(self, domain:Domain):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating role PDC to host's ({self.get_ip()}) associated domain")
 			domain = self.get_domain()
 			if domain is None:
@@ -546,7 +545,7 @@ class Host(AbstractNetworkComponent):
 
 		For each role checks if there are functions to be called.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			auto_functions = list()
 			auto_functions += [self.found_domain_methods]
 	

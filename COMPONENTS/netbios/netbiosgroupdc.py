@@ -1,4 +1,5 @@
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from LOGGER.loggerconfig import logger
@@ -20,18 +21,18 @@ class NetBIOSGroupDC:
 		self.check_for_updates_in_state()
 
 	def get_host(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.host
 
 	def get_group(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.group
 
 	def get_context(self):
 		"""
 		Defines the context in which the methods will be called
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting context for NetBIOSGroupDC ({self.host.get_ip()})")
 			context = dict()
 			context['ip'] = self.host.get_ip()
@@ -45,7 +46,7 @@ class NetBIOSGroupDC:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -59,7 +60,7 @@ class NetBIOSGroupDC:
 			return 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['NetBIOS DC'] = dict()
 			return data

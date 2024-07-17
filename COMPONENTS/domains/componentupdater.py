@@ -2,7 +2,7 @@
 NCU.update_components_found_group_for_domain(domain, groupname, rid)
 NCU.update_components_found_user_for_domain(domain, username, rid)
 """
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
 from LOGGER.loggerconfig import logger
 
 
@@ -15,7 +15,7 @@ def found_domain_trust(trusting_domain_name, trusted_domain_name):
 	"""
 	global root_obj
 
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		# check if the trusting domain exists in the root database
 		trusting_domain = root_obj.get_or_create_domain(trusting_domain_name)
 
@@ -41,7 +41,7 @@ def found_user_for_domain(domain, username, rid):
 	username: mandatory
 	rid: non-mandatory
 	"""
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		domainuser = domain.get_or_create_user_from_username(username)
 		if rid is not None:
 			domainuser.set_rid(rid)
@@ -56,7 +56,7 @@ def found_group_for_domain(domain, groupname, rid):
 	domain, groupname: mandatory
 	rid: non-mandatory
 	"""
-	with shared_lock:
+	with sharedvariables.shared_lock:
 		domaingroup = domain.get_or_create_group_from_groupname(groupname)
 		if rid is not None:
 			domaingroup.set_rid(rid)

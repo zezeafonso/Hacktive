@@ -1,6 +1,7 @@
 from LOGGER.loggerconfig import logger
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
-from THREADS.sharedvariables import shared_lock
+import THREADS.sharedvariables as sharedvariables
+
 
 from COMPONENTS.netbios.netbiosgroup import NetBIOSGroup
 from COMPONENTS.netbios.netbiosgroupdc import NetBIOSGroupDC
@@ -49,22 +50,22 @@ class NetBIOSWorkstation:
 
 
 	def get_hostname(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.hostname
 
 	def get_host(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.host
 
 	def get_ip(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			host = self.get_host()
 			if host is not None:
 				return host.get_ip()
 			return None
 
 	def get_groups(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return [group for group in self.groups_and_roles]
 
 	def get_context(self):
@@ -77,7 +78,7 @@ class NetBIOSWorkstation:
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 			if new_state != self.state:
 				self.state = new_state
@@ -96,7 +97,7 @@ class NetBIOSWorkstation:
 
 
 	def display_json(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			data = dict()
 			data['NetBIOSWorkstation'] = dict()
 			data['NetBIOSWorkstation']['hostname'] = self.get_hostname()
@@ -123,7 +124,7 @@ class NetBIOSWorkstation:
 		we receive first.
 		This function updates the hostname value .
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if self.hostname is not None:
 				if self.hostname != hostname:
 					print("conflicting hostnames for the same machine !!")
@@ -135,7 +136,7 @@ class NetBIOSWorkstation:
 		without roles means that we have no particular feature 
 		for this workstation listed in the netbios so far.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Associating group ({netbiosgroup.id}) without roles to NetBIOSWorkstation")
 			self.groups_and_roles[netbiosgroup] = []
 
@@ -147,7 +148,7 @@ class NetBIOSWorkstation:
 		checks if a groups is present inside the groups and
 		roles dictionary
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return netbiosgroup in self.groups_and_roles
 
 	def get_roles_associated_to_group(self, netbiosgroup):
@@ -156,7 +157,7 @@ class NetBIOSWorkstation:
 		The group might not be present in groups and roles
 		as such we return None in that case
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if self.check_if_belongs_to_group(netbiosgroup):
 				return self.groups_and_roles[netbiosgroup]
 			else:
@@ -168,7 +169,7 @@ class NetBIOSWorkstation:
 		class for a group. This behaviour should not happen and 
 		this check prevents we inserting duplicates
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			roles = self.get_roles_associated_to_group(netbiosgroup)
 			if roles == None: # the group is not present 
 				return False
@@ -185,7 +186,7 @@ class NetBIOSWorkstation:
 		the groups is present or not 
 		the role is already in or not
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			self.groups_and_roles[netbiosgroup].append(role)
 
 			# updates this object -> check for updates -> call methods
@@ -199,7 +200,7 @@ class NetBIOSWorkstation:
 		checks if the NetBIOSGroupDC is already present in that 
 		group.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating netbios DC group role in group ({netbiosgroup.id})")
 
 			netbios_dc = NetBIOSGroupDC(self.host, netbiosgroup)
@@ -216,7 +217,7 @@ class NetBIOSWorkstation:
 		If not -> add it.
 		returns methods 
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if not self.check_if_role_already_exists_for_group(netbiosgroup, NetBIOSGroupPDC):
 				role = NetBIOSGroupPDC(self.host, netbiosgroup)
 				self.add_new_role_to_group(netbiosgroup, role)
@@ -238,7 +239,7 @@ class NetBIOSWorkstation:
 
 		returns methods
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding group ({netbiosgroup.id}) to NetBIOSWorkstation")
 			if self.check_if_belongs_to_group(netbiosgroup):
 				logger.debug(f"Group ({netbiosgroup.id}) already belonged to NetBIOSWorkstation")
@@ -259,7 +260,7 @@ class NetBIOSWorkstation:
 		Returns the groups object that this netbios workstation belongs 
 		to that possesses that group_id.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			groups = self.get_groups()
 			for group in groups:
 				if group.id == group_id:
@@ -271,7 +272,7 @@ class NetBIOSWorkstation:
 		"""
 		attains the netbios group dc from a group that is associated.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if self.check_if_belongs_to_group(netbiosgroup):
 				roles = self.get_roles_associated_to_group(netbiosgroup)
 				for role in roles:
@@ -285,7 +286,7 @@ class NetBIOSWorkstation:
 		Checks if this netbios workstation already is considered
 		a netbios SMB server
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"checking if netbios workstation has a SMB server")
 			if self.smb_server is not None:
 				logger.debug(f"netbios workstation has a SMB server")
@@ -299,7 +300,7 @@ class NetBIOSWorkstation:
 		"""
 		associates a netbios smb server to this netbios workstation
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"associating smb server to this netbios workstation")
 			self.smb_server = netbios_smb_server
 
@@ -314,7 +315,7 @@ class NetBIOSWorkstation:
 		object. If it is associated returns the object. Otherwise 
 		creates, associates and return the new object and methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"getting or creating a NetBIOS SMB server for netbios workstation")
 			if self.check_for_netbios_smb_server():
 				logger.debug(f"netbios workstation had a NetBIOS SMB server associated")
@@ -330,7 +331,7 @@ class NetBIOSWorkstation:
 
 
 	def associate_host(self, host):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			self.host = host
 
 			# udpated object -> check for updates -> call methods
@@ -343,7 +344,7 @@ class NetBIOSWorkstation:
 		Add the role of netbios Smb server to this netbios workstation
 		Check if it's already before
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# create the netbios smb server object
 			netbios_smb_server = NetBIOSMBServer(self.host)
 			# associate it to this object
