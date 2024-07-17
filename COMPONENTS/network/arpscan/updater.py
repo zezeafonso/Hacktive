@@ -1,7 +1,7 @@
 from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 
-from COMPONENTS.filteredobjects.filterednewipfornetwork import Filtered_NewIPForNetwork
+from COMPONENTS.filteredobjects.filteredfoundnewipfornetwork import Filtered_FoundNewIPForNetwork
 from COMPONENTS.network.componentupdater import found_new_ip_for_network
 
 
@@ -23,7 +23,7 @@ def update_arp_scan(context, filtered_objects):
 
 	for filtered_obj in filtered_objects:
 		# FOUND NEW IP
-		if isinstance(filtered_obj, Filtered_NewIPForNetwork):
+		if isinstance(filtered_obj, Filtered_FoundNewIPForNetwork):
 			logger.debug(f"Found new IP ({filtered_obj.get_ip()}) for network ({network.network_address})")
 			ip = filtered_obj.get_ip()
 			found_new_ip_for_network(network, ip)
