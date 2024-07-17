@@ -30,6 +30,10 @@ class Domain(AbstractNetworkComponent):
 		self.domain_pdc = domain_pdc
 		# list of domain controllers
 		self.domain_dcs = list()
+		self.ldap_servers = list() # list of ldap servers
+		self.msrpc_servers = list() # list of msrpc servers 
+		self.smb_servers = list() # list of smb servers
+  
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
 
@@ -62,8 +66,27 @@ class Domain(AbstractNetworkComponent):
 			context['trusts'] = copy.deepcopy(self.trusts)
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
 			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
+			context['msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
 			return context
 
+	def get_msrpc_servers(self): 
+		"""
+		Retrieves the list of msrpc servers 
+  		"""
+		with sharedvariables.shared_lock:
+			return self.msrpc_servers
+
+	def get_msrpc_servers_addresses(self): 
+		"""
+  		gets the names of the msrpc servers 
+    	"""
+		with sharedvariables.shared_lock:
+			servers = self.get_msrpc_servers()
+			list_addresses = list()
+			for server in servers:
+				list_addresses.append(server.get_ip())
+			return list_addresses
+ 
 	def get_list_usernames(self):
 		"""
 		Goes to each user known to the domain and attempts to extract the username.
@@ -170,11 +193,19 @@ class Domain(AbstractNetworkComponent):
 
 		
 	def add_dc(self, dc:'LdapServer'):
+		"""
+		Adds a domain controller to this domain. 
+		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
+  		"""
 		with sharedvariables.shared_lock:
 			logger.debug("Adding dc to domain (self.domain_name")
 			if dc not in self.domain_dcs:
 				self.domain_dcs.append(dc)
 				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
+    
+				# add machine to list of msrpc_servers 
+				# add machine to list of ldap_servers
+				# add machine to list of smb_servers
 
 				self.check_for_updates_in_state()
 				return

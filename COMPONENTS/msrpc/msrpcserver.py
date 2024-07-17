@@ -29,6 +29,14 @@ class MSRPCServer:
 		host.add_dependent_object(self)
 
 		self.check_for_updates_in_state()
+  
+	def get_ip(self):
+		"""
+  		retrieves the ip of this msrpc
+    	calls the get_ip of the associated host
+     	"""
+		with sharedvariables.shared_lock:
+			return self.host.get_ip()
 
 	def get_context(self):
 		logger.debug(f"getting context for MSRPCserver ({self.host.get_ip()})")
