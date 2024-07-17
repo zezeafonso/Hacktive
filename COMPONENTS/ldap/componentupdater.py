@@ -5,8 +5,8 @@ import THREADS.sharedvariables as sharedvariables
 def found_new_domain_components_path_ldap(host, domain_components_path):
 	"""
 	Updates the network components for the event of finding new 
-	domain components path through ldap. 
-	We found a ldap server and we might have found a Domain Controller's domain name.
+	domain components path of a domain through ldap. 
+	We found a ldap server. 
 
 	+ we received a filtered object from the filter it means that the 
 	service is on. Which means this host (if it doesn't have already) 
@@ -27,7 +27,11 @@ def found_new_domain_components_path_ldap(host, domain_components_path):
 		# there is only 1 domain for each host
 		# put the host as a dependent object of the domain.
 		host.associate_domain_to_host_if_not_already(domain) 
+  
+		# check if host already has the known services listed
+		host.add_dc_services() # TODO 
 
 		# put this host as a DC for the domain
-		domain.add_dc(ldap_server)
+		# domain.add_dc(ldap_server)
+		domain.add_dc(host)
 	return

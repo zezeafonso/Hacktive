@@ -14,7 +14,9 @@ com os domains
 
 
 ### IDEAS
-
+Pá quando adicionar um DC ao domain:
+Vais verificar se já tens informação sobre essa máquina pertencer ao domínio.
+Temos de verificar também se já temos esse ip guardado como LDAP server, MSRPC server e SMB server para este domínio.
 
 ### IDEAS for tommorrow
 

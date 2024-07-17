@@ -25,6 +25,7 @@ class Domain(AbstractNetworkComponent):
  	methods = [EnumDomainsThroughRPC, EnumDomainTrustsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
   	"""
 	methods = [EnumDomainsThroughRPC]
+	roles = ["DC", "machine"]
 
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
 		self.domain_name = domain_name
@@ -35,6 +36,7 @@ class Domain(AbstractNetworkComponent):
 		self.ldap_servers = list() # list of ldap servers (ip)
 		self.msrpc_servers = list() # list of msrpc servers (ip)
 		self.smb_servers = list() # list of smb servers (ip)
+		self.machines = dict() # the machines that belong and their role
   
 		if domain_pdc is not None:
 			self.domain_dcs.append(domain_pdc) # add the PDC also 
@@ -68,7 +70,7 @@ class Domain(AbstractNetworkComponent):
 			context['trusts'] = copy.deepcopy(self.trusts)
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
 			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
-			context['msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
+			context['dc_msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
 			return context
 
  
@@ -177,7 +179,7 @@ class Domain(AbstractNetworkComponent):
 		return data
 
 		
-	def add_dc(self, dc:'LdapServer'):
+	def add_dc(self, host):
 		"""
 		Adds a domain controller (ldap) to this domain. 
 		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
@@ -185,7 +187,23 @@ class Domain(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			logger.debug("Adding dc to domain (self.domain_name")
    
-			# check if it's already in the dcs
+			# check if it's already in the machines of this domain
+			if host not in self.machines:
+				self.machines[host] = "DC"
+
+			# if its in the list of machines but has a normal machine
+			if host in self.machines:
+				if self.machines[host] == "machine":
+					self.machines[host] = "DC"
+
+			# since host is DC we can add to the list of services:
+			self.msrpc_servers.append(host.get_ip())
+			self.ldap_servers.append(host.get_ip())
+			self.smb_servers.append(host.get_ip())
+   
+			self.check_for_updates_in_state()
+
+			return 
 			if dc not in self.domain_dcs:
 				self.domain_dcs.append(dc)
 				logger.debug(f"Added ldap server ({dc.get_host().get_ip()}) to domain ({self.get_domain_name()}) DC's")
