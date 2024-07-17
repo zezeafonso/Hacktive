@@ -81,7 +81,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		"""
 		# it is not associated with an object
 		if context['msrpc_servers'] is None :
-			logger.debug(f"context for EnumDomainsThroughRPC doesn't have an associated_object")
+			logger.debug(f"context for EnumDomainsThroughRPC doesn't have MSRPC servers")
 			return False
 		return True
 

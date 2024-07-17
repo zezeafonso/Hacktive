@@ -12,6 +12,7 @@ def update_enum_domain_users_through_rpc(context:dict, filtered_objects:list):
 
 	with sharedvariables.shared_lock:
 		domain = sharedvariables.root_obj.get_or_create_domain(context['domain_name'])
+  
 	for filtered_obj in filtered_objects:
 		# found domain user
 		if isinstance(filtered_obj, Filtered_FoundDomainUserThroughRPC):

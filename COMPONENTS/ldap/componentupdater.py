@@ -29,9 +29,8 @@ def found_new_domain_components_path_ldap(host, domain_components_path):
 		host.associate_domain_to_host_if_not_already(domain) 
   
 		# check if host already has the known services listed
-		host.add_dc_services() # TODO 
+		host.add_dc_services() 
 
 		# put this host as a DC for the domain
-		# domain.add_dc(ldap_server)
 		domain.add_dc(host)
 	return

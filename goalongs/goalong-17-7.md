@@ -12,6 +12,8 @@ com os domains
 + [FILTEROBJECTS] Os filter objects não terem um dicionário mmas sim os valores. 
 + [CONTEXT] O context deve ser um objeto para nos conseguimos estandardizar o que passsamos para os métodos e como passamos.
 
+os restantes métodos do domain.
+
 
 ### IDEAS
 Pá quando adicionar um DC ao domain:
