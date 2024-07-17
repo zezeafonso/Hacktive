@@ -473,11 +473,11 @@ class Host(AbstractNetworkComponent):
       	SMB, MSRPC, LDAP.
        	"""
 		# If we don't have the MSRPC role
-		if not self.check_if_host_has_rpc_server_role(self):
+		if not self.check_if_host_has_rpc_server_role():
 			self.get_or_add_role_rpc_server('135')
-		if not self.check_if_host_has_smb_server_role(self):
+		if not self.check_if_host_has_smb_server_role():
 			self.get_or_add_role_smb_server('445')
-		if not self.check_for_ldap_server_role(self):
+		if not self.check_for_ldap_server_role():
 			self.get_or_add_role_ldap_server()
 		return 
    
