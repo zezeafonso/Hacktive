@@ -15,11 +15,18 @@ para os métodos e como passamos.
 Mudar os imports que estamos a usar que apenas usam o nome do folder. Isso NAO funciona, temos
 de usar path aoo que parece.
 
+Não se pode usar variáveis globais usando o from... import... apenas com o import (module) e depois
+acedendo mesmo com (module).(var).
+Isso estava a dar erro, mas agora já está.
+
+The code is now in order!! Nice job
+
 ### IDEAS
 
 
 ### IDEAS for tommorrow
-
+Começar a implementar os métodos dos domíniso nos domínios. 
+Depois passar para fazer as atualizações para conseguirmos avançar. 
 
 
 
@@ -29,3 +36,4 @@ de usar path aoo que parece.
 * checking for bugs
 
 ### horas
+4/5
