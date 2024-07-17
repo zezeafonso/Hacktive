@@ -275,6 +275,18 @@ class Host(AbstractNetworkComponent):
 		return [] # for now
 
 
+	def check_for_ldap_server_role(self):
+		"""
+  		checks if this host has the ldap server role
+    	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"checking if host ({self.get_ip()} has ldap server role)")
+			if self.roles['ldap server'] is None:
+				logger.debug(f"host ({self.get_ip()}) does not have ldap server role")
+				return False
+			logger.debug(f"Host ({self.get_ip()}) has ldap server role")
+			return True
+ 
 	def add_role_ldap_server(self):
 		"""
 		adds a ldap server role to this host.
@@ -452,7 +464,23 @@ class Host(AbstractNetworkComponent):
 
 
 	# Domains
-
+ 
+	def add_dc_services(self):
+		"""
+  		When we find that a host is a domain controller.
+    	Since certain services are mandatory for domain controllers to have 
+     	we don't have to enumerate the host to know that they're there.
+      	SMB, MSRPC, LDAP.
+       	"""
+		# If we don't have the MSRPC role
+		if not self.check_if_host_has_rpc_server_role(self):
+			self.get_or_add_role_rpc_server('135')
+		if not self.check_if_host_has_smb_server_role(self):
+			self.get_or_add_role_smb_server('445')
+		if not self.check_for_ldap_server_role(self):
+			self.get_or_add_role_ldap_server()
+		return 
+   
 	def add_ldap_server_to_domain_dependent_objects(self):
 		"""
 		Adds the ldap server of this host to the domain list of dependent objects.
