@@ -38,24 +38,29 @@ class EnumDomainsThroughRPC(AbstractMethod):
 
 		with sharedvariables.shared_lock:
 			# extract the specific context for this command
-			ip = context['ip']
-			list_args = list()
-			list_args.append(ip)
+			list_msrpc_servers_ip = context['msrpc_servers'] # will be a list
+   
 			# check if this method was already called with these arguments
-			args = tuple(list_args) # the tuple of args used 
-			if EnumDomainsThroughRPC.check_if_args_were_already_used(args):
-				return []
-			# add this argument to the set of arguments that were already used
-			EnumDomainsThroughRPC._previous_args.add(args)
+			unused_msrpc_server_ips = list()
+			for msrpc_server_ip in list_msrpc_servers_ip:
+				args = [msrpc_server_ip]
+				t_args=tuple(args)
+				if not EnumDomainsThroughRPC.check_if_args_were_already_used(t_args):
+					unused_msrpc_server_ips.append(msrpc_server_ip)
+					EnumDomainsThroughRPC._previous_args.add(t_args)
 
 		# command to run 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomains\'"
-		cmd = f"rpcclient {ip} -c=\'enumdomains\' -U=\'%\'"
+		list_run_events = list()
+		for ip in unused_msrpc_server_ips:
+			cmd = f"rpcclient {ip} -c=\'enumdomains\' -U=\'%\'"
 
-		# output file 
-		str_ip_address = ip.replace('.', '_')
-		output_file = EnumDomainsThroughRPC._filename + str_ip_address + '.out'
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainsThroughRPC, context=context)]
+			# output file 
+			str_ip_address = ip.replace('.', '_')
+			output_file = EnumDomainsThroughRPC._filename + str_ip_address + '.out'
+			list_run_events.append(Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainsThroughRPC, context=context))
+   
+		return list_run_events
 
 	@staticmethod
 	def check_for_objective(context):
@@ -73,7 +78,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		necessary values
 		"""
 		# it is not associated with an object
-		if context['ip'] is None :
+		if context['msrpc_servers'] is None :
 			logger.debug(f"context for EnumDomainsThroughRPC doesn't have an associated_object")
 			return False
 		return True

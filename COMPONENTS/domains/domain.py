@@ -235,10 +235,18 @@ class Domain(AbstractNetworkComponent):
 				return []
 
 	def auto_function(self):
+		"""
+		The function that will call the methods and send their run events
+		"automatically" for the thread that runs the commands
+  		"""
+    
 		for method in self.methods:
+			# create the events
 			list_events = method.create_run_events(self.state)
+			# for each event send it to the threrad
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
+		return 
 
 
 	def get_or_create_user_from_username(self, username):

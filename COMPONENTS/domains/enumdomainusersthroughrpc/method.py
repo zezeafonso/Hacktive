@@ -80,7 +80,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		necessary values
 		"""
 		# it is not associated with an object
-		if context['msrpc_servers'] is None :
+		if context['ip'] is None :
 			logger.debug(f"context for EnumDomainUsersThroughRPC doesn't have an ip")
 			return False
 		# if we don't have a group id for the object
