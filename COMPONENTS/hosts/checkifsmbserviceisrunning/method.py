@@ -39,7 +39,7 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 			return []
 
 		# must be locked accessing shared memory
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			ip = context['ip']
 			list_args = list()

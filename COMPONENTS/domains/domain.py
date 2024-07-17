@@ -54,7 +54,7 @@ class Domain(AbstractNetworkComponent):
 		get the context for this domain
 		"""
 		logger.debug(f"getting context for domain ({self.domain_name})")
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			context = dict()
 			context['domain_name'] = self.get_domain_name
 			context['domain_pdc'] = self.domain_pdc
@@ -69,7 +69,7 @@ class Domain(AbstractNetworkComponent):
 		Goes to each user known to the domain and attempts to extract the username.
 		returns a list of all usernames
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			list_usernames = list()
 			for user in self.users: 
 				username = user.get_username()
@@ -82,7 +82,7 @@ class Domain(AbstractNetworkComponent):
 		Goes to each group known to the domain and attempts to extract the groupname.
 		returns a list of all the groupnames
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			list_groupnames = list()
 			for group in self.groups:
 				groupname = group.get_groupname()
@@ -97,7 +97,7 @@ class Domain(AbstractNetworkComponent):
 
 		calls the check_for_updates_in_state for the object appended.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding object ({obj}) to list of dependent objects for this domain ({self.domain_name})")
 			if obj in self.dependent_objects:
 				logger.debug(f"Object ({obj}) already in list of dependent objects")
@@ -116,7 +116,7 @@ class Domain(AbstractNetworkComponent):
 		If so, calls for the state of the objects that depend on this.
 		calls it's methods.
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			new_state = self.get_context()
 
 			# if state changed
@@ -133,11 +133,11 @@ class Domain(AbstractNetworkComponent):
 
 
 	def get_pdc(self):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			return self.domain_pdc
 
 	def check_domain_in_trusts(self, domain):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			if domain in self.trusts:
 				return True
 			return False
@@ -170,7 +170,7 @@ class Domain(AbstractNetworkComponent):
 
 		
 	def add_dc(self, dc:'LdapServer'):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug("Adding dc to domain (self.domain_name")
 			if dc not in self.domain_dcs:
 				self.domain_dcs.append(dc)
@@ -180,7 +180,7 @@ class Domain(AbstractNetworkComponent):
 				return
 
 	def add_pdc(self, pdc:'LdapServer'):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding pdc ({pdc.get_host().get_ip()}) to Domain ({self.get_domain_name()})")
 			this_pdc = self.get_pdc()
 			if this_pdc is None:
@@ -190,7 +190,7 @@ class Domain(AbstractNetworkComponent):
 				logger.debug(f"Domain ({self.get_domain_name()}) had a pdc ({this_pdc.get_host().get_ip()})")
 
 	def add_domain_trust(self, domain):
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			logger.debug(f"Adding domain ({domain.get_domain_name()}) to domain ({self.get_domain_name()}) trusts")
 
 			# if we already have this trust
@@ -215,7 +215,7 @@ class Domain(AbstractNetworkComponent):
 		Attempts to retrieve the user with this username.
 		If it fails it will create a new user with this username
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# if we have the user 
 			for user in self.users:
 				if user.get_username() == username:
@@ -235,7 +235,7 @@ class Domain(AbstractNetworkComponent):
 		Attempts to retrieve the group with this groupname.
 		If it fails it will create a new group with this groupname
 		"""
-		with shared_lock:
+		with sharedvariables.shared_lock:
 			# if we have the group
 			for group in self.groups:
 				if group.get_groupname() == groupname:
