@@ -52,6 +52,8 @@ class EnumDomainsThroughRPC(AbstractMethod):
 		# command to run 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {context_ip_address} -c=\'enumdomains\'"
 		list_run_events = list()
+  
+		# for every unused msrpc server ip 
 		for ip in unused_msrpc_server_ips:
 			cmd = f"rpcclient {ip} -c=\'enumdomains\' -U=\'%\'"
 
