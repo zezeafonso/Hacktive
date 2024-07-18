@@ -1,4 +1,5 @@
 import subprocess
+import copy
 from concurrent.futures import ThreadPoolExecutor
 
 from LOGGER.loggerconfig import logger
@@ -13,12 +14,12 @@ from LOGGER.loggerconfig import logger
 
 
 def send_run_event_to_run_commands_thread(run_event:Run_Event):
-    """
-    This function is used to send a run_event to the 
-    thread that is responsible for running commands.
-    """
-    SV.cmd_queue.put(run_event)
-    return
+	"""
+	This function is used to send a run_event to the 
+	thread that is responsible for running commands.
+	"""
+	SV.cmd_queue.put(run_event)
+	return
 
 
 
@@ -126,6 +127,21 @@ def handle_normal_command(thread_pool, out_file, cmd, method, context):
 
 
 
+def call_methods_of_updated_objects():
+	"""
+	Calls the auto functions for the updated objects
+	"""
+	# copy the list so we don't end up updating it as well 
+	with SV.shared_lock:
+		logger.debug(f"Calling auto_function of the updated objects")
+		updated_objects = copy.deepcopy(SV.updated_objects) 
+		for component in updated_objects:
+			component.auto_function()
+		SV.clear_set_of_updated_objects()
+	return
+
+
+
 def commands_listener(thread_pool:ThreadPoolExecutor):
 	"""
 	Function of the thread that will be listening 
@@ -142,7 +158,11 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 		# might be sentinel to stop
 		if event == 'Done':
 			if handle_done_events_from_output_listener_thread(thread_pool) == 0:
-				break
+				# END CASE
+				if SV.is_set_of_updated_objects_empty():
+					break # end of program 
+				call_methods_of_updated_objects() # call the methods of updated objects
+		
 		else:
 			# event must be of type run
 			if event.type != 'run':

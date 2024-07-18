@@ -18,13 +18,9 @@ class NetBIOSGroup():
 		self.type = group_type
 		self.id = group_name.lower()+'#'+group_type
 		self.associated = None # the object to which is associated (network / wins server)
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
-		# the current context of the object
-		self.state = None
-		# the objects that depend on this object for context
-		self.dependent_objects = list()
-
-		self.check_for_updates_in_state()
 
 	def get_id(self):
 		with sharedvariables.shared_lock:
@@ -39,24 +35,6 @@ class NetBIOSGroup():
 			context['associated_object'] = self.associated # might be None
 		return context
 
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 	def display_json(self):
 		with sharedvariables.shared_lock:
@@ -86,7 +64,7 @@ class NetBIOSGroup():
 		# TODO : add the method for nmblookup that finds the other ip's for this group
 		list_events = []
 		for method in self.methods:
-			list_events += method.create_run_events(self.state)
+			list_events += method.create_run_events(self.get_context())
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 
@@ -100,6 +78,7 @@ class NetBIOSGroup():
 				logger.debug(f"changing the associated object of netbios group ({self.id})")
 			self.associated = obj
 
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return
 

@@ -43,16 +43,9 @@ class Domain(AbstractNetworkComponent):
 		self.trusts = list() # list of domain trusts
 		self.users = list() # list of user objects (should be private)
 		self.groups = list() # list of group objects (should be private)
-
-
-		# the current context
-		self.state = None
-		# the objects that depend on this one for context
-		# - the hosts that belongs to this domain
-		# - the forest to which this domain will belong
-		self.dependent_objects = []
-
-		self.check_for_updates_in_state()
+  
+		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
 
 
@@ -97,47 +90,6 @@ class Domain(AbstractNetworkComponent):
 				if groupname is not None:
 					list_groupnames.append(groupname)
 			return list_groupnames
-
-	def add_dependent_object(self, obj):
-		"""
-		Adds a dependent object.
-		A dependent object is an object that uses information from this one object, to know if he can launch a new method or if he knows more information that it needs.
-
-		calls the check_for_updates_in_state for the object appended.
-		"""
-		with sharedvariables.shared_lock:
-			logger.debug(f"Adding object ({obj}) to list of dependent objects for this domain ({self.domain_name})")
-			if obj in self.dependent_objects:
-				logger.debug(f"Object ({obj}) already in list of dependent objects")
-				return 
-
-			# put the object in dependent objects
-			self.dependent_objects.append(obj)
-			# call its check for updates so he can see this information
-			obj.check_for_updates_in_state()
-
-
-
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-
-			# if state changed
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for our methods
-				self.auto_function()
-			return 
 
 
 	def get_pdc(self):
@@ -203,9 +155,9 @@ class Domain(AbstractNetworkComponent):
 			self.msrpc_servers.append(host.get_ip())
 			self.ldap_servers.append(host.get_ip())
 			self.smb_servers.append(host.get_ip())
-   
-			self.check_for_updates_in_state()
 
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
 
 	def add_pdc(self, pdc:'LdapServer'):
@@ -240,7 +192,7 @@ class Domain(AbstractNetworkComponent):
     
 		for method in self.methods:
 			# create the events
-			list_events = method.create_run_events(self.state)
+			list_events = method.create_run_events(self.get_context())
 			# for each event send it to the threrad
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
@@ -262,8 +214,8 @@ class Domain(AbstractNetworkComponent):
 			user = DomainUser(username= username, rid = None)
 			self.users.append(user)
 
-			# new state
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return user
 
 
@@ -282,8 +234,8 @@ class Domain(AbstractNetworkComponent):
 			group = DomainGroup(groupname= groupname, rid =None)
 			self.groups.append(group)
 
-			# new state
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return group
 
 

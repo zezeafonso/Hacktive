@@ -21,37 +21,13 @@ class Root():
 		self.interfaces = {}
 		self.path = {'root':self} # the path to this object
 		self.domains = list() # empty list for the domains we find
-
-		# this will be the current state of the context 
-		# for now is None, because we haven't once checked for it.
-		self.state = None 
-		# the objects that depend on the root for context
-		self.dependent_objects = list()
+		
 
 	# getters
 
 	def get_context(self):
 		logger.debug(f"getting context for Root")
 		return dict
-
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 
 	def get_root(self):
@@ -128,8 +104,8 @@ class Root():
 		new_interface = Interface(interface_name, self.path)
 		self.interfaces[interface_name] = new_interface
 
-		# because we updated the object -> check for relevance
-		self.check_for_updates_in_state()
+		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 		return new_interface
 
 

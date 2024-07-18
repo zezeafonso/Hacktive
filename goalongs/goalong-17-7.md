@@ -30,3 +30,4 @@ Temos de verificar também se já temos esse ip guardado como LDAP server, MSRPC
 * Implementar os métodos dos domínios.
 
 ### horas
+4

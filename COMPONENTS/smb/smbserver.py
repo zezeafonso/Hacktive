@@ -16,36 +16,14 @@ class SMBServer:
 		self.host = host
 		self.shares = list() # list of shares in the SMB server
 		self.port = port # might be None
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
-		# the current context of the object
-		self.state = None
-		# the objects that depend on this object for the context
-		self.dependent_objects = list()
-
-		self.check_for_updates_in_state()
 
 	def get_context(self):
 		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		return dict()
 
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 	def display_json(self):
 		with sharedvariables.shared_lock:

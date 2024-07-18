@@ -21,14 +21,9 @@ class Interface(AbstractNetworkComponent):
 		self.networks = {}
 		self.path = path.copy()
 		self.path['interface'] = self
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
-		self.state = None # Corresponds to the (present) context)
-		# the list of objects that depend on the state of this one
-		# No one depends on the interface
-		self.dependent_objects = list() 
-
-		# will call the automatic methods
-		self.check_for_updates_in_state()
 
 	def get_context(self):
 		"""
@@ -39,26 +34,6 @@ class Interface(AbstractNetworkComponent):
 			context = dict()
 			context['interface_name'] = self.get_interface_name()
 			return context 
-
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			# first run: context != None
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 
 
@@ -107,8 +82,8 @@ class Interface(AbstractNetworkComponent):
 			new_network = Network(network_name, self.path) 
 			self.networks[network_name] = new_network
 
-			# because we updated this object -> check for relevance
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return new_network
 
 	def get_network_or_create_it(self, network_str):
@@ -159,7 +134,7 @@ class Interface(AbstractNetworkComponent):
 	def auto_function(self):
 		# no need for lock, the methods don't change
 		for method in self.methods:
-			list_events = method.create_run_events(self.state)
+			list_events = method.create_run_events(self.get_context())
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 

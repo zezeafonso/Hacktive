@@ -60,14 +60,9 @@ class Host(AbstractNetworkComponent):
 		self.AD_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
 		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj; 'LdapServer'
 		self.ports = dict()
-
-		# the current state of the network component
-		self.state = None # it starts as an empty dict
-		# the list of objects that depend on the host
-		self.dependent_objects = list() 
-
-		# call the automatic methods first time
-		self.check_for_updates_in_state()
+  
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
 	# getters
 
@@ -94,29 +89,6 @@ class Host(AbstractNetworkComponent):
 			# (HOST IS DEPENDET OF NETBIOS WORKSTATION)
 			context['netbios_hostname'] = self.get_netbios_hostname() # might be None
 			return context
-
-	def add_dependent_object(self, obj):
-		with sharedvariables.shared_lock:
-			self.dependent_objects.append(obj)
-
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 
 	def get_netbios_workstation_obj(self):
@@ -221,7 +193,7 @@ class Host(AbstractNetworkComponent):
 
 	def auto_function(self):
 		for method in self.methods:
-			list_events = method.create_run_events(self.state)
+			list_events = method.create_run_events(self.get_context())
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 		pass
@@ -297,7 +269,8 @@ class Host(AbstractNetworkComponent):
 			ldap_server = LdapServer(self)
 			self.roles['ldap server'] = ldap_server
 
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return ldap_server
 
 	def get_or_add_role_ldap_server(self):
@@ -339,8 +312,8 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"Associating netbios workstation to Host ({self.ip})")
 			self.roles['NetBIOSWorkstation'] = netbios_workstation
 
-			# because we updated the object -> check for updates -> call methods
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return
 
 	def check_if_host_has_netbios_workstation_role(self):
@@ -380,7 +353,8 @@ class Host(AbstractNetworkComponent):
 				netbios_ws = self.get_netbios_workstation_obj()
 			netbios_ws.add_group(netbios_group) # empty list of list with auto functions
 
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 		return
 
 
@@ -412,8 +386,9 @@ class Host(AbstractNetworkComponent):
 				smb_server_obj = SMBServer(self, port)
 				self.roles['SMBServer'] = smb_server_obj
 
-				# updated this object -> call methods (if case)
-				self.check_for_updates_in_state()
+				# we updated this object
+				sharedvariables.add_object_to_set_of_updated_objects(self)
+    
 				return smb_server_obj
 
 
@@ -451,7 +426,8 @@ class Host(AbstractNetworkComponent):
 				self.roles['MSRPCServer'] = msrpc_server
 				logger.debug(f"Added MSRPC server role to ({self.ip})")
 
-				self.check_for_updates_in_state()
+				# we updated this object
+				sharedvariables.add_object_to_set_of_updated_objects(self)
 				return msrpc_server
 
 
@@ -481,31 +457,6 @@ class Host(AbstractNetworkComponent):
 			self.get_or_add_role_ldap_server()
 		return 
    
-	def add_ldap_server_to_domain_dependent_objects(self):
-		"""
-		Adds the ldap server of this host to the domain list of dependent objects.
-
-		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values
-		"""
-		with sharedvariables.shared_lock:
-			if 'ldap_server' in self.roles and self.get_domain() is not None:
-				domain = self.get_domain()
-				domain.add_dependent_object(self.roles['ldap_server'])
-			return 
-
-
-	def add_msrpc_server_to_domain_dependent_objects(self):
-		"""
-		Adds the MSRPC server of this host to the domain list of dependent objects.
-
-		This way when the domain is updated the ldap-server will receive a 'notification', and can check for it's relevant values.
-		"""
-		with sharedvariables.shared_lock:
-			if 'MSRPCServer' in self.roles and self.get_domain() is not None:
-				domain = self.get_domain()
-				domain.add_dependent_object(self.roles['MSRPCServer'])
-			return 
-
 
 	def associate_domain_to_host_if_not_already(self, domain:Domain):
 		"""
@@ -526,14 +477,8 @@ class Host(AbstractNetworkComponent):
 			self.AD_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) to host ({self.get_ip()}) successfully")
 
-			# the host is dependent on information from the domain
-			domain.add_dependent_object(self)
-			# msrpc and ldap are also dependent on information from the domain
-			self.add_msrpc_server_to_domain_dependent_objects()
-			self.add_ldap_server_to_domain_dependent_objects()
-
-			# we updated this object (added a new dependency)
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
 
 	def associate_DC_role_to_associated_domain(self, domain:Domain):
@@ -582,6 +527,7 @@ class Host(AbstractNetworkComponent):
 				role_obj = self.roles[role_name]
 				auto_functions += role_obj.found_domain_methods()
 			return auto_functions
+
 
 
 

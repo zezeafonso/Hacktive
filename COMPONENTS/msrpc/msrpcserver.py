@@ -20,15 +20,10 @@ class MSRPCServer:
 	def __init__(self, host='Host', port=str):
 		self.host = host
 		self.port = port # might be None
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
+  
 
-		self.state = None
-		self.dependent_objects = list()
-		self.objects_im_dependent = list()
-
-		# this object will be dependent of host (for the domain name)
-		host.add_dependent_object(self)
-
-		self.check_for_updates_in_state()
   
 	def get_ip(self):
 		"""
@@ -53,33 +48,9 @@ class MSRPCServer:
 			domain = host.get_domain()
 			if domain is not None:
 				context['domain_name'] = domain.get_domain_name()
-				domain.add_dependent_object(self)
-
-				# get the list of usernames
-				context['domain_usernames'] = copy.deepcopy(domain.get_list_usernames())
-				# get list of groupnames
-				context['domain_groupnames'] = copy.deepcopy(domain.get_list_groupnames())
 
 			return context
 
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
 
 	def display_json(self):
 		with sharedvariables.shared_lock:
@@ -95,7 +66,7 @@ class MSRPCServer:
 		with sharedvariables.shared_lock:
 			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
-				list_events = method.create_run_events(self.state)
+				list_events = method.create_run_events(self.get_context())
 				for event in list_events:
 					send_run_event_to_run_commands_thread(event)
 		

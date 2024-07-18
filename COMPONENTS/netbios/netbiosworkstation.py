@@ -35,16 +35,8 @@ class NetBIOSWorkstation:
 		self.hostname = hostname # can be None
 		self.groups_and_roles = dict() # group_name : [role1, role2]
 		self.smb_server = None
-
-		self.state = None # the current state of the context
-		# the objects that depend on this object
-		# HOST depends for the hostname
-		self.dependent_objects = list()
-		if host is not None:
-			self.dependent_objects.append(host)
-
-		# call the automatic methods
-		self.check_for_updates_in_state()
+  		# we updated this object
+		sharedvariables.add_object_to_set_of_updated_objects(self)
 
 
 
@@ -71,26 +63,6 @@ class NetBIOSWorkstation:
 	def get_context(self):
 		logger.debug(f"getting context for netbios_workstation")
 		return dict() # for now 
-
-	def check_for_updates_in_state(self):
-		"""
-		Checks for updates in the state of this interface.
-		If so, calls for the state of the objects that depend on this.
-		calls it's methods.
-		"""
-		with sharedvariables.shared_lock:
-			new_state = self.get_context()
-			if new_state != self.state:
-				self.state = new_state
-
-				# check for updates in dependent objects
-				for obj in self.dependent_objects:
-					obj.check_for_updates_in_state()
-				
-				# call for out methods
-				self.auto_function()
-			return 
-
 	
 
 	# FUNCTIONS
@@ -140,8 +112,9 @@ class NetBIOSWorkstation:
 			logger.debug(f"Associating group ({netbiosgroup.id}) without roles to NetBIOSWorkstation")
 			self.groups_and_roles[netbiosgroup] = []
 
-			self.check_for_updates_in_state()
-			return
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+
 
 	def check_if_belongs_to_group(self, netbiosgroup):
 		"""
@@ -189,8 +162,9 @@ class NetBIOSWorkstation:
 		with sharedvariables.shared_lock:
 			self.groups_and_roles[netbiosgroup].append(role)
 
-			# updates this object -> check for updates -> call methods
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+   
 
 	def create_and_associate_netbios_dc_group_role(self, netbiosgroup):
 		"""
@@ -334,9 +308,9 @@ class NetBIOSWorkstation:
 		with sharedvariables.shared_lock:
 			self.host = host
 
-			# udpated object -> check for updates -> call methods
-			self.check_for_updates_in_state()
-			return 
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return
 
 
 	def add_netbios_smb_server(self):
@@ -350,6 +324,7 @@ class NetBIOSWorkstation:
 			# associate it to this object
 			self.smb_server = netbios_smb_server
 
-			self.check_for_updates_in_state()
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return
 
