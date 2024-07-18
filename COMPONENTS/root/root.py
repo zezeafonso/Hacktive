@@ -77,8 +77,10 @@ class Root():
 				interface = self.interfaces[_int]
 				data['interfaces'].append(interface.display_json())
 				#data['interface'] = interface.display_json()
+    
 			data['domains'] = list()
 			for domain in self.domains:
+				print(domain.domain_name)
 				data['domains'].append(domain.display_json())
 			return data
 
