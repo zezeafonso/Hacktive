@@ -160,6 +160,8 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 
 		# might be sentinel to stop
 		if event == 'Done':
+			# IF THIS IS TOO SLOW; PUT THIS PROCESS OF CALL METHODS IN ANOTHER THREAD
+			# THIS WAY WE CAN RECEIVE COMMANDS WHILE WE PROCESS IT
 			# if there is no command for analysis and no command to be read from the queue -> finish
 			if SV.cmd_queue.empty() and SV.check_if_there_are_no_commands_for_analysis():
 				logger.debug(f"Checking if there were updated objects")
@@ -168,6 +170,8 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 					termination_process(thread_pool)
 					break # end of thread 
 				call_methods_of_updated_objects()
+				SV.cmd_queue.put('Done')
+				
 		
 		else:
 			# event must be of type run
