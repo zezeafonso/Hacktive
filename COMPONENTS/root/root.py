@@ -153,7 +153,7 @@ class Root():
 
 	def check_for_domain(self, domain_name):
 		with sharedvariables.shared_lock:
-			logger.debug("checking if domain ({domain.get_domain_name()}) is present in root")
+			logger.debug(f"checking if domain ({domain.get_domain_name()}) is present in root")
 			for domain in self.domains:
 				if domain.get_domain_name() == domain_name:
 					logger.debug(f"domain ({domain.get_domain_name()}) is present")
@@ -172,7 +172,7 @@ class Root():
 			domain = self.check_for_domain(domain_name)
 			if domain is None:
 				# create the Domain
-				domain = Domain(domain_name=domain_name)
+				domain = Domain(domain_name)
 				# check if it belongs to some forest? 
 				self.add_domain(domain)
 			return domain

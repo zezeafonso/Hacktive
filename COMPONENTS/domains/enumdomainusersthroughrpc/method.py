@@ -29,7 +29,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		return f"{EnumDomainUsersThroughRPC._name}"
 
 	@staticmethod
-	def create_run_events( context:dict=None) -> list:
+	def create_run_events(context:dict=None) -> list:
 		
 		if context is None:
 			logger.debug(f"EnumDomainUsersThroughRPC didn't receive a context")
