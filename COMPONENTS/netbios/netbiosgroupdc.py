@@ -49,7 +49,7 @@ class NetBIOSGroupDC:
 		+ find the other machines that have this group (done in the netbios group)
 		"""
 		for method in self.methods:
-			list_events = method.create_run_events(self.get_context)
+			list_events = method.create_run_events(self.get_context())
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 		pass
