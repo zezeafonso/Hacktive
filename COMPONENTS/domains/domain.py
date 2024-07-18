@@ -63,7 +63,7 @@ class Domain(AbstractNetworkComponent):
 		logger.debug(f"getting context for domain ({self.domain_name})")
 		with sharedvariables.shared_lock:
 			context = dict()
-			context['domain_name'] = self.get_domain_name
+			context['domain_name'] = self.get_domain_name()
 			context['domain_pdc'] = self.domain_pdc
 			context['trusts'] = copy.deepcopy(self.trusts)
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
@@ -188,7 +188,7 @@ class Domain(AbstractNetworkComponent):
 		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
   		"""
 		with sharedvariables.shared_lock:
-			logger.debug("Adding dc to domain (self.domain_name")
+			logger.debug(f"Adding dc to domain ({self.get_domain_name()})")
    
 			# check if it's already in the machines of this domain
 			if host not in self.machines:

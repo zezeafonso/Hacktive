@@ -172,7 +172,9 @@ class Root():
 			domain = self.check_for_domain(domain_name)
 			if domain is None:
 				# create the Domain
+				logger.debug(f"Creating domain ({domain_name})")
 				domain = Domain(domain_name)
+				logger.debug(f"Associating the domain ({domain_name}) to root")
 				# check if it belongs to some forest? 
 				self.add_domain(domain)
 			return domain
