@@ -56,7 +56,6 @@ class Root():
     
 			data['domains'] = list()
 			for domain in self.domains:
-				print(domain.domain_name)
 				data['domains'].append(domain.display_json())
 			return data
 
