@@ -29,7 +29,7 @@ def main():
 	commands_thread.start()
 
 	# listener thread for event 'done', Daemons to get killed when main dies
-	outputs_thread = threading.Thread(target=outputs_listener, args=(root,), daemon=True) # TODO 
+	outputs_thread = threading.Thread(target=outputs_listener, args=(), daemon=True) # TODO 
 	outputs_thread.start()
 
 	# Thread for handling user input Daemon
@@ -40,7 +40,8 @@ def main():
 
 	# Wait for user input thread to finish
 	start_issuing_commands_thread.join()
-	logger.info("[Main]: user interaction thread finished")
+
+	logger.debug(f"Root has uploaded it's first commands")
 	commands_thread.join()
 	outputs_thread.join()
 

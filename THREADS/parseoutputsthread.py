@@ -30,7 +30,7 @@ def print_state_network_components_after_cmd(cmd):
 		cmd_without_slashes = cmd_without_strings.replace('/', '-')
 		cmd_without_dots = cmd_without_slashes.replace('.', '-')
 		filename = 'states/JSON-'+cmd_without_dots+'.json'
-		OJ.write_to_file(filename, root_obj)
+		OJ.write_to_file(filename, SV.root_obj)
 
 
 def analyze_event(event):
@@ -43,7 +43,6 @@ def analyze_event(event):
 	the auto_functions are returned
 	"""
 	global commands_and_filtered_objs
-	global root_obj
 
 	# extract the fields from event
 	output = event.output
@@ -89,14 +88,11 @@ def analyze_event(event):
 	return
 
 
-def outputs_listener(root):
+def outputs_listener():
 	# init the network components dictionaryW
 	logger.info(" up")
 
 	global commands_and_filtered_objs
-	global root_obj
-
-	root_obj = root
 
 	while True:
 		event = SV.out_queue.get() # BLOCKING call, wait for outputs
