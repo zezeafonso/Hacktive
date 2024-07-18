@@ -37,9 +37,6 @@ def found_user_for_domain(domain, username, rid):
 	UPdates components when a user is found for a domain 
 
 	checks if the user is already placed in that domain.
-	domain : mandatory
-	username: mandatory
-	rid: non-mandatory
 	"""
 	with sharedvariables.shared_lock:
 		domainuser = domain.get_or_create_user_from_username(username)

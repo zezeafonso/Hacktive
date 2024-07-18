@@ -38,12 +38,13 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		if not EnumDomainUsersThroughRPC.check_context(context):
 			return []
 
+		unused_msrpc_server_ips = list()
+
 		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			list_msrpc_servers_ip = context['msrpc_servers'] # will be a list
    
 			# check if this method was already called with these arguments
-			unused_msrpc_server_ips = list()
 			for msrpc_server_ip in list_msrpc_servers_ip:
 				args = [msrpc_server_ip]
 				t_args=tuple(args)
@@ -52,6 +53,7 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 					EnumDomainUsersThroughRPC._previous_args.add(t_args)
 
 		list_run_events = list()
+	
 
 		# for every unused msrpc server ip 
 		for ip in unused_msrpc_server_ips:

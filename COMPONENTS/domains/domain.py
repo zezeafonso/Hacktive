@@ -163,19 +163,22 @@ class Domain(AbstractNetworkComponent):
 		pdc = self.get_pdc()
 		if pdc is not None:
 			data['PDC'] = pdc.get_host().get_ip()
+   
 		data['DCs'] = list()
 		data['machines'] = list()
 		for machine in self.machines:
 			if self.machines[machine] == "DC":
 				data['DCs'].append(machine.get_ip())
 			data['machines'].append(machine.get_ip())
+   
 		data['Trusts'] = list()
 		for domain in self.trusts:
 			data['Trusts'].append(domain.get_domain_name())
-
+		"""
 		data['Users'] = list()
 		for user in self.users:
 			data['Users'].append(user.display_json())
+		"""
 		return data
 
 		
