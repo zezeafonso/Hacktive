@@ -31,18 +31,21 @@ def get_event_from_the_command_queue():
 def send_sentinel_to_output_listener_thread():
 	SV.out_queue.put('Done')
 
-def handle_done_events_from_output_listener_thread(thread_pool):
-	# if there is no command for analysis and no command to be read from the queue -> finish
-	if SV.cmd_queue.empty() and SV.check_if_there_are_no_commands_for_analysis():
-		logger.info("Finishing...")
-		logger.info("shutting down the pool")
 
-		thread_pool.shutdown(wait=True) # shutdown the pool
-		send_sentinel_to_output_listener_thread()
+def termination_process(thread_pool):
+	"""
+ 	handles the termination process of this thread.
+  	Shutdoesn the thread pool that was executing commands
+   	"""
+	logger.info("Finishing...")
+	logger.info("shutting down the pool")
 
-		logger.info("sending 'Done' to output")
-		return 0
-	return 1
+	thread_pool.shutdown(wait=True) # shutdown the pool
+	send_sentinel_to_output_listener_thread() # shutdown message to output parser
+
+	logger.info("sending 'Done' to output")
+	return
+
 
 def run_command_in_another_process(cmd):
 	logger.debug(f"[Pool thread]: calling Popen for command: {cmd}")
@@ -157,11 +160,14 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 
 		# might be sentinel to stop
 		if event == 'Done':
-			if handle_done_events_from_output_listener_thread(thread_pool) == 0:
-				# END CASE
+			# if there is no command for analysis and no command to be read from the queue -> finish
+			if SV.cmd_queue.empty() and SV.check_if_there_are_no_commands_for_analysis():
+				logger.debug(f"Checking if there were updated objects")
+				# empty = kill
 				if SV.is_set_of_updated_objects_empty():
-					break # end of program 
-				call_methods_of_updated_objects() # call the methods of updated objects
+					termination_process(thread_pool)
+					break # end of thread 
+				call_methods_of_updated_objects()
 		
 		else:
 			# event must be of type run
