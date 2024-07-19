@@ -11,8 +11,8 @@ class DomainGroup(AbstractNetworkComponent):
 	"""
 	Defines the class for a Domain group and the attributes of interest.
 	"""
-	#methods = [EnumDomainUsersInGroupThroughRPC] # I even doubt that he will have one
-	methods = []
+	methods = [EnumDomainUsersInGroupThroughRPC] # I even doubt that he will have one
+	#methods = []
  
 	def __init__(self, domain, groupname:str, rid:str=None):
 		# groupname and rid can't be None at the same time

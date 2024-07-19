@@ -49,6 +49,7 @@ class EnumDomainUsersInGroupThroughRPC(AbstractMethod):
 			unused_msrpc_server_ips = list()
 			for msrpc_server_ip in list_msrpc_servers_ip:
 				tup_args = (ip, msrpc_group)
+				print(tup_args)
 				if not EnumDomainUsersInGroupThroughRPC.check_if_args_were_already_used(tup_args):
 					unused_msrpc_server_ips.append(msrpc_server_ip)
 					EnumDomainUsersInGroupThroughRPC._previous_args.add(tup_args)
