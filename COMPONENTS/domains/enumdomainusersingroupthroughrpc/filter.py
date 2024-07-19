@@ -3,7 +3,7 @@ import re
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
 from COMPONENTS.filteredobjects.filteredfounddomainuserforgroupthroughrpc import Filtered_FoundDomainUserForGroupThroughRPC
 
-class EnumDomUsersThroughRPC_Filter(AbstractFilter):
+class EnumDomainUsersInGroupThroughRPC_Filter(AbstractFilter):
 	_name = "filter enum domain users through rpc"
 
 	@staticmethod
