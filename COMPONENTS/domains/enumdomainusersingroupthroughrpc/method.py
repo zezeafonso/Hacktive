@@ -46,20 +46,20 @@ class EnumDomainUsersInGroupThroughRPC(AbstractMethod):
 				tup_args = (ip, msrpc_group)
     
 			# check if this method was already called with these arguments
-			unused_msrpc_server_ips = list()
+			unused_args = list()
 			for msrpc_server_ip in list_msrpc_servers_ip:
 				tup_args = (ip, msrpc_group)
 				print(tup_args)
 				if not EnumDomainUsersInGroupThroughRPC.check_if_args_were_already_used(tup_args):
-					unused_msrpc_server_ips.append(msrpc_server_ip)
+					unused_args.append(tup_args)
 					EnumDomainUsersInGroupThroughRPC._previous_args.add(tup_args)
 
 		# command to run 
 		list_run_events = list()
   
 		# for every unused msrpc server ip 
-		for tup in unused_msrpc_server_ips:
-			ip = tup[0]
+		for tup in unused_args:
+			ip = tup[0] 
 			group_rid = tup[1] # in hex
 			cmd = f"rpcclient {ip} -c=\'querygroupmem {group_rid}\' -U=\'%\'"
 
