@@ -4,15 +4,19 @@ from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
+from COMPONENTS.domains.retrieveuserinformationthroughrpc.method import RetrieveUserInformationThroughRPC
+from COMPONENTS.domains.enumdomaingroupsforuserthroughrpc.method import EnumDomainGroupsForUserThroughRPC
+
 
 class DomainUser(AbstractNetworkComponent):
 	"""
 	Defines the class for a domain user and the attributes of interest.
 	"""
-	methods = [] # i even doubt he will have one
+	methods = [RetrieveUserInformationThroughRPC, EnumDomainGroupsForUserThroughRPC] 
 
-	def __init__(self, username:str=None, rid:str=None):
+	def __init__(self, domain, username:str=None, rid:str=None):
 		# username and rid can't be both None
+		self.domain = domain # the associated domain
 		self.username = username # might be None
 		self.rid = rid # might be None
 		self.groups = set() # the set of groups to which the user belongs to
@@ -21,8 +25,13 @@ class DomainUser(AbstractNetworkComponent):
 		sharedvariables.add_object_to_set_of_updated_objects(self)
 
 	def get_context(self):
-		logger.debug(f"getting context for domain user ({self.username})")
-		return dict()
+		logger.debug(f"Getting context for Domain user (username: {self.username} rid {self.rid})")
+		context = dict()
+		context['domain_name'] = self.domain.get_domain_name()
+		context['msrpc_servers'] = self.domain.get_msrpc_servers() # ips
+		context['user_rid'] = self.rid
+		context['username'] = self.username 
+		return context
 
 	def auto_function(self):
 		for method in self.methods:

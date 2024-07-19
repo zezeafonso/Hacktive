@@ -216,7 +216,7 @@ class Domain(AbstractNetworkComponent):
 					return user
 
 			# create the user, add it to users
-			user = DomainUser(username= username, rid = None)
+			user = DomainUser(domain=self, username= username, rid = None)
 			self.users.append(user)
 
 			# we updated this object
@@ -235,7 +235,7 @@ class Domain(AbstractNetworkComponent):
 					return user
 
 			# create the user, add it to users
-			user = DomainUser(username=None, rid=user_rid)
+			user = DomainUser(domain=self, username=None, rid=user_rid)
 			self.users.append(user)
 
 			# notify that this object was updated

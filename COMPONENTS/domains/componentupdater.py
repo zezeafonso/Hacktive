@@ -72,8 +72,40 @@ def found_user_rid_belonging_to_group_rid(domain, group_rid, user_rid):
 			# get the user from it's rid or create it
 			domainuser = domain.get_or_create_user_from_rid(user_rid)
 			# add the user the group 
-			domaingroup.add_user(domainuser) #TODO 
+			domaingroup.add_user(domainuser)
 			# add the group to the user
-			domainuser.add_group(domaingroup) #TODO
+			domainuser.add_group(domaingroup)
 			
 		return
+
+
+def found_group_rid_for_user_rid(domain, user_rid, group_rid):
+	"""
+	Updates components when we find a group rid for a user rid.
+	Meaning we found a new group that the user belongs to.
+	The group and user (both identified by their rid) belonging
+	to a specific domain (identified by its domain name)
+	"""
+	with sharedvariables.shared_lock:
+		domainuser = domain.get_or_create_user_from_rid(user_rid)
+		if group_rid is not None:
+			# get the group from it's rid or create it 
+			domaingroup = domain.get_or_create_group_from_rid(group_rid)
+			# add the group to the user
+			domainuser.add_group(domaingroup)
+			# add the user to the group
+			domaingroup.add_user(domainuser)
+			
+
+def found_user_rid_for_username(domain, username, user_rid):
+	"""
+ 	Updates components when we find a user_rid for a username 
+  	that belongs to a domain
+   	"""
+	with sharedvariables.shared_lock:
+		# get the username
+		domainuser = domain.get_or_create_user_from_username(username)
+		if user_rid is not None:
+			domainuser.set_rid(user_rid)
+			return 
+		
