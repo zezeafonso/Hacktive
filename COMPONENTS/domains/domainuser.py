@@ -11,9 +11,12 @@ class DomainUser(AbstractNetworkComponent):
 	"""
 	methods = [] # i even doubt he will have one
 
-	def __init__(self, username:str, rid:str=None):
-		self.username = username
-		self.rid = rid 
+	def __init__(self, username:str=None, rid:str=None):
+		# username and rid can't be both None
+		self.username = username # might be None
+		self.rid = rid # might be None
+		self.groups = set() # the set of groups to which the user belongs to
+  
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
 
@@ -53,3 +56,20 @@ class DomainUser(AbstractNetworkComponent):
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
+
+
+	def add_group(self, domaingroup):
+		"""
+		Checks if the user already has a record of this domaingroup.
+  		Adds a domaingroup to the the groups this user belongs to
+    	"""
+		with sharedvariables.shared_lock:
+			if domaingroup in self.groups:
+				return 
+
+			# add this group to the set of groups
+			self.groups.add(domaingroup)
+			
+			# notify that this object was updated
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return

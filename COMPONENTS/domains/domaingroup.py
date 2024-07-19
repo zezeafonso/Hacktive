@@ -4,23 +4,32 @@ from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
+from COMPONENTS.domains.enumdomainusersingroupthroughrpc.method import EnumDomainUsersInGroupThroughRPC
+
 
 class DomainGroup(AbstractNetworkComponent):
 	"""
 	Defines the class for a Domain group and the attributes of interest.
 	"""
-	methods = [] # I even doubt that he will have one
+	methods = [EnumDomainUsersInGroupThroughRPC] # I even doubt that he will have one
 
-	def __init__(self, groupname:str, rid:str=None):
-		self.groupname = groupname
+	def __init__(self, domain, groupname:str, rid:str=None):
+		# groupname and rid can't be None at the same time
+		self.domain = domain # the domain it belongs to 
+		self.groupname = groupname # might be None
 		self.rid = rid # might be None
+		self.users = set() # the set of users (no duplicates this way)
   
 		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
 
 	def get_context(self):
 		logger.debug(f"Getting context for Domain Group ({self.groupname})")
-		return dict()
+		context = dict()
+		context['domain_name'] = self.domain.get_domain_name()
+		context['msrpc_servers'] = self.domain.get_msrpc_servers()
+		context['group_rid'] = self.rid
+		return context
 
 	def auto_function(self):
 		for method in self.methods:
@@ -56,3 +65,17 @@ class DomainGroup(AbstractNetworkComponent):
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
+
+	
+	def add_user(self, domainuser):
+		"""
+  		Adds a user to this group
+    	"""
+		with sharedvariables.shared_lock:
+			# check if we have it in our users
+			if domainuser in self.users:
+				return 
+			# add the user to our list
+			self.users.add(domainuser)
+
+			sharedvariables.add_object_to_set_of_updated_objects(self)

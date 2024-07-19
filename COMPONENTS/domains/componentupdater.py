@@ -54,8 +54,26 @@ def found_group_for_domain(domain, groupname, rid):
 	rid: non-mandatory
 	"""
 	with sharedvariables.shared_lock:
-		domaingroup = domain.get_or_create_group_from_groupname(groupname)
+		domaingroup = domain.get_or_create_group_from_groupname(domain, groupname)
 		if rid is not None:
 			domaingroup.set_rid(rid)
 		return
 
+
+def found_user_rid_belonging_to_group_rid(domain, group_rid, user_rid):
+	"""
+	Updates components when we find a user rid that belongs to 
+	a group (identified by it's rid) for a specific domain 
+	(identified by its domain name)
+	"""
+	with sharedvariables.shared_lock:
+		domaingroup = domain.get_or_create_group_from_rid(group_rid)
+		if user_rid is not None:
+			# get the user from it's rid or create it
+			domainuser = domain.get_or_create_user_from_rid(user_rid)
+			# add the user the group 
+			domaingroup.add_user(domainuser) #TODO 
+			# add the group to the user
+			domainuser.add_group(domaingroup) #TODO
+			
+		return

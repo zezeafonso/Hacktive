@@ -20,8 +20,9 @@ class EnumDomGroupsThroughRPC_Filter(AbstractFilter):
 			if match:
 				group = match.group(1)
 				rid_hex = match.group(2)
+				rid_hex_str = str(rid_hex)
 				rid_dec = int(rid_hex, 16)
 				rid_str = str(rid_dec)
 
-				findings.append(Filtered_FoundDomainGroupThroughRPC(group, rid_str))
+				findings.append(Filtered_FoundDomainGroupThroughRPC(group, rid_hex_str))
 		return findings

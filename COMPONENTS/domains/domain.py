@@ -218,6 +218,45 @@ class Domain(AbstractNetworkComponent):
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return user
 
+	def get_or_create_user_from_rid(self, user_rid):
+		"""
+  		Retrieves the user with this rid.
+    	Or (if no one found) creates one with this rid
+     	"""
+		with sharedvariables.shared_lock:
+			# if we have the user
+			for user in self.users:
+				if user.get_rid() == user_rid:
+					return user
+
+			# create the user, add it to users
+			user = DomainUser(username=None, rid=user_rid)
+			self.users.append(user)
+
+			# notify that this object was updated
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return user
+
+
+	def get_or_create_group_from_rid(self, group_rid):
+		"""
+  		Retrieves the group with this rid.
+    	Or (if no one found) creates one with this rid
+     	"""
+		with sharedvariables.shared_lock:
+			# if we have the user
+			for group in self.groups:
+				if group.get_rid() == group_rid:
+					return group
+
+			# create the user, add it to users
+			group = DomainGroup(domain=self, groupname=None, rid=group_rid)
+			self.groups.append(group)
+   
+			# notify that this object was updated
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return group
+
 
 	def get_or_create_group_from_groupname(self, groupname):
 		"""
@@ -231,7 +270,7 @@ class Domain(AbstractNetworkComponent):
 					return group
 
 			# create the group, add it to the groups
-			group = DomainGroup(groupname= groupname, rid =None)
+			group = DomainGroup(domain=self, groupname= groupname, rid =None)
 			self.groups.append(group)
 
 			# we updated this object

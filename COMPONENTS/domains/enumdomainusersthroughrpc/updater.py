@@ -12,7 +12,6 @@ def update_enum_domain_users_through_rpc(context:dict, filtered_objects:list):
 
 	with sharedvariables.shared_lock:
 		domain_name = context['domain_name']
-		print(domain_name)
 		domain = sharedvariables.root_obj.get_or_create_domain(domain_name)
   
 		for filtered_obj in filtered_objects:
