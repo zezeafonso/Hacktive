@@ -54,7 +54,7 @@ def found_group_for_domain(domain, groupname, rid):
 	rid: non-mandatory
 	"""
 	with sharedvariables.shared_lock:
-		domaingroup = domain.get_or_create_group_from_groupname(domain, groupname)
+		domaingroup = domain.get_or_create_group_from_groupname(groupname)
 		if rid is not None:
 			domaingroup.set_rid(rid)
 		return
