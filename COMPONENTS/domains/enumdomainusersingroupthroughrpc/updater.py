@@ -20,7 +20,7 @@ def updateEnumDomainUsersInGroupThroughRPC(context:dict, filtered_objects:list):
 		for filtered_obj in filtered_objects:
 			# found domain user
 			if isinstance(filtered_obj, Filtered_FoundDomainUserForGroupThroughRPC):
-				logger.debug(f"filter for enum domain users through rpc found user with rid ({filtered_obj.get_rid()}) for group rid ({group_rid})")
+				logger.debug(f"filter for enum domain users through rpc found user with rid ({filtered_obj.get_user_rid()}) for group rid ({group_rid})")
 
 				user_rid = filtered_obj.get_user_rid()
 				found_user_rid_belonging_to_group_rid(domain=domain, group_rid=group_rid, user_rid=user_rid)
