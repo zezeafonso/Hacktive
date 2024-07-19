@@ -131,6 +131,10 @@ class Domain(AbstractNetworkComponent):
 		data['Users'] = list()
 		for user in self.users:
 			data['Users'].append(user.display_json())
+   
+		data['Groups'] = list()
+		for group in self.groups:
+			data['Groups'].append(group.display_json())
 	
 		return data
 
