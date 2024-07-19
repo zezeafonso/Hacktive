@@ -1,10 +1,10 @@
 from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from COMPONENTS.filteredobjects.filteredfounddomainuserridthroughrpc import Filtered_FoundDomainUserRidThroughRPC
-from COMPONENTS.domains.componentupdater import found_user_for_domain
+from COMPONENTS.domains.componentupdater import found_user_rid_for_username
 
 
-def updatupdate_retrieve_information_through_rpc(context:dict, filtered_objects:list):
+def update_retrieve_information_through_rpc(context:dict, filtered_objects:list):
     
 	with sharedvariables.shared_lock:
 		domain_name = context['domain_name']

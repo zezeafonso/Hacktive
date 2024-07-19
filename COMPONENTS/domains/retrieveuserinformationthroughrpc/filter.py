@@ -3,7 +3,7 @@ import re
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
 from COMPONENTS.filteredobjects.filteredfounddomainuserridthroughrpc import Filtered_FoundDomainUserRidThroughRPC
 
-class EnumDomUsersThroughRPC_Filter(AbstractFilter):
+class RetrieveUserInformationThroughRPC_Filter(AbstractFilter):
 	"""
 	For now we are just parsing the RID from this output
 	"""
