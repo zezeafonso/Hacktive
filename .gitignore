@@ -15,4 +15,5 @@ app.log
 # ignore the final output json
 final.json
 
-
+# ignore the files in states
+states/
