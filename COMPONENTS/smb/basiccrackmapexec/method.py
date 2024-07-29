@@ -37,9 +37,6 @@ class BasicCrackMapExec(AbstractMethod):
 		if not BasicCrackMapExec.check_context(context):
 			return []
 
-		unused_ips = list()
-
-
 		with sharedvariables.shared_lock:
 			# extract the specific context for this command
 			server_ip = context['ip']

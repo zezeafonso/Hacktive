@@ -77,6 +77,9 @@ def analyze_event(event):
 	commands_and_filtered_objs[cmd] = list_filtered_objects
 	# no succesfull filter
 	if list_filtered_objects == []: 
+		# nothing to update
+		# states are the same as before
+		print(f"everything done for: ({cmd})")
 		return 
 
 	# update the network components with these captured information from the filter
