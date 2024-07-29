@@ -476,10 +476,17 @@ class Host(AbstractNetworkComponent):
 
 			self.AD_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) to host ({self.get_ip()}) successfully")
+   
+			"""
+   			shouldn't we update each of the roles that this host 
+      		might have? for example if it has ldap, smb and msrpc 
+        	they might need the domain for their operations
+         	"""
 
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
+
 
 	def associate_DC_role_to_associated_domain(self, domain:Domain):
 		with sharedvariables.shared_lock:
@@ -495,6 +502,7 @@ class Host(AbstractNetworkComponent):
 				return 
 
 			self.AD_domain_roles[domain] = 'DC' # hard coded
+
 
 	def associate_PDC_role_to_associated_domain(self, domain:Domain):
 		with sharedvariables.shared_lock:

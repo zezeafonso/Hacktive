@@ -20,6 +20,8 @@ class MSRPCServer:
 	def __init__(self, host='Host', port=str):
 		self.host = host
 		self.port = port # might be None
+		self.domain = None # the associated domain ( might be needed afterwards)
+  
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
   

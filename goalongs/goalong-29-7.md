@@ -38,11 +38,15 @@ Para cada share que consigamos fazer o spider.
 
 
 ### updated Goals.
-+
++ Fazer a enumeração do SMB, qasi toda. 
+
 
 
 ### IDEAS
-
+Quando descobrimos que um host faz parte de um domínio podemos verificar um montão de coisas. 
+Especialmente em relação aos serviços que ele já tem, pode ajudar bastante ao sabermos o domínio do bicho.
+Para saber onde colocamos a informação e tudo mais. 
+Pode ser importante saber onde verificamos as coisas. 
 
 ### IDEAS for tommorrow
 

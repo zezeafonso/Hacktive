@@ -27,7 +27,7 @@ class Domain(AbstractNetworkComponent):
 	change the methods to receive the context like this
  	methods = [EnumDomainsThroughRPC, EnumDomainTrustsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
   	"""
-	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC, ListSharesThroughSMB]
+	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
 	roles = ["DC", "machine"]
 
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
