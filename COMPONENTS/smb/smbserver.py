@@ -52,7 +52,7 @@ class SMBServer:
 		The function that's responsible for calling the auto methods.
 		"""
 		for method in self.methods:
-			list_events = self.methods[method].create_run_events(self.state)
+			list_events = method.create_run_events(self.state)
 			for event in list_events:
 				send_run_event_to_run_commands_thread(event)
 		
