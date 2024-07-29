@@ -13,6 +13,7 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 from COMPONENTS.domains.enumdomainsthroughrpc.method import EnumDomainsThroughRPC
 from COMPONENTS.domains.enumdomainusersthroughrpc.method import EnumDomainUsersThroughRPC
 from COMPONENTS.domains.enumdomaingroupsthroughrpc.method import EnumDomainGroupsThroughRPC
+from COMPONENTS.domains.listsharesthroughsmb.method import ListSharesThroughSMB
 
 
 class Domain(AbstractNetworkComponent):
@@ -26,7 +27,7 @@ class Domain(AbstractNetworkComponent):
 	change the methods to receive the context like this
  	methods = [EnumDomainsThroughRPC, EnumDomainTrustsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
   	"""
-	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
+	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC, ListSharesThroughSMB]
 	roles = ["DC", "machine"]
 
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
