@@ -63,6 +63,7 @@ class Domain(AbstractNetworkComponent):
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
 			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
 			context['msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
+			# add context['smb_servers'] = copy.deepcopy(self.get_smb_servers())
 			return context
 
  
@@ -141,7 +142,7 @@ class Domain(AbstractNetworkComponent):
 		
 	def add_dc(self, host):
 		"""
-		Adds a domain controller (ldap) to this domain. 
+		Adds a domain controller host to this domain. 
 		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
   		"""
 		with sharedvariables.shared_lock:
@@ -175,6 +176,7 @@ class Domain(AbstractNetworkComponent):
 			else:
 				logger.debug(f"Domain ({self.get_domain_name()}) had a pdc ({this_pdc.get_host().get_ip()})")
 
+
 	def add_domain_trust(self, domain):
 		with sharedvariables.shared_lock:
 			logger.debug(f"Adding domain ({domain.get_domain_name()}) to domain ({self.get_domain_name()}) trusts")
@@ -188,6 +190,7 @@ class Domain(AbstractNetworkComponent):
 				self.trusts.append(domain)
 				logger.debug(f"domain ({domain.get_domain_name()}) placed in domain trusts ({self.get_domain_name()})")
 				return []
+
 
 	def auto_function(self):
 		"""
@@ -303,4 +306,35 @@ class Domain(AbstractNetworkComponent):
 		list_msrpc_server_ips = self.get_msrpc_servers()
 		if rpc_ip not in list_msrpc_server_ips:
 			logger.debug(f"Adding {rpc_ip} to the list of msrpc servers of domain {self.domain_name}")
-			self.msrpc_servers.append(rpc_ip)
+			with sharedvariables.shared_lock:
+				self.msrpc_servers.append(rpc_ip)	
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+		return
+   
+	
+	"""
+ 	smb
+  	"""
+   
+   
+	def get_smb_servers(self):
+		"""
+  		Retrieves the list of smb servers
+    	(the ips of the smb servers listed)
+     	"""
+		with sharedvariables.shared_lock:
+			return self.smb_servers
+
+
+	def add_smb_server(self, smb_ip):
+		"""
+  		Adds an ip to the smb_servers list
+    	Checks if the ip is already in the list
+     	"""
+		list_smb_server_ips = self.get_smb_servers()
+		if smb_ip not in list_smb_server_ips:
+			logger.debug(f"Adding {smb_ip} to the list of smb servers of domain {self.domain_name}")
+			with sharedvariables.shared_lock:
+				self.smb_servers.append(smb_ip)
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+		return 
