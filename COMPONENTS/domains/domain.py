@@ -64,7 +64,7 @@ class Domain(AbstractNetworkComponent):
 			context['usernames'] = copy.deepcopy(self.get_list_usernames())
 			context['groupnames'] = copy.deepcopy(self.get_list_groupnames())
 			context['msrpc_servers'] = copy.deepcopy(self.get_msrpc_servers())
-			# add context['smb_servers'] = copy.deepcopy(self.get_smb_servers())
+			context['smb_servers'] = copy.deepcopy(self.get_smb_servers())
 			return context
 
  
