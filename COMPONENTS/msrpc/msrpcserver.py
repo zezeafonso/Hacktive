@@ -100,9 +100,9 @@ class MSRPCServer:
     	"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Associating domain ({domain.domain_name}) to \
-       			RPC server @ ({self.get_host().get_ip()})")
+       			RPC server @ ({self.get_ip()})")
 			if self.domain is not None:
-				logger.debug(f"RPC server @ ({self.get_host().get_ip()}) \
+				logger.debug(f"RPC server @ ({self.get_ip()}) \
         			already has a domain")
 				return 
 

@@ -98,9 +98,9 @@ class SMBServer:
     	"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Associating domain ({domain.domain_name}) to \
-       			SMB server @ ({self.get_host().get_ip()})")
+       			SMB server @ ({self.get_ip()})")
 			if self.domain is not None:
-				logger.debug(f"SMB server @ ({self.get_host().get_ip()}) \
+				logger.debug(f"SMB server @ ({self.get_ip()}) \
         			already has a domain")
 				return 
 

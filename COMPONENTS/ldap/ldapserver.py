@@ -110,9 +110,9 @@ class LdapServer:
     	"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Associating domain ({domain.domain_name}) to \
-       			LDAP server @ ({self.get_host().get_ip()})")
+       			LDAP server @ ({self.get_ip()})")
 			if self.domain is not None:
-				logger.debug(f"LDAP server @ ({self.get_host().get_ip()}) \
+				logger.debug(f"LDAP server @ ({self.get_ip()}) \
         			already has a domain")
 				return 
 
