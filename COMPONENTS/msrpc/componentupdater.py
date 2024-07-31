@@ -2,7 +2,7 @@ from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 
 
-def associate_server_to_domain(self, domain, rpc_server):
+def associate_server_to_domain(domain, rpc_server):
 	"""
  	Associates the smb server to a domain.
   	"""
