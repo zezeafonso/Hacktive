@@ -36,7 +36,7 @@ def found_new_domain_components_path_ldap(host, domain_components_path):
 	return
 
 
-def associate_server_to_domain(self, domain, ldap_server):
+def associate_server_to_domain(domain, ldap_server):
 	"""
  	Associates the smb server to a domain.
   	"""
