@@ -56,9 +56,12 @@ ficam a saber que ele é DC.
 	Parabenes. Mais uma etapa concluída.
 Agora:
 	-> fiz metade do updater e criei os filtered objects.
-	
+
 	-> vamos fazer o output parsing do crackmapexec, 
 	acho que é o mais importante para o smb. 
+
+	-> Implementei o output parsing do crackmapexec,
+		falta testar YEY.
 
 
 
