@@ -5,6 +5,7 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.smb.listshares.method import ListSharesThroughSMB
 from COMPONENTS.smb.basiccrackmapexec.method import BasicCrackMapExec
+from COMPONENTS.smb.spidershares.method import SpiderSharesThroughSMB
 
 class SMBServer:
 	"""
@@ -19,7 +20,7 @@ class SMBServer:
 	+ list shares
 	+ spider shares
  	"""
-	methods = [ListSharesThroughSMB, BasicCrackMapExec]
+	methods = [ListSharesThroughSMB, BasicCrackMapExec, SpiderSharesThroughSMB]
 
 	def __init__(self, host='Host', port=str):
 		self.host = host

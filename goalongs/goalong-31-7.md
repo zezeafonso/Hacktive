@@ -30,9 +30,8 @@ Neste caso será qualquer coisa como domains/domain_name/msrpc/<msrpc-server-ip>
 
 
 ### Goals hoje
-Fazer a enumeração ao SMB. 
-Conseguir listar os shares com o user anónimo. 
-Para cada share que consigamos fazer o spider. 
+Fazer o spider das diretorias e fazer o parsing do output das outras. 
+Pode ser que tenhamos tempo para fazer mais merdas ainda sobre o SMB.
 
 
 
@@ -43,22 +42,11 @@ Para cada share que consigamos fazer o spider.
 
 
 ### IDEAS
-Quando descobrimos que um host faz parte de um domínio podemos verificar um montão de coisas. 
-Especialmente em relação aos serviços que ele já tem, pode ajudar bastante ao sabermos o domínio do bicho.
-Para saber onde colocamos a informação e tudo mais. 
-Pode ser importante saber onde verificamos as coisas. 
+
 
 ### IDEAS for tommorrow
 
 ## Work
-Criei os métodos:
-listshares -> lista as shares com o smbclient -L 
-crackmapexec -> que nos dá se aceita a versão 1 e o smbsigning
 
-faltam implementar os filters e updates destes manfios 
-falta também fazer o spider das shares 
-
-
-Do LDAP podemos usar bastante o windapsearch que acho que fica bom.
 
 ### horas
