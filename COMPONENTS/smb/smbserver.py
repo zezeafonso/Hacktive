@@ -43,6 +43,11 @@ class SMBServer:
 			return self.host.get_ip()
 
 
+	def get_host(self):
+		with sharedvariables.shared_lock:
+			return self.host
+
+
 	def get_context(self):
 		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		context = dict()
