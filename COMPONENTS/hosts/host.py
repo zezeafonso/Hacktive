@@ -263,9 +263,8 @@ class Host(AbstractNetworkComponent):
     	"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({self.get_ip()}) already has domain")
-			if self.domain is not None:
-				logger.debug(f"host ({self.get_ip()}) is part of domain\
-        			({self.domain.domain_name})")
+			if len(self.AD_domain_roles.keys()) > 0:
+				logger.debug(f"host ({self.get_ip()}) is already part of a domain")
 				return True
 			return False
 

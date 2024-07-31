@@ -18,6 +18,7 @@ código:
 + [FILTEROBJECTS] Os filter objects não terem um dicionário mas sim os valores. 
 + [CONTEXT] O context deve ser um objeto para nos conseguimos estandardizar o que passsamos para os métodos e como passamos.
 + [DOMAIN_METHODS] Falta as Trusts
++ [DNS_HOSTNAME] Podemos extrair o bicho do root ldap 
 
 métodos:
 Saber o SID de um user. - lookupnames
@@ -46,6 +47,7 @@ O domínio quando é associado a um objeto server, precisa de conseguir
 também manipulá-lo. Precisamos de saber uma boa forma de fazer isto. 
 
 ### IDEAS for tommorrow
+Extrair o DNS hostname dos hosts através do root ldap.
 
 ## Work
 O method do spidershares foi criado com sucesso. Falta fazermos o filtering.
