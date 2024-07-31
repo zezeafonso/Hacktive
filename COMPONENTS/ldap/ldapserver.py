@@ -30,6 +30,12 @@ class LdapServer:
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
 
+
+	def get_ip(self):
+		with sharedvariables.shared_lock:
+			return self.host.get_ip()
+
+
 	def get_context(self):
 		logger.debug(f"getting context for LdapServer ({self.host.get_ip()})")
 		with sharedvariables.shared_lock:
