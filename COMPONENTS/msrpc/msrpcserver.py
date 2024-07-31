@@ -90,7 +90,7 @@ class MSRPCServer:
   		Associates a domain to this server
     	(function in the component updater)
      	"""
-		componentupdater.associate_domain(domain, self)
+		componentupdater.associate_server_to_domain(domain, self)
 		return 
 
 
