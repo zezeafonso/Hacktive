@@ -34,9 +34,12 @@ class Domain(AbstractNetworkComponent):
 		self.domain_name = domain_name
 		# the domain pdc
 		self.domain_pdc = domain_pdc
+
+		# list of interesting servers
 		self.ldap_servers = list() # list of ldap servers (ip)
 		self.msrpc_servers = list() # list of msrpc servers (ip)
 		self.smb_servers = list() # list of smb servers (ip)
+  
 		self.machines = dict() # the machines that belong and their role (from roles)
   
 		if domain_pdc is not None:
@@ -337,5 +340,31 @@ class Domain(AbstractNetworkComponent):
 			logger.debug(f"Adding {smb_ip} to the list of smb servers of domain {self.domain_name}")
 			with sharedvariables.shared_lock:
 				self.smb_servers.append(smb_ip)
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+		return 
+
+
+	"""
+ 	ldap
+  	"""
+	def get_ldap_servers(self):
+		"""
+  		Retrieves the list of ldap servers
+    	(the ips of the ldap servers listed)
+     	"""
+		with sharedvariables.shared_lock:
+			return self.ldap_servers
+
+
+	def add_ldap_server(self, ldap_ip):
+		"""
+  		Adds an ip to the ldap_servers list
+    	Checks if the ip is already in the list
+     	"""
+		list_ldap_server_ips = self.get_smb_servers()
+		if ldap_ip not in list_ldap_server_ips:
+			logger.debug(f"Adding {ldap_ip} to the list of ldap servers of domain {self.domain_name}")
+			with sharedvariables.shared_lock:
+				self.ldap_servers.append(ldap_ip)
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 		return 

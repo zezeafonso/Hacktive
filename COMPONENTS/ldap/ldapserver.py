@@ -4,6 +4,9 @@ import THREADS.sharedvariables as sharedvariables
 
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
+import COMPONENTS.ldap.componentupdater as componentupdater
+
+# methods
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
 
 class LdapServer:
@@ -21,6 +24,7 @@ class LdapServer:
 
 	def __init__(self, host):
 		self.host = host
+		self.domain = None # (might be needed)
   
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
   		# we updated this object
@@ -34,13 +38,15 @@ class LdapServer:
 			context['network_address'] = self.host.get_network().get_network_address()
 			context['ip'] = self.host.get_ip()
 			context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
-			context['domain_name'] = None
+			context['domain_name'] = self.domain
 
-			# for the domain name
-			host = self.host
-			domain = host.get_domain()
-			if domain is not None:
-				context['domain_name'] = domain.get_domain_name()
+			# check if host got an associated domain (precaution)
+			if context['domain_name'] is None:
+				host = self.host
+				domain = host.get_domain()
+				if domain is not None:
+					context['domain_name'] = domain.get_domain_name()
+					self.domain = domain
 			return context
 
 
@@ -83,3 +89,29 @@ class LdapServer:
 		Call all methods when we find a domain for this ldap server
 		"""
 		return [self.auto_function]
+
+
+	def associate_domain(self, domain):
+		"""
+ 		Associates this server to a domain
+   		"""
+		componentupdater.associate_server_to_domain(domain, self)
+		return 
+
+	def add_domain(self, domain):
+		"""
+  		Associates a domain to this server
+    	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Associating domain ({domain.domain_name}) to \
+       			LDAP server @ ({self.get_host().get_ip()})")
+			if self.domain is not None:
+				logger.debug(f"LDAP server @ ({self.get_host().get_ip()}) \
+        			already has a domain")
+				return 
+
+			# associate the domain
+			self.domain = domain
+			# this object was updated
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 

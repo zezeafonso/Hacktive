@@ -17,6 +17,7 @@ from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
+# components
 from COMPONENTS.domains.domain import Domain
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from COMPONENTS.ldap.ldapserver import LdapServer
@@ -24,9 +25,12 @@ from COMPONENTS.netbios.netbiosworkstation import NetBIOSWorkstation
 from COMPONENTS.msrpc.msrpcserver import MSRPCServer
 from COMPONENTS.smb.smbserver import SMBServer
 
+
+# methods
 from COMPONENTS.hosts.checkifmsrpcserviceisrunning.method import CheckIfMSRPCServiceIsRunning
 from COMPONENTS.hosts.checkifsmbserviceisrunning.method import CheckIfSMBServiceIsRunning
 from COMPONENTS.netbios.nbnsiptranslations.method import NBNSIPTranslation
+
 
 
 class Host(AbstractNetworkComponent):
@@ -477,12 +481,11 @@ class Host(AbstractNetworkComponent):
 			self.AD_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) to host ({self.get_ip()}) successfully")
    
-			"""
-   			shouldn't we update each of the roles that this host 
-      		might have? for example if it has ldap, smb and msrpc 
-        	they might need the domain for their operations
-         	"""
-
+			# for each service associate this domain
+			for role_key in self.roles:
+				role_obj = self.roles[role_key]
+				role_obj.associate_domain(domain) # might do nothing
+    
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 

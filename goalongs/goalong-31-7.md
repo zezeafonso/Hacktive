@@ -42,11 +42,19 @@ Pode ser que tenhamos tempo para fazer mais merdas ainda sobre o SMB.
 
 
 ### IDEAS
-
+O domínio quando é associado a um objeto server, precisa de conseguir 
+também manipulá-lo. Precisamos de saber uma boa forma de fazer isto. 
 
 ### IDEAS for tommorrow
 
 ## Work
+O method do spidershares foi criado com sucesso. Falta fazermos o filtering.
+- Confirma se quando um host passa para DC todos os serviços que ele tem 
+ficam a saber que ele é DC.
+	-> O que acontece é que se os serviços não existirem, eles são criados. 
+	-> E agora são também associados ao domínio. Estes serviços no entanto 
+	se não tiverem sido adicionados para um DC, não serão acedíveis pelo domain
+	porque o domain não recebeu nada em concreto para saber que tinha novos.
 
 
 ### horas

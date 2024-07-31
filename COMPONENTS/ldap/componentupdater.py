@@ -23,14 +23,28 @@ def found_new_domain_components_path_ldap(host, domain_components_path):
 
 		# check if the domain exists in the root database
 		domain = sharedvariables.root_obj.get_or_create_domain(domain_components_path)
-		
-		# there is only 1 domain for each host
-		# put the host as a dependent object of the domain.
-		host.associate_domain_to_host_if_not_already(domain) 
   
-		# check if host already has the known services listed
+  		# checks if host already has the DC services (SMB; LDAP; RPC)
+		# creates them if it doesn't
 		host.add_dc_services() 
+		
+		# associate the domain in host, and in its services
+		host.associate_domain_to_host_if_not_already(domain) 
 
 		# put this host as a DC for the domain
 		domain.add_dc(host)
 	return
+
+
+def associate_server_to_domain(self, domain, ldap_server):
+	"""
+ 	Associates the smb server to a domain.
+  	"""
+	# the server will have a reference to the domain
+	ldap_server.add_domain(domain)
+ 
+	server_ip = ldap_server.get_host().get_ip()
+ 
+	# will add this ip to the list of smb servers
+	domain.add_ldap_server(server_ip)
+	return 

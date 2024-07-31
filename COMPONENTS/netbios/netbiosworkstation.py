@@ -328,3 +328,11 @@ class NetBIOSWorkstation:
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return
 
+
+	def associate_domain(self):
+		"""
+  		Associates a domain to this object
+    	"""
+		# nothing for now
+		return 
+

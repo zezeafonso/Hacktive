@@ -3,9 +3,13 @@ import THREADS.sharedvariables as sharedvariables
 
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
+import COMPONENTS.smb.componentupdater as componentupdater
+
+# methods
 from COMPONENTS.smb.listshares.method import ListSharesThroughSMB
 from COMPONENTS.smb.basiccrackmapexec.method import BasicCrackMapExec
 from COMPONENTS.smb.spidershares.method import SpiderSharesThroughSMB
+
 
 class SMBServer:
 	"""
@@ -36,6 +40,15 @@ class SMBServer:
 		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		context = dict()
 		context['ip'] = self.host.get_ip() # the ip of host
+		context['domain_name'] = self.domain
+
+		# check if host got an associated domain (precaution)
+		if context['domain_name'] is None:
+			host = self.host
+			domain = host.get_domain()
+			if domain is not None:
+				context['domain_name'] = domain.get_domain_name()
+				self.domain = domain
 		return context
 
 
@@ -65,3 +78,29 @@ class SMBServer:
 	def found_domain_methods(self):
 		return [self.auto_function]
 
+
+	def associate_domain(self, domain):
+		"""
+  		Associates a domain to this server
+		(function in component updater)
+    	"""
+		componentupdater.associate_server_to_domain(domain, self)
+
+
+	def add_domain(self, domain):
+		"""
+  		Associates a domain to this server
+    	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Associating domain ({domain.domain_name}) to \
+       			SMB server @ ({self.get_host().get_ip()})")
+			if self.domain is not None:
+				logger.debug(f"SMB server @ ({self.get_host().get_ip()}) \
+        			already has a domain")
+				return 
+
+			# associate the domain
+			self.domain = domain
+			# this object was updated
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 
