@@ -5,7 +5,7 @@ class Filtered_FoundSMBv1Value(AbstractFilteredObject):
 		self.smbv1 = value # True|False
 
 	def display(self):
-		return f"Found if smbv1 was enabled: ({self.value})"
+		return f"Found if smbv1 was enabled: ({self.smbv1})"
 
 	def get_smbv1_value(self):
 		return self.smbv1
