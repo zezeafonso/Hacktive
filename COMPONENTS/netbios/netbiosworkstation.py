@@ -329,7 +329,7 @@ class NetBIOSWorkstation:
 			return
 
 
-	def associate_domain(self):
+	def associate_domain(self, domain):
 		"""
   		Associates a domain to this object
     	"""
