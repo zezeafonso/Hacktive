@@ -108,4 +108,32 @@ def found_user_rid_for_username(domain, username, user_rid):
 		if user_rid is not None:
 			domainuser.set_rid(user_rid)
 			return 
+
+
+def found_dc_for_domain(domain, host):
+	"""
+	Found a DC for a domain. 
+	Add the host to the list of DCs.
+	Add interesting servers from host to our list of servers
+	"""
+	with sharedvariables.shared_lock:
+		# add the host to dc list
+		domain.add_dc(host)
+		# add the dc services to the domain
+		domain.add_dc_services(host)
+		return 
+
+
+def found_host_for_domain(domain, host):
+	"""
+ 	We found a host for a domain.
+  	Add the host to list of machines.
+   	Add interesting servers from host to our list of servers
+	"""
+	with sharedvariables.shared_lock:
+		# add the host to domains machine list
+		domain.add_host(host)
+		# add the host services to the domain
+		domain.add_host_services(host)
+		return 
 		

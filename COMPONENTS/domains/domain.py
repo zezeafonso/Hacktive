@@ -143,11 +143,71 @@ class Domain(AbstractNetworkComponent):
 	
 		return data
 
+
+	def add_host_services(self, host):
+		"""
+  		Checks for the relevant services of a host and adds them 
+		to the list of servers.
+  		"""
+		with sharedvariables.shared_lock:
+			ip = host.get_ip()
+			# if host has ldap server and is not already present
+			if host.get_ldap_server_obj() is not None:
+				if ip not in self.ldap_servers:
+					self.ldap_servers.append(ip)
+			# if host has smb server and is not already present
+			if host.get_smb_server_obj() is not None:
+				if ip not in self.smb_servers:
+					logger.debug(f"Adding ip ({ip}) to list of \
+         				smb_servers @ domain ({self.domain_name})")
+					self.smb_servers.append(ip)
+			# if host has rpc server and is not already present
+			if host.get_msrpc_server_obj() is not None:
+				if ip not in self.msrpc_servers:
+					logger.debug(f"Adding ip ({ip}) to list of \
+         				msrpc_servers @ domain ({self.domain_name})")
+					self.msrpc_servers.append(ip)
+
+	def add_host(self, host):
+		"""
+  		Adds a host to this domain.
+    	Check if is already in the list of machines or DC's.
+     	If not then also add it's services.
+      	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Adding host ({host.get_ip()}) to \
+       			domain ({self.get_domain_name()})")
+   
+			# check if it's already in the list of hosts for this domain
+			if host not in self.machines:
+				self.machines[host] = "machine"
+			else:
+				# already apart of domain
+				return
+
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 
 		
+	
+	def add_dc_services(self, host_dc):
+		"""
+  		Adds the services of a DC host to the domain's list of
+    	servers.
+     	"""
+		with sharedvariables.shared_lock:
+			# since host is DC we can add to the list of services:
+			self.msrpc_servers.append(host_dc.get_ip())
+			self.ldap_servers.append(host_dc.get_ip())
+			self.smb_servers.append(host_dc.get_ip())
+   
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 
+  
 	def add_dc(self, host):
 		"""
-		Adds a domain controller host to this domain. 
-		As a domain controller we can add this to our ldap_servers. marpc_servers and smb_servers
+		Adds the host to the list of DC's of the domain
   		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Adding dc to domain ({self.get_domain_name()})")
@@ -160,11 +220,6 @@ class Domain(AbstractNetworkComponent):
 			if host in self.machines:
 				if self.machines[host] == "machine":
 					self.machines[host] = "DC"
-
-			# since host is DC we can add to the list of services:
-			self.msrpc_servers.append(host.get_ip())
-			self.ldap_servers.append(host.get_ip())
-			self.smb_servers.append(host.get_ip())
 
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)

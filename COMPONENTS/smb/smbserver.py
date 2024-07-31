@@ -31,6 +31,8 @@ class SMBServer:
 		self.shares = list() # list of shares in the SMB server
 		self.port = port # might be None
 		self.domain = None # the associated domain, might be useful 
+		self.smbv1 = False # not enabled
+		self.signing = True # By default is True
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -46,6 +48,7 @@ class SMBServer:
 		context = dict()
 		context['ip'] = self.host.get_ip() # the ip of host
 		context['domain_name'] = self.domain
+		context['smb_server'] = self 
 
 		# check if host got an associated domain (precaution)
 		if context['domain_name'] is None:
@@ -63,8 +66,11 @@ class SMBServer:
 			data['SMB Server'] = dict()
 			data['SMB Server']['port'] = self.port
 			data['SMB Server']['shares'] = list()
+			data['SMB Server']['signing'] = self.signing
+			data['SMB Server']['SMBv1'] = self.smbv1
 			for share in self.shares:
 				data['SMB Server']['shares'].append(share.display_json())
+    
 			return data
 
 	def auto_function(self):
@@ -108,4 +114,28 @@ class SMBServer:
 			self.domain = domain
 			# this object was updated
 			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 
+
+
+	def update_smbv1_value(self, value):
+		"""
+  		Updates the value of smbv1 dialect
+    	(required: True; not: False)
+     	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Updating the value of smbv1 enabled to \
+       			({value}) @ ({self.get_ip()})")
+			self.smbv1 = value
+			return 
+
+
+	def update_signing_required_value(self, value):
+		"""
+  		Updates the value of SMB signing
+    	(true or false)
+     	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Updating the value of SMB signing to \
+       			({value}) @ ({self.get_ip()})")
+			self.signing = value
 			return 

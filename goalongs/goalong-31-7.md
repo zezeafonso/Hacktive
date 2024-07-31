@@ -51,10 +51,15 @@ também manipulá-lo. Precisamos de saber uma boa forma de fazer isto.
 O method do spidershares foi criado com sucesso. Falta fazermos o filtering.
 - Confirma se quando um host passa para DC todos os serviços que ele tem 
 ficam a saber que ele é DC.
-	-> O que acontece é que se os serviços não existirem, eles são criados. 
-	-> E agora são também associados ao domínio. Estes serviços no entanto 
-	se não tiverem sido adicionados para um DC, não serão acedíveis pelo domain
-	porque o domain não recebeu nada em concreto para saber que tinha novos.
+	-> Sim o Host passa os serviços que são de interesse para o domain. 
+	Neste caso vão ser o LDAP, SMB, RPC. Já tá tratado. 
+	Parabenes. Mais uma etapa concluída.
+Agora:
+	-> fiz metade do updater e criei os filtered objects.
+	
+	-> vamos fazer o output parsing do crackmapexec, 
+	acho que é o mais importante para o smb. 
+
 
 
 ### horas

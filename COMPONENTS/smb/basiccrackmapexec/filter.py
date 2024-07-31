@@ -2,10 +2,44 @@ import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
 
+# create for SMB signing 
+# create for SMBv1 enabled or not
+from COMPONENTS.filteredobjects.filteredfoundsmbservicesigning import Filtered_FoundSMBServiceSigning
+from COMPONENTS.filteredobjects.filteredfoundsmbv1value import Filtered_FoundSMBv1Value
+from COMPONENTS.filteredobjects.filteredfounddomainofmachine import Filtered_FoundDomainOfMachine
 
 class BasicCrackMapExec_Filter(AbstractFilter):
 	_name = "filter basic crackmapexec"
 
 	@staticmethod
 	def filter(output:str) -> list:
-		return []
+		findings = list()
+		pattern = re.compile(
+			r"SMB\s+"
+			r"(?P<ip>\d+\.\d+\.\d+\.\d+)\s+"
+			r"(?P<port>\d+)\s+"
+			r"(?P<hostname>\S+)\s+\[\*\]\s+"
+			r"(?P<os>Windows\s+[\d\.]+)\s+Build\s+(?P<build>[^)]+)\)"
+			r"\(name:(?P<name>[^)]+)\)\s+"
+			r"\(domain:(?P<domain>[^)]+)\)\s+"
+			r"\(signing:(?P<signing>True|False)\)\s+"
+			r"\(SMBv1:(?P<smbv1>True|False)\)"
+		)
+
+		match = pattern.match(output)
+		if match:
+			ip = match.group('ip') # not needed 
+			port = match.group('port') 
+			hostname = match.group('hostname') 
+			os = match.group('os') # not needed
+			build = match.group('build') # not needed
+			name = match.group('name') 
+			domain = match.group('domain') 
+			signing = match.group('signing') 
+			smbv1 = match.group('smbv1') 
+   
+			findings.append(Filtered_FoundSMBServiceSigning(signing))
+			findings.append(Filtered_FoundSMBv1Value(smbv1))
+			findings.append(Filtered_FoundDomainOfMachine(domain))
+
+		return findings
