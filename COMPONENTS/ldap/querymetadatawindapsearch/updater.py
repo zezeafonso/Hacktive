@@ -16,7 +16,13 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
 	"""
 	# retrieve interface and network objects (both methods have locks)
 	with sharedvariables.shared_lock:
-		ldap_server = context['ldap_server']
+		int_name = context['interface_name']
+		net_name = context['network_address']
+		ip = context['ip']
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
+		network = interface.get_network_or_create_it(net_name)
+		host = network.get_ip_host_or_create_it(ip)
+		ldap_server = host.get_ldap_server_obj(host)
 
 	for filtered_obj in filtered_objects:
 		# FOUND A DOMAIN COMPONENTS PATH
