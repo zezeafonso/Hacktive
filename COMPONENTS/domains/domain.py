@@ -180,9 +180,14 @@ class Domain(AbstractNetworkComponent):
    
 			# check if it's already in the list of hosts for this domain
 			if host not in self.machines:
+				logger.debug(f"Host was not in domain. Host ({host}) ({host.get_ip()})")
+				string = f"domain machines: "
+				for machine in self.machines:
+					string += f"{machine}"
+				logger.debug(string)
 				self.machines[host] = "machine"
 			else:
-				# already apart of domain
+				logger.debug(f"Host was already part of list of domain machines.")
 				return
 
 			# we updated this object
@@ -214,13 +219,21 @@ class Domain(AbstractNetworkComponent):
    
 			# check if it's already in the machines of this domain
 			if host not in self.machines:
+				logger.debug(f"Host was not in domain. Host ({host}) ({host.get_ip()})")
+				string = f"domain machines: "
+				for machine in self.machines:
+					string += f"{machine}"
+				logger.debug(string)
 				self.machines[host] = "DC"
 
 			# if its in the list of machines but has a normal machine
 			if host in self.machines:
+				logger.debug(f"Host is part of list of domain machines.")
 				if self.machines[host] == "machine":
+					logger.debug(f"Host was listed as a Normal machine.")
 					self.machines[host] = "DC"
 				else:
+					logger.debug(f"Host was already listed a DC in this domain")
 					return
 
 			# we updated this object
