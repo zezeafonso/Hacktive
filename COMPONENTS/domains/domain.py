@@ -40,10 +40,14 @@ class Domain(AbstractNetworkComponent):
 		self.msrpc_servers = list() # list of msrpc servers (ip)
 		self.smb_servers = list() # list of smb servers (ip)
   
-		self.machines = dict() # the machines that belong and their role (from roles)
+		#self.machines = dict() # the machines that belong and their role (from roles)
+
+		self.machines = dict() # 'ip': obj
+		self.dcs = dict() # 'ip': obj
   
 		if domain_pdc is not None:
-			self.machines[domain_pdc.get_host()] = "DC"
+			self.dcs[domain_pdc.get_host().get_ip()] = domain_pdc.get_host()
+			#self.machines[domain_pdc.get_host()] = "DC"
 
 		self.trusts = list() # list of domain trusts
 		self.users = list() # list of user objects (should be private)
@@ -124,10 +128,10 @@ class Domain(AbstractNetworkComponent):
    
 		data['DCs'] = list()
 		data['machines'] = list()
-		for machine in self.machines:
-			if self.machines[machine] == "DC":
-				data['DCs'].append(machine.get_ip())
-			data['machines'].append(machine.get_ip())
+		for ip in self.machines:
+			data['machines'].append(ip)
+		for ip in self.dcs:
+			data['DCs'].append(ip)
    
 		data['Trusts'] = list()
 		for domain in self.trusts:
@@ -179,15 +183,19 @@ class Domain(AbstractNetworkComponent):
        			domain ({self.get_domain_name()})")
    
 			# check if it's already in the list of hosts for this domain
-			if host not in self.machines:
-				logger.debug(f"Host was not in domain. Host ({host}) ({host.get_ip()})")
+			ip = host.get_ip()
+			if ip not in self.machines:
+				logger.debug(f"Host ({ip}) was not in domain.")
+				# debug:
 				string = f"domain machines: "
-				for machine in self.machines:
-					string += f"{machine}"
+				for ip in self.machines:
+					string += f"{ip}"
 				logger.debug(string)
-				self.machines[host] = "machine"
+
+				# add to the domain
+				self.machines[ip] = host
 			else:
-				logger.debug(f"Host was already part of list of domain machines.")
+				logger.debug(f"Host ({ip}) was already part of list of domain machines.")
 				return
 
 			# we updated this object
@@ -218,23 +226,28 @@ class Domain(AbstractNetworkComponent):
 			logger.debug(f"Adding dc to domain ({self.get_domain_name()})")
    
 			# check if it's already in the machines of this domain
-			if host not in self.machines:
-				logger.debug(f"Host was not in domain. Host ({host}) ({host.get_ip()})")
+			ip = host.get_ip()
+			if ip not in self.dcs:
+				logger.debug(f"Host ({ip}) was not in domain DCs")
+				if ip in self.machines:
+					logger.debug(f"Host ({ip}) was listed as a normal machine in domain")
+					logger.debug(f"removing Host ({ip}) from machines of domain.")
+					# remove from machines
+					self.machines.pop(ip) 
+				# debug:
 				string = f"domain machines: "
-				for machine in self.machines:
-					string += f"{machine}"
+				for ip in self.machines:
+					string += f"{ip}"
 				logger.debug(string)
-				self.machines[host] = "DC"
+				string = f"domain DCs: "
+				for ip in self.dcs:
+					string += f"{ip})"
+				logger.debug(string)
 
-			# if its in the list of machines but has a normal machine
-			if host in self.machines:
-				logger.debug(f"Host is part of list of domain machines.")
-				if self.machines[host] == "machine":
-					logger.debug(f"Host was listed as a Normal machine.")
-					self.machines[host] = "DC"
-				else:
-					logger.debug(f"Host was already listed a DC in this domain")
-					return
+				# add to the list of dc
+				self.dcs[ip] = host
+			else:
+				return 
 
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
