@@ -17,9 +17,11 @@ class DomainUser(AbstractNetworkComponent):
 	def __init__(self, domain, username:str=None, rid:str=None):
 		# username and rid can't be both None
 		self.domain = domain # the associated domain
-		self.username = username # might be None
-		self.rid = rid # might be None
+		self.username = username # sAMAccountName, can be None
+		self.rid = rid # can be None
 		self.groups = set() # the set of groups to which the user belongs to
+		self.distinguished_name = None
+		self.user_principal_name = None 
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -43,6 +45,8 @@ class DomainUser(AbstractNetworkComponent):
 		data = dict()
 		data['username'] = self.get_username()
 		data['rid'] = self.get_rid()
+		data['user principal name'] = self.user_principal_name
+		data['distinguished name'] = self.distinguished_name
 		return data
 
 	def get_username(self):
@@ -82,3 +86,29 @@ class DomainUser(AbstractNetworkComponent):
 			# notify that this object was updated
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return
+
+
+	def add_distinguished_name(self, distinguished_name:str):
+		with sharedvariables.shared_lock:
+			logger.debug(f"Adding distinguished name ({distinguished_name})\
+       to user ({self.username})")
+			if self.distinguished_name is not None:
+				logger.debug(f"User already had a distinguished name")
+				return 
+
+			self.distinguished_name = distinguished_name
+			logger.debug(f"New distinguished name ({distinguished_name}) set.")
+			return 
+				
+    
+	def add_user_principal_name(self, user_principal_name:str):
+		with sharedvariables.shared_lock:
+			logger.debug(f"Adding user principal name ({user_principal_name})\
+       to user ({self.username})")
+			if self.user_principal_name is not None:
+				logger.debug(f"User already had a user principal name")
+				return 
+
+			self.user_principal_name = user_principal_name
+			logger.debug(f"New user principal name ({user_principal_name}) set.")
+			return 

@@ -52,9 +52,13 @@ Em relação aos shares do SMB também não sei como vamos apresentar a info.
 
 
 ## IDEAS
-
+Colocarmos lá os users. 
 
 ### IDEAS for tommorrow
+Mostrar as shares que encontrámos em cada SMB server.
+
+Colocar os domains que são da mesma forest Na mesma forest. 
+Para podermos usar essa informação.
 
 
 ## Work
@@ -64,7 +68,9 @@ Resolvi o BUG dos objetos. quase 2 horas para isto.
 coloquei a máquina a aceitar nós listarmos os users pelo ldap.
 criei o método de listar os users.
 Falta fazer o update da informação que temos sobre os users.
+	-> acho que a dos users está feita. Falta Testar, soma e segue.
 Falta mostrar as shares que há lá no bicho. 
+	-> AHHHHHH, yes
 
 
 ### horas

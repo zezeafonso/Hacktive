@@ -110,6 +110,32 @@ def found_user_rid_for_username(domain, username, user_rid):
 			return 
 
 
+def found_distinguished_name_for_sam_account_name(domain, sam_account_name, distinguished_name):
+	"""
+ 	Updates components when we find a distinguished name for a username 
+	(sAMAccountName) for a domain
+   	"""
+	with sharedvariables.shared_lock:
+		# get the username
+		domainuser = domain.get_or_create_user_from_username(sam_account_name)
+		# if it already has one doesn't do nothing
+		domainuser.add_distinguished_name(distinguished_name)
+		return 
+
+
+def found_user_principal_name_for_sam_account_name(domain, sam_account_name, user_principal_name):
+	"""
+	Updates components when we find a user principal name for a username
+	(sAMAccountName) of a domain.
+	"""
+	with sharedvariables.shared_lock:
+		# get the username
+		domainuser = domain.get_or_create_user_from_username(sam_account_name)
+		# if it already has one doesn't do nothing
+		domainuser.add_user_principal_name(user_principal_name)
+		return 
+
+
 def found_dc_for_domain(domain, host):
 	"""
 	Found a DC for a domain. 
