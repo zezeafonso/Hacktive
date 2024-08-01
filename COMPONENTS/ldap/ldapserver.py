@@ -26,6 +26,7 @@ class LdapServer:
 	def __init__(self, host):
 		self.host = host
 		self.domain = None # (might be needed)
+		self.test = '1'
   
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
   		# we updated this object
@@ -78,6 +79,7 @@ class LdapServer:
 			data['LDAP Server']['Host'] = id(self.get_host())
 			data['LDAP Server']['dnshostname'] = self.get_host().get_dns_hostname()
 			data['LDAP Server']['domain name'] = self.get_host().get_domain().get_domain_name()
+			data['LDAP Server']['test'] = self.test
 			return data
 
 	def auto_function(self):
