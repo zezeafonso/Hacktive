@@ -25,23 +25,8 @@ def found_new_domain_components_path_ldap(host, domain_components_path):
 		# check if the domain exists in the root database
 		domain = sharedvariables.root_obj.get_or_create_domain(domain_components_path)
   
+		# if already had domain nothing happens
 		hosts_componentupdater.found_domain_for_dc_host(host, domain)
-  
-  		# checks if host already has the DC services (SMB; LDAP; RPC)
-		# creates them if it doesn't
-		#host.add_dc_services() 
-  
-		# the host will know his domain
-		#host.add_domain(domain)
-
-		# the services will know the domain
-		#host.associate_host_services_to_domain(domain)
-		
-		# associate the domain in host, and in its services
-		#host.associate_domain_to_host_if_not_already(domain) 
-
-		# put this host as a DC for the domain
-		#domain.add_dc(host)
 	return
 
 

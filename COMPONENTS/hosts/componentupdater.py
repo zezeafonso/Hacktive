@@ -1,4 +1,5 @@
 import THREADS.sharedvariables as sharedvariables
+from LOGGER.loggerconfig import logger
 
 import COMPONENTS.domains.componentupdater as domains_componentupdater
 
@@ -52,19 +53,35 @@ def found_domain_for_dc_host(host, domain):
   		# checks if host already has the DC services (SMB; LDAP; RPC)
 		# creates them if it doesn't
 		host.add_dc_services() 
-  
+
+		# if already is dc for this domain 
+		if host.check_if_host_is_dc_for_domain(domain):
+			return 
+
+		# check for different domains
+		if host.check_if_host_has_domain():
+			# different domains
+			if host.get_domain != domain:
+				logger.debug(f"Found that host ({host.get_ip()}) is DC for different domain\
+        			previous ({host.get_domain().get_domain_name()}) \
+               		present ({domain.get_domain_name()})")
+				return 
+		
 		# the host will know his domain
 		host.add_domain(domain)
 
 		# the services will know the domain
 		host.associate_host_services_to_domain(domain)
 		
-		# associate the domain in host, and in its services
-		#host.associate_domain_to_host_if_not_already(domain) 
-		
-		# put this host as a DC for the domain
-		# TODO: call the correct function from the domain componentupdater
-		#domain.add_dc(host)
-		# call the function that associates the host to the domain
+		# domain will know this host as DC
 		domains_componentupdater.found_dc_for_domain(domain, host)
 	return
+
+
+def found_dns_hostname_for_host(host, dns_hostname):
+	"""
+	Updates the host components when we find a dns hostname
+	"""
+	with sharedvariables.shared_lock:
+		host.add_dns_hostname(dns_hostname)
+		return

@@ -12,7 +12,6 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	ldap 
 
 	TODO: 
-	+ implemenent locks
 	+ implement the proper functioning when the objects don't exist
 	"""
 	

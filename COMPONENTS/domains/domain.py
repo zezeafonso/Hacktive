@@ -220,6 +220,8 @@ class Domain(AbstractNetworkComponent):
 			if host in self.machines:
 				if self.machines[host] == "machine":
 					self.machines[host] = "DC"
+				else:
+					return
 
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)

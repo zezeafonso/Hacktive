@@ -41,6 +41,7 @@ class LdapServer:
 		with sharedvariables.shared_lock:
 			context = dict()
 
+			context['ldap_server'] = self # reference to this object
 			context['network_address'] = self.host.get_network().get_network_address()
 			context['ip'] = self.host.get_ip()
 			context['interface_name'] = self.host.get_network().get_interface().get_interface_name()

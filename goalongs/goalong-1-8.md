@@ -31,41 +31,26 @@ Neste caso será qualquer coisa como domains/domain_name/msrpc/<msrpc-server-ip>
 
 
 ### Goals hoje
-Fazer o spider das diretorias e fazer o parsing do output das outras. 
-Pode ser que tenhamos tempo para fazer mais merdas ainda sobre o SMB.
+Extrair o DNS hostname dos hosts através do root ldap.
+- vamos fazer isso através do go-windapsearch.
+- depois podemos passar para o pywerview
+DNS hostname e depois começar com o LDAP.
 
 
 
 
 ### updated Goals.
-+ Fazer a enumeração do SMB, qasi toda. 
 
 
 
-### IDEAS
-O domínio quando é associado a um objeto server, precisa de conseguir 
-também manipulá-lo. Precisamos de saber uma boa forma de fazer isto. 
+
+## IDEAS
+
 
 ### IDEAS for tommorrow
-Extrair o DNS hostname dos hosts através do root ldap.
-DNS hostname e depois começar com o LDAP.
+
 
 ## Work
-O method do spidershares foi criado com sucesso. Falta fazermos o filtering.
-- Confirma se quando um host passa para DC todos os serviços que ele tem 
-ficam a saber que ele é DC.
-	-> Sim o Host passa os serviços que são de interesse para o domain. 
-	Neste caso vão ser o LDAP, SMB, RPC. Já tá tratado. 
-	Parabenes. Mais uma etapa concluída.
-Agora:
-	-> fiz metade do updater e criei os filtered objects.
-
-	-> vamos fazer o output parsing do crackmapexec, 
-	acho que é o mais importante para o smb. 
-
-	-> Implementei o output parsing do crackmapexec,
-		falta testar YEY.
-		Feito!!
 
 
 

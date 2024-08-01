@@ -59,9 +59,9 @@ class Host(AbstractNetworkComponent):
 		self.dc = False
 		self.netbios_hostname = None
 		self.netbios_groups = dict() # group_obj: roles
-		self.DNS_hostname = None
+		self.dns_hostname = None
 		self.fqdn = None
-		self.AD_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
+		self.ad_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
 		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj; 'LdapServer'
 		self.ports = dict()
   
@@ -116,7 +116,7 @@ class Host(AbstractNetworkComponent):
 	def get_ldap_server_obj(self):
 		"""
   		Retrieves the ldap server associated to this host
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
 			if 'ldap server' not in self.roles:
@@ -150,8 +150,8 @@ class Host(AbstractNetworkComponent):
 
 	def get_domain(self):
 		with sharedvariables.shared_lock:
-			if len(self.AD_domain_roles) != 0:
-				domain_list = list(self.AD_domain_roles.keys())
+			if len(self.ad_domain_roles) != 0:
+				domain_list = list(self.ad_domain_roles.keys())
 				return domain_list[0] # only the first (and only) element
 			return None
 
@@ -260,19 +260,35 @@ class Host(AbstractNetworkComponent):
 	def check_if_host_has_domain(self):
 		"""
   		Checks if host already has a domain
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({self.get_ip()}) already has domain")
-			if len(self.AD_domain_roles.keys()) > 0:
+			if len(self.ad_domain_roles.keys()) > 0:
 				logger.debug(f"host ({self.get_ip()}) is already part of a domain")
 				return True
+			return False
+
+
+	def check_if_host_is_dc_for_domain(self, domain):
+		"""
+  		Checks if host is DC for a given domain
+		"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"checking if host ({self.get_ip()}) already has domain")
+   
+			if domain in self.ad_domain_roles:
+				role = self.ad_domain_roles[domain]
+				if role is not None and role == 'DC':
+					logger.debug(f"host ({self.get_ip()}) is DC of domain \
+						({domain.get_domain_name()})")
+					return True
 			return False
 
 
 	def check_for_ldap_server_role(self):
 		"""
   		checks if this host has the ldap server role
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({self.get_ip()} has ldap server role)")
 			if self.roles['ldap server'] is None:
@@ -306,6 +322,25 @@ class Host(AbstractNetworkComponent):
 				ldap_server = self.add_role_ldap_server()
 				
 			return ldap_server
+
+
+
+	# DNS
+	
+	def add_dns_hostname(self, dns_hostname):
+		"""
+  		Adds a dns hostname to this host.
+		Checks if it already has one
+	 	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Adding dns hostname ({dns_hostname}) \
+	   			for host ({self.ip})")
+			if self.dns_hostname is not None:
+				logger.debug(f"Host ({self.ip}) already had a \
+					dns hostname")
+			
+			self.dns_hostname = dns_hostname
+			return 
 
 
 	# NETBIOS
@@ -396,7 +431,7 @@ class Host(AbstractNetworkComponent):
 	def get_smb_server_obj(self):
 		"""
   		Retrieves the smb server for this host or None
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			if 'SMBServer' not in self.roles:
 				return None
@@ -419,7 +454,7 @@ class Host(AbstractNetworkComponent):
 
 				# we updated this object
 				sharedvariables.add_object_to_set_of_updated_objects(self)
-    
+	
 				return smb_server_obj
 
 
@@ -475,10 +510,10 @@ class Host(AbstractNetworkComponent):
 	def add_dc_services(self):
 		"""
   		When we find that a host is a domain controller.
-    	Since certain services are mandatory for domain controllers to have 
-     	we don't have to enumerate the host to know that they're there.
-      	SMB, MSRPC, LDAP.
-       	"""
+		Since certain services are mandatory for domain controllers to have 
+	 	we don't have to enumerate the host to know that they're there.
+	  	SMB, MSRPC, LDAP.
+	   	"""
 		# If we don't have the MSRPC role
 		if not self.check_if_host_has_rpc_server_role():
 			self.get_or_add_role_rpc_server('135')
@@ -493,7 +528,7 @@ class Host(AbstractNetworkComponent):
 	def associate_host_services_to_domain(self, domain:Domain):
 		"""
   		Associates the host services to a domain.
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			# for each service -> associate this domain
 			for role_key in self.roles:
@@ -509,22 +544,22 @@ class Host(AbstractNetworkComponent):
   		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"associating domain ({domain.get_domain_name()})\
-       			to host ({self.get_ip()})")
+	   			to host ({self.get_ip()})")
 
 			associated_domain = self.get_domain()
 			if associated_domain is not None:
 				logger.debug(f"Host ({self.get_ip()}) is already associated \
-        			to a domain ({associated_domain.get_domain_name()})")
+					to a domain ({associated_domain.get_domain_name()})")
 				return 
 
-			self.AD_domain_roles[domain] = None # only machine level for now
+			self.ad_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) \
-       			to host ({self.get_ip()}) successfully")
+	   			to host ({self.get_ip()}) successfully")
 
 			# the object was updated
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
-    
+	
 
 	def associate_domain_to_host_if_not_already(self, domain:Domain):
 		"""
@@ -536,20 +571,20 @@ class Host(AbstractNetworkComponent):
 		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"associating domain ({domain.get_domain_name()})\
-       			to host ({self.get_ip()})")
+	   			to host ({self.get_ip()})")
 
 			associated_domain = self.get_domain()
 			if associated_domain is not None:
 				logger.debug(f"Host ({self.get_ip()}) is already associated \
-        			to a domain ({associated_domain.get_domain_name()})")
+					to a domain ({associated_domain.get_domain_name()})")
 				return 
 
-			self.AD_domain_roles[domain] = None # only machine level for now
+			self.ad_domain_roles[domain] = None # only machine level for now
 			logger.debug(f"associated domain ({domain.get_domain_name()}) \
-       			to host ({self.get_ip()}) successfully")
+	   			to host ({self.get_ip()}) successfully")
    
 			self.associate_host_services_to_domain(domain)
-    
+	
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
@@ -565,10 +600,10 @@ class Host(AbstractNetworkComponent):
 				logger.debug(f"Host ({self.get_ip()}) was not associated to a domain")
 				return 
 			# if it's already a PDC or DC
-			if self.AD_domain_roles[domain] is not None and self.AD_domain_roles[domain] == 'PDC':
+			if self.ad_domain_roles[domain] is not None and self.ad_domain_roles[domain] == 'PDC':
 				return 
 
-			self.AD_domain_roles[domain] = 'DC' # hard coded
+			self.ad_domain_roles[domain] = 'DC' # hard coded
 
 
 	def associate_PDC_role_to_associated_domain(self, domain:Domain):
@@ -578,7 +613,7 @@ class Host(AbstractNetworkComponent):
 			if domain is None:
 				logger.debug(f"Host ({self.get_ip()}) was not associated to a domain")
 
-			self.AD_domain_roles[domain] = 'PDC' # hard coded
+			self.ad_domain_roles[domain] = 'PDC' # hard coded
 
 
 	def found_domain_for_host_methods(self):
