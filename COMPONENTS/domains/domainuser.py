@@ -45,8 +45,8 @@ class DomainUser(AbstractNetworkComponent):
 		data = dict()
 		data['username'] = self.get_username()
 		data['rid'] = self.get_rid()
-		data['user principal name'] = self.user_principal_name
-		data['distinguished name'] = self.distinguished_name
+		#data['user principal name'] = self.user_principal_name
+		#data['distinguished name'] = self.distinguished_name
 		return data
 
 	def get_username(self):
