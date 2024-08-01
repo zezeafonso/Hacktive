@@ -42,7 +42,7 @@ class LdapServer:
 		logger.debug(f"getting context for LdapServer ({self.host.get_ip()})")
 		with sharedvariables.shared_lock:
 			context = dict()
-
+			
 			context['ldap_server'] = self # reference to this object
 			context['network_address'] = self.host.get_network().get_network_address()
 			context['ip'] = self.host.get_ip()

@@ -13,7 +13,16 @@ def BasicCrackMapExec_Updater(context:dict, filtered_objects:list):
    	"""
 	with sharedvariables.shared_lock:
 		ip = context['ip']
-		smb_server = context['smb_server']
+		net_name = context['network_address']
+		int_name = context['interface_name']
+  
+		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
+		network = interface.get_network_or_create_it(net_name)
+		host = network.get_ip_host_or_create_it(ip)
+		smb_server = host.get_smb_server_obj()
+		
+		if smb_server is None:
+			return
 		
   
 		for filtered_obj in filtered_objects:
