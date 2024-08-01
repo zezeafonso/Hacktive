@@ -137,9 +137,9 @@ class Domain(AbstractNetworkComponent):
 		for domain in self.trusts:
 			data['Trusts'].append(domain.get_domain_name())
    
-		#data['Users'] = list()
-		#for user in self.users:
-		#	data['Users'].append(user.display_json())
+		data['Users'] = list()
+		for user in self.users:
+			data['Users'].append(user.display_json())
    
 		data['Groups'] = list()
 		for group in self.groups:
