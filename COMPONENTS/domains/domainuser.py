@@ -45,8 +45,8 @@ class DomainUser(AbstractNetworkComponent):
 		data = dict()
 		data['username'] = self.get_username()
 		data['rid'] = self.get_rid()
-		data['user principal name'] = self.user_principal_name
-		data['distinguished name'] = self.distinguished_name
+		data['user principal name'] = self.get_user_principal_name()
+		data['distinguished name'] = self.get_distinguished_name()
 		return data
 
 	def get_username(self):
@@ -56,6 +56,14 @@ class DomainUser(AbstractNetworkComponent):
 	def get_rid(self):
 		with sharedvariables.shared_lock:
 			return self.rid
+
+	def get_user_principal_name(self):
+		with sharedvariables.shared_lock:
+			return self.user_principal_name
+
+	def get_distinguished_name(self):
+		with sharedvariables.shared_lock:
+			return self.distinguished_name
 
 
 	def set_rid(self, rid:str):

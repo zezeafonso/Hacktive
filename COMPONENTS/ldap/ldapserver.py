@@ -22,7 +22,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch]
+	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch, RetrieveListUsersWithWindapsearch]
 
 	def __init__(self, host):
 		self.host = host

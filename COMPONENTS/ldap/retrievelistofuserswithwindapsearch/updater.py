@@ -19,16 +19,17 @@ def retrieve_list_users_with_windapsearch_updater(context:dict, filtered_objects
 		for fo in filtered_objects:
 			if isinstance(fo, Filtered_FoundDistinguishedNameForDomainUser):
 				username = fo.get_sam_account_name()
-				distinguished_name = fo.get_distinguished_name()
+				distinguished_name = fo.get_distinguished_name()	
 				logger.debug(f"Filter foud distinguished name ({distinguished_name})\
         for user ({username})")
 				found_distinguished_name_for_sam_account_name(domain, username, distinguished_name)
 
-				
+			"""	
 			if isinstance(fo, Filtered_FoundUserPrincipalNameForDomainUser):
 				username = fo.get_sam_account_name()
 				user_principal_name = fo.get_user_principal_name()
 				logger.debug(f"Filter found user principal name ({user_principal_name})\
         for user ({username})")
 				found_user_principal_name_for_sam_account_name(domain, username, user_principal_name)
+			"""
 	return 
