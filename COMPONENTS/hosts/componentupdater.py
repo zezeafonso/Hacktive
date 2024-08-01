@@ -61,7 +61,7 @@ def found_domain_for_dc_host(host, domain):
 		# check for different domains
 		if host.check_if_host_has_domain():
 			# different domains
-			if host.get_domain != domain:
+			if id(host.get_domain) != id(domain):
 				logger.debug(f"Found that host ({host.get_ip()}) is DC for different domain\
         			previous ({host.get_domain().get_domain_name()}) \
                		present ({domain.get_domain_name()})")
