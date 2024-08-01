@@ -75,6 +75,7 @@ class LdapServer:
 		with sharedvariables.shared_lock:
 			data = dict()
 			data['LDAP Server'] = dict()
+			data['LDAP Server']['Host'] = id(self.get_host())
 			data['LDAP Server']['domain name'] = self.get_host().get_domain().get_domain_name()
 			return data
 
