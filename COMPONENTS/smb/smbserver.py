@@ -31,8 +31,8 @@ class SMBServer:
 		self.shares = list() # list of shares in the SMB server
 		self.port = port # might be None
 		self.domain = None # the associated domain, might be useful 
-		self.smbv1 = False # not enabled
-		self.signing = True # By default is True
+		self.smbv1 = None # not enabled
+		self.signing = None # By default is True
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
