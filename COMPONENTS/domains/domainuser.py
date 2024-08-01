@@ -98,6 +98,8 @@ class DomainUser(AbstractNetworkComponent):
 
 			self.distinguished_name = distinguished_name
 			logger.debug(f"New distinguished name ({distinguished_name}) set.")
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
 				
     
@@ -111,4 +113,6 @@ class DomainUser(AbstractNetworkComponent):
 
 			self.user_principal_name = user_principal_name
 			logger.debug(f"New user principal name ({user_principal_name}) set.")
+			# we updated this object
+			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
