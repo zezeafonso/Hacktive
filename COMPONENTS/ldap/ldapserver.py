@@ -8,6 +8,7 @@ import COMPONENTS.ldap.componentupdater as componentupdater
 
 # methods
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
+from COMPONENTS.ldap.querymetadatawindapsearch.method import QueryMetadataWindapsearch
 
 class LdapServer:
 	"""
@@ -20,7 +21,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [QueryRootDSEOfDCThroughLDAP]
+	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch]
 
 	def __init__(self, host):
 		self.host = host
