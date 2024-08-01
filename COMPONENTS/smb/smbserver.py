@@ -52,8 +52,8 @@ class SMBServer:
 		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		context = dict()
 		context['ip'] = self.host.get_ip() # the ip of host
-		context['network_address'] = self.get_network().get_network_address()
-		context['interface_name'] = self.get_interface().get_interface_name()
+		context['network_address'] = self.get_host().get_network().get_network_address()
+		context['interface_name'] = self.get_host().get_interface().get_interface_name()
 		context['domain_name'] = self.domain
 		context['smb_server'] = self # doesn't work 
 
