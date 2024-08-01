@@ -32,7 +32,7 @@ Neste caso será qualquer coisa como domains/domain_name/msrpc/<msrpc-server-ip>
 
 ### Goals hoje
 Extrair o DNS hostname dos hosts através do root ldap.
-- vamos fazer isso através do go-windapsearch.
+- vamos fazer isso através do go-windapsearch. 
 - depois podemos passar para o pywerview
 DNS hostname e depois começar com o LDAP.
 
@@ -40,6 +40,13 @@ DNS hostname e depois começar com o LDAP.
 
 
 ### updated Goals.
+Vou arrumar com o windapsearch, fazer as procuras todas acho que é demasiado, mas os users, groups e computers e assim acho que consigo.
+Posso também procurar as policies. 
+
+
+O pywerview fica para a outra semana, também já entra na lista de coisas que é mais da rede.
+Em relação aos shares do SMB também não sei como vamos apresentar a info.
+
 
 
 
@@ -51,7 +58,13 @@ DNS hostname e depois começar com o LDAP.
 
 
 ## Work
+Fiz o DNS hostname através do root ldap.
+Resolvi o BUG dos objetos. quase 2 horas para isto.
 
+coloquei a máquina a aceitar nós listarmos os users pelo ldap.
+criei o método de listar os users.
+Falta fazer o update da informação que temos sobre os users.
+Falta mostrar as shares que há lá no bicho. 
 
 
 ### horas

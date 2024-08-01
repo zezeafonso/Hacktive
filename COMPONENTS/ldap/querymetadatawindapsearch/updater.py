@@ -33,8 +33,6 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
        			found dns hostname {dns_hostname}")
    
 			found_dns_hostname_for_host(host, dns_hostname)
-			print(f'DNS hostname: {ldap_server.get_host().dns_hostname}')
-			ldap_server.test = '2'
    
 		if isinstance(filtered_obj, Filtered_founddefaultnamingcontext):
 			host = ldap_server.get_host()

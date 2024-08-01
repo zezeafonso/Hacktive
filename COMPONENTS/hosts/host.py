@@ -195,7 +195,6 @@ class Host(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			data = dict()
 			data['Host'] = dict()
-			data['Host']['address'] = id(self)
 			data['Host']['ip'] = self.get_ip()
 			data['Host']['hostname'] = self.get_netbios_hostname()
 			data['Host']['roles'] = list()

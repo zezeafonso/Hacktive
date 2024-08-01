@@ -9,6 +9,7 @@ import COMPONENTS.ldap.componentupdater as componentupdater
 # methods
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
 from COMPONENTS.ldap.querymetadatawindapsearch.method import QueryMetadataWindapsearch
+from COMPONENTS.ldap.retrievelistofuserswithwindapsearch.method import RetrieveListUsersWithWindapsearch
 
 class LdapServer:
 	"""
@@ -21,7 +22,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch]
+	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch, RetrieveListUsersWithWindapsearch]
 
 	def __init__(self, host):
 		self.host = host
@@ -76,10 +77,7 @@ class LdapServer:
 		with sharedvariables.shared_lock:
 			data = dict()
 			data['LDAP Server'] = dict()
-			data['LDAP Server']['Host'] = id(self.get_host())
-			data['LDAP Server']['dnshostname'] = self.get_host().get_dns_hostname()
 			data['LDAP Server']['domain name'] = self.get_host().get_domain().get_domain_name()
-			data['LDAP Server']['test'] = self.test
 			return data
 
 	def auto_function(self):
