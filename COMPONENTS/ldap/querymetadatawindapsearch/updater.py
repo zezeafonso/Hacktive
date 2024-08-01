@@ -22,7 +22,7 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
 		interface = sharedvariables.root_obj.get_interface_or_create_it(int_name)
 		network = interface.get_network_or_create_it(net_name)
 		host = network.get_ip_host_or_create_it(ip)
-		ldap_server = host.get_ldap_server_obj(host)
+		ldap_server = host.get_ldap_server_obj()
 
 	for filtered_obj in filtered_objects:
 		# FOUND A DOMAIN COMPONENTS PATH
