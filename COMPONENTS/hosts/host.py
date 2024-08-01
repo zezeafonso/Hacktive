@@ -180,6 +180,10 @@ class Host(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			return self.path['host']
 
+	def get_dns_hostname(self):
+		with sharedvariables.shared_lock:
+			return self.dns_hostname
+
 	
 
 	"""
@@ -195,7 +199,7 @@ class Host(AbstractNetworkComponent):
 			data['Host']['ip'] = self.get_ip()
 			data['Host']['hostname'] = self.get_netbios_hostname()
 			data['Host']['roles'] = list()
-			data['Host']['DNS hostname'] = self.dns_hostname 
+			data['Host']['DNS hostname'] = self.get_dns_hostname() 
 			# for each role i want to show what it has
 			for role_name in self.roles:
 				data['Host']['roles'].append(self.roles[role_name].display_json())
