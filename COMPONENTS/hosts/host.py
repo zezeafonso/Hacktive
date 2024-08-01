@@ -63,7 +63,7 @@ class Host(AbstractNetworkComponent):
 		self.fqdn = None
 		self.domain = None # the domain object
 		self.domain_role = None # the role this host has in the domain
-		self.ad_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
+		#self.ad_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
 		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj; 'LdapServer'
 		self.ports = dict()
   

@@ -27,6 +27,7 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
        			found dns hostname {dns_hostname}")
    
 			found_dns_hostname_for_host(host, dns_hostname)
+			print(f'DNS hostname: {host.dns_hostname}')
    
 		if isinstance(filtered_obj, Filtered_founddefaultnamingcontext):
 			default_nc = filtered_obj.get_naming_context()
