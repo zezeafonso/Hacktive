@@ -131,6 +131,7 @@ class SMBServer:
 			logger.debug(f"Updating the value of smbv1 enabled to \
        			({value}) @ ({self.get_ip()})")
 			self.smbv1 = value
+			logger.debug(f"updated value: {self.smbv1}")
 			return 
 
 

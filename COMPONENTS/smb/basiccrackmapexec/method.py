@@ -78,6 +78,8 @@ class BasicCrackMapExec(AbstractMethod):
 		"""
 		if context['ip'] is None:
 			return 
+		if context['smb_server'] is None:
+			return
 		return True
 
 	@staticmethod
