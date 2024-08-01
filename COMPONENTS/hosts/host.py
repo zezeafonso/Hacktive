@@ -189,6 +189,7 @@ class Host(AbstractNetworkComponent):
 			data['Host']['ip'] = self.get_ip()
 			data['Host']['hostname'] = self.get_netbios_hostname()
 			data['Host']['roles'] = list()
+			data['Host']['DNS hostname'] = self.dns_hostname 
 			# for each role i want to show what it has
 			for role_name in self.roles:
 				data['Host']['roles'].append(self.roles[role_name].display_json())
