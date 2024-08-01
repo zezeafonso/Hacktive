@@ -14,7 +14,7 @@ def retrieve_list_users_with_windapsearch_updater(context:dict, filtered_objects
    	"""
 	with sharedvariables.shared_lock:
 		domain_name = context['domain_name']
-		domain = sharedvariables.root_obj.get_or_create_domain(domain_name)
+		#domain = sharedvariables.root_obj.get_or_create_domain(domain_name)
 
 		for fo in filtered_objects:
 			if isinstance(fo, Filtered_FoundDistinguishedNameForDomainUser):
