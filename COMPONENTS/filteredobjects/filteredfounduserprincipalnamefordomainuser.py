@@ -6,8 +6,7 @@ class Filtered_FoundUserPrincipalNameForDomainUser(AbstractFilteredObject):
 		self.user_principal_name = user_principal_name 
 
 	def display(self):
-		return f"Found user principal name: ({self.user_principal_name}) \ 
-for user: ({self.username})"
+		return f"Found user principal name: ({self.user_principal_name}) for user: ({self.username})"
 
 	def captured(self) -> dict:
 		return {'user principal name':self.user_principal_name, \
