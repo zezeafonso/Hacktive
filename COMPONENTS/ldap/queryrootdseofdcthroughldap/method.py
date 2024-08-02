@@ -10,7 +10,14 @@ from COMPONENTS.ldap.queryrootdseofdcthroughldap.updater import update_query_roo
 
 from LOGGER.loggerconfig import logger
 
+
 class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
+	"""
+    CAUTION: This method is used when we find that a host 
+    is a netbios group DC, and is launched by that network components
+    which means, that there might not be an LDAP server associated
+    at the time this method runs. So be aware of updates to ldap servers
+    """
 	_name = "query root dse of DC through LDAP"
 	_filename = "outputs/nmap-script-rootdse-LDAP"
 	_previous_args = set()

@@ -34,15 +34,15 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 		if network is None: # not interested in this network
 			return 
 		host = network.get_ip_host_or_create_it(context['ip'])
-
+	
+	# Domain components must be first so we can add first the LDAP server 
+	# to the host, so we can then do the other operations.
 	for filtered_obj in filtered_objects:
-		# domain components path
 		if isinstance(filtered_obj, Filtered_FoundDomainComponentsFromLDAPQuery):
 			logger.debug(f"filter for ldap query to ip ({host.ip}) found new root domain path {filtered_obj.get_dc_path()}")
 
 			domain_components_path = filtered_obj.get_dc_path()
 			found_new_domain_components_path_ldap(host, domain_components_path)
-
 		# dns hostname
 		if isinstance(filtered_obj, Filtered_founddnshostname):
 			dns_hostname = filtered_obj.get_dns_hostname()
@@ -51,6 +51,9 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	
 			found_dns_hostname_for_host(host, dns_hostname)
 
+	# supported ldap version must be last so that ldap server is 
+	# created
+	for filtered_obj in filtered_objects:
 		# supported ldap version
 		if isinstance(filtered_obj, Filtered_FoundSupportedLdapVersion):
 			version = filtered_obj.get_version()

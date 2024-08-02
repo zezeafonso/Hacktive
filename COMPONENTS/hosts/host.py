@@ -121,10 +121,10 @@ class Host(AbstractNetworkComponent):
 		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Getting the ldap server for host ({self.get_ip()})")
-			if 'ldap server' not in self.roles:
+			if 'LdapServer' not in self.roles:
 				logger.debug(f"Host ({self.get_ip()}) didn't have a ldap server")
 				return None
-			return self.roles['ldap server']
+			return self.roles['LdapServer']
 
 
 	def get_netbios_hostname(self):
@@ -308,7 +308,7 @@ class Host(AbstractNetworkComponent):
 		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"checking if host ({self.get_ip()} has ldap server role)")
-			if self.roles['ldap server'] is None:
+			if self.roles['LdapServer'] is None:
 				logger.debug(f"host ({self.get_ip()}) does not have ldap server role")
 				return False
 			logger.debug(f"Host ({self.get_ip()}) has ldap server role")
@@ -322,7 +322,7 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"Adding a ldap server role to this host ({self.get_ip()})")
 
 			ldap_server = LdapServer(self)
-			self.roles['ldap server'] = ldap_server
+			self.roles['LdapServer'] = ldap_server
 
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)

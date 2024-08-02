@@ -224,6 +224,8 @@ class NetBIOSWorkstation:
 
 				# domain controller role
 				if netbiosgroup.type == '1c':
+					# Found that this host might be a Domain Controller
+					# add domain controller services to the host (or at least test them)
 					return self.create_and_associate_netbios_dc_group_role(netbiosgroup)
 				return
 
