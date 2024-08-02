@@ -56,15 +56,14 @@ class SMBServer:
 		context['interface_name'] = self.get_host().get_interface().get_interface_name()
 		if self.domain is not None:
 			context['domain_name'] = self.domain.get_domain_name()
-		context['smb_server'] = self # doesn't work 
-
-		# check if host got an associated domain (precaution)
-		if context['domain_name'] is None:
+		else:
 			host = self.host
 			domain = host.get_domain()
 			if domain is not None:
 				context['domain_name'] = domain.get_domain_name()
 				self.domain = domain
+		context['smb_server'] = self # doesn't work 
+
 		return context
 
 

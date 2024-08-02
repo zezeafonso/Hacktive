@@ -50,14 +50,13 @@ class LdapServer:
 			context['interface_name'] = self.host.get_network().get_interface().get_interface_name()
 			if self.domain is not None:
 				context['domain_name'] = self.domain.get_domain_name()
-
-			# check if host got an associated domain (precaution)
-			if context['domain_name'] is None:
+			else:
 				host = self.host
 				domain = host.get_domain()
 				if domain is not None:
 					context['domain_name'] = domain.get_domain_name()
 					self.domain = domain
+
 			return context
 
 
