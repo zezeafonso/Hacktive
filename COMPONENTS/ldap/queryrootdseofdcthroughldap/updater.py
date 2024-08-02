@@ -4,7 +4,9 @@ import THREADS.sharedvariables as sharedvariables
 
 from COMPONENTS.ldap.componentupdater import found_new_domain_components_path_ldap
 from COMPONENTS.filteredobjects.filteredfounddomaincomponentsfromldapquery import Filtered_FoundDomainComponentsFromLDAPQuery
+from COMPONENTS.filteredobjects.filteredfounddnshostname import Filtered_founddnshostname
 
+from COMPONENTS.hosts.componentupdater import found_dns_hostname_for_host
 
 def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	"""
@@ -39,3 +41,11 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 
 			domain_components_path = filtered_obj.get_dc_path()
 			found_new_domain_components_path_ldap(host, domain_components_path)
+   
+		if isinstance(filtered_obj, Filtered_founddnshostname):
+			dns_hostname = filtered_obj.get_dns_hostname()
+			logger.debug(f"Filter for ldap root dse query to ({host.ip})\
+       found the dnshostname ({dns_hostname})")
+	
+			found_dns_hostname_for_host(host, dns_hostname)
+

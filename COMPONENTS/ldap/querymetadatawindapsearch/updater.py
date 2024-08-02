@@ -25,7 +25,7 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
 		ldap_server = host.get_ldap_server_obj()
 
 	for filtered_obj in filtered_objects:
-		# FOUND A DOMAIN COMPONENTS PATH
+		# found dns hostname
 		if isinstance(filtered_obj, Filtered_founddnshostname):
 			dns_hostname = filtered_obj.get_dns_hostname()
 			host = ldap_server.get_host()
@@ -33,7 +33,8 @@ def query_metadata_windapsearch_updater(context:dict, filtered_objects:list):
        			found dns hostname {dns_hostname}")
    
 			found_dns_hostname_for_host(host, dns_hostname)
-   
+
+		# found default naming context
 		if isinstance(filtered_obj, Filtered_founddefaultnamingcontext):
 			host = ldap_server.get_host()
 			default_nc = filtered_obj.get_naming_context()

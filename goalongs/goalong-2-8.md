@@ -14,11 +14,10 @@ e a parte do metasploit que acho que também seria engraçado.
 
 ### Goals TODO
 código:
-+ [PASSAR_OS_OBJETOS] Vamos mudar a estrutura do código para o contexto enviar já os objetos em vez de os nomes, apenas (ver se vale a pena) o que está no filter objects e que vem com nomes e nao objetos.
 + [FILTEROBJECTS] Os filter objects não terem um dicionário mas sim os valores. 
 + [CONTEXT] O context deve ser um objeto para nos conseguimos estandardizar o que passsamos para os métodos e como passamos.
 + [DOMAIN_METHODS] Falta as Trusts
-+ [DNS_HOSTNAME] Podemos extrair o bicho do root ldap 
++ [DNS_HOSTNAME] Podemos extrair o bicho do root ldap, mas já extraímos do windapsearch da metadata.
 
 métodos:
 Saber o SID de um user. - lookupnames
@@ -31,11 +30,9 @@ Neste caso será qualquer coisa como domains/domain_name/msrpc/<msrpc-server-ip>
 
 
 ### Goals hoje
-Extrair o DNS hostname dos hosts através do root ldap.
-- vamos fazer isso através do go-windapsearch. 
-- depois podemos passar para o pywerview
-DNS hostname e depois começar com o LDAP.
-
+ver o ldap do nmap.
+Podemos extrair por lá muitos mais objetos que aqueles que extraímos,
+pelo windapsearch. Se bem que o windapsearch deu uma boa.
 
 
 
@@ -48,11 +45,9 @@ O pywerview fica para a outra semana, também já entra na lista de coisas que �
 Em relação aos shares do SMB também não sei como vamos apresentar a info.
 
 
-
-
-
 ## IDEAS
-Colocarmos lá os users. 
+vamos melhorar o nmap como está para sacar as cenas do nmap.
+Não me parece nada impossível.
 
 ### IDEAS for tommorrow
 Mostrar as shares que encontrámos em cada SMB server.
@@ -62,17 +57,9 @@ Para podermos usar essa informação.
 
 
 ## Work
-Fiz o DNS hostname através do root ldap.
-Resolvi o BUG dos objetos. quase 2 horas para isto.
+vi o que o nmap conseguia fazer contra o ldap.
 
-coloquei a máquina a aceitar nós listarmos os users pelo ldap.
-criei o método de listar os users.
-Falta fazer o update da informação que temos sobre os users.
-	-> acho que a dos users está feita. Falta Testar, soma e segue.
-	-> FEITO, soma e segue.
-Falta mostrar as shares que há lá no bicho. 
-	-> AHHHHHH, yes
+Ainda conseguiu sacar muita informação.
 
 
 ### horas
-7

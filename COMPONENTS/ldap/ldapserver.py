@@ -22,12 +22,12 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [QueryRootDSEOfDCThroughLDAP, QueryMetadataWindapsearch, RetrieveListUsersWithWindapsearch]
+	methods = [QueryRootDSEOfDCThroughLDAP, RetrieveListUsersWithWindapsearch]
 
 	def __init__(self, host):
 		self.host = host
 		self.domain = None # (might be needed)
-		self.test = '1'
+		self.supported_versions = set() # in strings
   
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
   		# we updated this object
@@ -78,6 +78,10 @@ class LdapServer:
 			data = dict()
 			data['LDAP Server'] = dict()
 			data['LDAP Server']['domain name'] = self.get_host().get_domain().get_domain_name()
+			# supported versions (not serializable)
+			data['LDAP Server']['supported versions'] = list()
+			for version in self.supported_versions:
+				data['LDAP Server']['supported versions'].append(version)
 			return data
 
 	def auto_function(self):
@@ -124,4 +128,17 @@ class LdapServer:
 			self.domain = domain
 			# this object was updated
 			sharedvariables.add_object_to_set_of_updated_objects(self)
+			return 
+
+
+	def add_supported_versoins(self, version:str):
+		"""
+  		Checks if the version is already present.
+		If already present nothing happens.
+    	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"adding supported version : ({version}) to \
+       ldap server ({self.get_ip()})")
+			if version not in self.supported_versions:
+				self.supported_versions.add(version)
 			return 
