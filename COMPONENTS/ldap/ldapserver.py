@@ -131,7 +131,7 @@ class LdapServer:
 			return 
 
 
-	def add_supported_versoins(self, version:str):
+	def add_supported_version(self, version:str):
 		"""
   		Checks if the version is already present.
 		If already present nothing happens.
