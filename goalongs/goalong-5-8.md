@@ -3,6 +3,8 @@
 ## week goals
 Acabar o RPC.
 Acabar o SMB, acho que não há assim tanta coisa que precisemos de fazer.
+	-> acho que já tá feito. Podemos saber os dialectos mas para além disso...
+	-> podemos imprimir as shares que descobrimos.
 Começar e ficar a meio do LDAP.
 implementar o DHCP, acho que não será muito díficil obter a informação.
 
@@ -17,7 +19,6 @@ código:
 + [FILTEROBJECTS] Os filter objects não terem um dicionário mas sim os valores. 
 + [CONTEXT] O context deve ser um objeto para nos conseguimos estandardizar o que passsamos para os métodos e como passamos.
 + [DOMAIN_METHODS] Falta as Trusts
-+ [DNS_HOSTNAME] Podemos extrair o bicho do root ldap, mas já extraímos do windapsearch da metadata.
 
 métodos:
 Saber o SID de um user. - lookupnames
@@ -44,8 +45,11 @@ Ainda falta no RPC vermos algumas coisas.
 
 
 ### updated Goals.
-Vou arrumar com o windapsearch, fazer as procuras todas acho que é demasiado, mas os users, groups e computers e assim acho que consigo.
-Posso também procurar as policies. 
+Acabar a função que adiciona um atributo ao domain user.
+Fazer o updater do domain user que encontrarmos através do nmap.
+Meter os users do nmap a funcionar.
+
+
 
 
 O pywerview fica para a outra semana, também já entra na lista de coisas que é mais da rede.
@@ -53,8 +57,7 @@ Em relação aos shares do SMB também não sei como vamos apresentar a info.
 
 
 ## IDEAS
-vamos melhorar o nmap como está para sacar as cenas do nmap.
-Não me parece nada impossível.
+
 
 ### IDEAS for tommorrow
 Mostrar as shares que encontrámos em cada SMB server.
@@ -64,9 +67,7 @@ Para podermos usar essa informação.
 
 
 ## Work
-vi o que o nmap conseguia fazer contra o ldap.
 
-Ainda conseguiu sacar muita informação.
 
 
 ### horas

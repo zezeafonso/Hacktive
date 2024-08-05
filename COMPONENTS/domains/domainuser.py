@@ -83,7 +83,7 @@ class DomainUser(AbstractNetworkComponent):
 		"""
 		Checks if the user already has a record of this domaingroup.
   		Adds a domaingroup to the the groups this user belongs to
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			if domaingroup in self.groups:
 				return 
@@ -99,7 +99,7 @@ class DomainUser(AbstractNetworkComponent):
 	def add_distinguished_name(self, distinguished_name:str):
 		with sharedvariables.shared_lock:
 			logger.debug(f"Adding distinguished name ({distinguished_name})\
-       to user ({self.username})")
+	   to user ({self.username})")
 			if self.distinguished_name is not None:
 				logger.debug(f"User already had a distinguished name")
 				return 
@@ -110,11 +110,11 @@ class DomainUser(AbstractNetworkComponent):
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
 				
-    
+	
 	def add_user_principal_name(self, user_principal_name:str):
 		with sharedvariables.shared_lock:
 			logger.debug(f"Adding user principal name ({user_principal_name})\
-       to user ({self.username})")
+	   to user ({self.username})")
 			if self.user_principal_name is not None:
 				logger.debug(f"User already had a user principal name")
 				return 
@@ -124,3 +124,27 @@ class DomainUser(AbstractNetworkComponent):
 			# we updated this object
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
+
+
+	def add_attribute(self, attr_name:str, attr_value:str):
+		"""
+  		Adds an attribute to the domain user.
+		It will check if there is already one equal attribute.
+		If there is does nothing.
+		"""	
+		with sharedvariables.shared_lock:
+			# check if the attribute is there
+			logger.debug(f"Adding to user attribute ({attr_name}) with \
+	   value: ({attr_value})")
+			if hasattr(self, attr_name):
+				attr = getattr(self, attr_name)
+				# if it has value
+				if attr is not None:
+					logger.debug(f"Domain user already had attribute: ({attr_name}) with value: ({attr})")
+				else:
+					setattr(self, attr_name, attr_value)
+					logger.debug(f"Set attribute ({attr_name}) with value: ({attr_value})")
+			else:
+				setattr(self, attr_name, attr_value)
+				logger.debug(f"Created and set attribute ({attr_name}) with value: ({attr_value})")
+			
