@@ -48,7 +48,7 @@ class DomainUser(AbstractNetworkComponent):
 				if key == "domain":
 					continue
 				data[key] = value
-				return data
+			return data
 		#data['username'] = self.get_username()
 		#data['rid'] = self.get_rid()
 		#data['user principal name'] = self.get_user_principal_name()
