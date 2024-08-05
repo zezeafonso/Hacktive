@@ -45,7 +45,7 @@ class DomainUser(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			data = dict()
 			for key, value in self.__dict__.items():
-				if key == "domain":
+				if key == "domain" or key == "groups":
 					continue
 				data[key] = value
 			return data
