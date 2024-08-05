@@ -9,7 +9,7 @@ class Filtered_FoundDomainUserAttribute(AbstractFilteredObject):
 
 	def display(self):
 		return f"new domain attribute ({self.name}) with value ({self.value}) \
-      for domain user ({self.get_domain_name()})"
+      for domain user ({self.get_username()})"
 
 	def get_username(self):
 		return self.username
