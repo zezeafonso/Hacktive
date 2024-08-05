@@ -9,6 +9,7 @@ import COMPONENTS.ldap.componentupdater as componentupdater
 # methods
 from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCThroughLDAP
 from COMPONENTS.ldap.getusersldap.method import GetUsersLdap
+from COMPONENTS.ldap.getallnmap.method import GetAllLdap
 from COMPONENTS.ldap.querymetadatawindapsearch.method import QueryMetadataWindapsearch
 from COMPONENTS.ldap.retrievelistofuserswithwindapsearch.method import RetrieveListUsersWithWindapsearch
 
@@ -23,7 +24,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = [QueryRootDSEOfDCThroughLDAP, GetUsersLdap]
+	methods = [QueryRootDSEOfDCThroughLDAP, GetAllLdap]
 
 	def __init__(self, host):
 		self.host = host

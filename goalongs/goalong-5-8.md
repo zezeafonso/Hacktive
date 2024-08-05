@@ -49,6 +49,15 @@ Acabar a função que adiciona um atributo ao domain user.
 Fazer o updater do domain user que encontrarmos através do nmap.
 Meter os users do nmap a funcionar.
 
+Está feito!!
+Multo bene.
+Agora vamos fazer o mesmo para o que falta.
+
+Podemos passar os computer e o ad_dcs.
+Podemos fazer o all e extrair a informação a partir dali.
+A partir das coisas que sacamos conseguimos perceber se é um group, user ou diferente.
+E depois conseguir 
+
 
 
 
@@ -57,7 +66,8 @@ Em relação aos shares do SMB também não sei como vamos apresentar a info.
 
 
 ## IDEAS
-
+A partir das coisas que sacamos do nmap --all conseguimos perceber se é um group, user ou diferente.
+E depois criar os objetos a partir daí. 
 
 ### IDEAS for tommorrow
 Mostrar as shares que encontrámos em cada SMB server.

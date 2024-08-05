@@ -4,36 +4,35 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 from THREADS.events import Run_Event
 import THREADS.sharedvariables as sharedvariables
 
-
-from COMPONENTS.ldap.getusersldap.filter import GetUsersLdap_Filter
-from COMPONENTS.ldap.getusersldap.updater import get_users_ldap_updater
+from COMPONENTS.ldap.getallnmap.filter import GetAllLdap_Filter
+from COMPONENTS.ldap.getallnmap.updater import get_all_ldap_updater
 
 from LOGGER.loggerconfig import logger
 
-class GetUsersLdap(AbstractMethod):
-	_name = "retrieve list of users through ldap with nmap"
-	_filename = "outputs/list-users-nmap"
+class GetAllLdap(AbstractMethod):
+	_name = "retrieve all available information through nmap"
+	_filename = "outputs/get-all-nmap"
 	_previous_args = set()
-	_filter = GetUsersLdap_Filter
-	_updater = get_users_ldap_updater
+	_filter = GetAllLdap_Filter
+	_updater = get_all_ldap_updater
 
 	def __init__(self):
 		pass
 
 	@staticmethod
 	def to_str():
-		return f"{GetUsersLdap._name}"
+		return f"{GetAllLdap._name}"
 
 	@staticmethod
 	def create_run_events(context:dict=None) -> list:
 		
-		logger.debug(f"creating run events for method: {GetUsersLdap._name}")
+		logger.debug(f"creating run events for method: {GetAllLdap._name}")
 
 		if context is None:
 			logger.debug(f" GetUsersLdap didn't receive any context )")
 			return []
 
-		if not GetUsersLdap.check_context(context):
+		if not GetAllLdap.check_context(context):
 			return []
 
 		with sharedvariables.shared_lock:
@@ -41,20 +40,20 @@ class GetUsersLdap(AbstractMethod):
 			ip = context['ip']
 			# check if this method was already called with these arguments
 			args = tuple([ip]) # the tuple of args used 
-			if GetUsersLdap.check_if_args_were_already_used(args):
+			if GetAllLdap.check_if_args_were_already_used(args):
 				return []
 			# add this argument to the set of arguments that were already used
-			GetUsersLdap._previous_args.add(args)
+			GetAllLdap._previous_args.add(args)
 		
   		# command
-		cmd = f"sudo nmap -Pn -p 389 --script ldap-search --script-args \'ldap.qfilter=users\' {ip}"
+		cmd = f"sudo nmap -Pn -p 389 --script ldap-search --script-args \'all\' {ip}"
 
 		# output file
 		str_ip_address = ip.replace('.', '_')
-		output_file = GetUsersLdap._filename+'-'+str_ip_address +'.out'
+		output_file = GetAllLdap._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd,method=GetUsersLdap, context=context)]
+		return [Run_Event(type='run', filename=output_file, command=cmd,method=GetAllLdap, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):
@@ -72,7 +71,7 @@ class GetUsersLdap(AbstractMethod):
 		the run events
 		MUST BE USED WITH A LOCK
 		"""
-		if arg in GetUsersLdap._previous_args:
+		if arg in GetAllLdap._previous_args:
 			logger.debug(f"arg for QueryRootDSEOfDCThroughLDAP was already used ({arg})")
 			return True 
 		return False 

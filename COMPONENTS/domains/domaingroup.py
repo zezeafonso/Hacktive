@@ -39,6 +39,13 @@ class DomainGroup(AbstractNetworkComponent):
 				send_run_event_to_run_commands_thread(event)
 
 	def display_json(self):
+		with sharedvariables.shared_lock:
+			data = dict()
+			for key, value in self.__dict__.items():
+				if key == "domain" or key == "users":
+					continue
+				data[key] = value
+			return data
 		data = dict()
 		data['groupname'] = self.get_groupname()
 		data['rid'] = self.get_rid()
@@ -80,3 +87,26 @@ class DomainGroup(AbstractNetworkComponent):
 			self.users.add(domainuser)
 
 			sharedvariables.add_object_to_set_of_updated_objects(self)
+   
+   
+	def add_attribute(self, attr_name:str, attr_value:str):
+		"""
+  		Adds an attribute to the domain group.
+		It will check if there is already one equal attribute.
+		If there is does nothing.
+		"""	
+		with sharedvariables.shared_lock:
+			# check if the attribute is there
+			logger.debug(f"Adding to group attribute ({attr_name}) with value: ({attr_value})")
+			if hasattr(self, attr_name):
+				attr = getattr(self, attr_name)
+				# if it has value
+				if attr is not None:
+					logger.debug(f"Domain user already had attribute: ({attr_name}) with value: ({attr})")
+				else:
+					setattr(self, attr_name, attr_value)
+					logger.debug(f"Set attribute ({attr_name}) with value: ({attr_value})")
+			else:
+				setattr(self, attr_name, attr_value)
+				logger.debug(f"Created and set attribute ({attr_name}) with value: ({attr_value})")
+	
