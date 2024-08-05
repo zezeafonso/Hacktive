@@ -42,11 +42,17 @@ class DomainUser(AbstractNetworkComponent):
 				send_run_event_to_run_commands_thread(event)
 
 	def display_json(self):
-		data = dict()
-		data['username'] = self.get_username()
-		data['rid'] = self.get_rid()
-		data['user principal name'] = self.get_user_principal_name()
-		data['distinguished name'] = self.get_distinguished_name()
+		with sharedvariables.shared_lock:
+			data = dict()
+			for key, value in self.__dict__.items():
+				if key == "domain":
+					continue
+				data[key] = value
+				return data
+		#data['username'] = self.get_username()
+		#data['rid'] = self.get_rid()
+		#data['user principal name'] = self.get_user_principal_name()
+		#data['distinguished name'] = self.get_distinguished_name()
 		return data
 
 	def get_username(self):
