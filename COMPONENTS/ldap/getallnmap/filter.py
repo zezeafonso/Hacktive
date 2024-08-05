@@ -3,6 +3,7 @@ import re
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
 
 from COMPONENTS.filteredobjects.filteredfounddomainuserattribute import Filtered_FoundDomainUserAttribute
+from COMPONENTS.filteredobjects.filteredfounddomaingroupattribute import Filtered_FoundDomainGroupAttribute
 
 
 def filter_group_info_from_chunk(chunk):
@@ -31,7 +32,7 @@ def filter_group_info_from_chunk(chunk):
 	# after parsing, for every attribute
 	for attr_name in group_info:
 		# create the filtered object for the attribute
-		fo = Filtered_FoundDomainUserAttribute(groupname, attr_name, group_info[attr_name])
+		fo = Filtered_FoundDomainGroupAttribute(groupname, attr_name, group_info[attr_name])
 		findings.append(fo)
 	
 	return findings
