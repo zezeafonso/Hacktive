@@ -16,6 +16,8 @@ def filter_group_attributes(chunk_lines):
 	group_info = dict()
 	findings = list()
  
+	groupname = None
+ 
 	# for each output line
 	for line in chunk_lines:
 		if 'description:' in line:
@@ -54,6 +56,8 @@ def filter_user_attributes(chunk_lines):
     """
 	user_info = dict()
 	findings = list()
+ 
+	username = None
 	
 	# for each output line
 	for line in chunk_lines:
