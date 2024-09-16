@@ -5,9 +5,6 @@ __pycache__/
 # ignore the outputs
 outputs/
 
-# ignore the reports
-goalong/
-
 # ignore the scripts
 scripts/
 
@@ -18,5 +15,5 @@ app.log
 # ignore the final output json
 final.json
 
-# ignore the states
+# ignore the files in states
 states/

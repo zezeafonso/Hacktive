@@ -1,0 +1,44 @@
+[RESOLVIDO]
+Agora temos um bug mais a sério parece ficar em deadlock, ou simplesmente à espera de algo.
+	-> o commands listener não está a receber o evento 'Done' o último de todos do event-done-thread. Por isso ele deve estar meio perdido nalguma operação.
+	-> penso que o bug era simplesmente porque da maneira como estávamos a fazer o comando do rpcclient sem especificar user anónimo sem password ele não estava a fazer nada. 
+estamos a adicionar mal as domains truts:
+	-> pode ser o filter incorreto.
+	-> era o filter do root dse, estávamos a ler o campo errado.
+
+[IMPLEMENTACOES]
+entretanto descobri isto:
+	-> Dava jeito quando recebemos um return code diferente do normal não damos parse do output. Podemos simplesmente escrever o output para o ficheiro do comando.
+	-> adicionei o check para ver se o comando correu corretamente. Quando foi erro, e colocamos que não filtrou nada.
+
+Lista de usernames e groupnames
+	-> Alguns próximos métodos vão precisar de saber a lista de usernames e groups para poderem correr, por isso isto vai ter que fazer parte do estado do Domain e os MS-RPC's ou hosts vão ter que fazer parte dos depedent objects.
+	-> Utilizei uma lista de usernames e uma de users (separada).
+
+Adicionar os dependent objects ao domain.
+	-> Quando descobrimos um domain vamos ver se ele já tem os roles do MSRPC e do LDAP e adicionamos. Agora tenho de fazer ao contrário, caso encontremos o MSRPC e o dlap depois.
+	-> Já está também, sempre que fazemos um get_context e encontramos o domain tentamos junta-los aos dependent objects do domain. Desta forma, ele é adicionado como deve ser. 
+
+Implementei os Domain users.
+	-> Ficaram como se fossem network components
+
+Implementei os métodos precisarem do domain quando são lançados.
+	-> É simplesmente quando fazemos o create events.
+
+
+14:15
+
+[PARA IMPLEMENTAR]
++ Se calhar devíamos passar a fazer uma função à lista privada de users do domain. Dessa forma conseguíamos sacar as informações que queremos dos users e colocar em listas. Os Rid's, os usernames etc.
+
++ Temos de ter cuidado com os dependent objects, o MS-RPC e o LDAP server vão percisar de informação sobre os domínios. O DNS também utilizaria, o kerberos possivelmente também vai utilizar mas pronto. Temos de sempre controlar a que é que os objetos dependem
+
++ Quero implementar o Nmap e todas as coisas que conseguimos sacar dele. Ou as mais usadas pelo menos no nosso contexto, portanto MS-RPC, 
+
++ Implementar a Forest a que pertencem os domains.
+- podemos saber quem é o root domain através do root DSE!!!
+é pesquisar pelo rootDomainNamingContext em vez do default
+
+Em termos de código:
+	-> ainda temos de passar os métodos para atributos para ficar mais simples saber quando já correram e essas coisas.
+	-> ainda temos de passar as coisas para mais ficheiros e folders.
