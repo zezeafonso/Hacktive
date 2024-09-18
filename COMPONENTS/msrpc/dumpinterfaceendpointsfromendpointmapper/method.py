@@ -50,7 +50,7 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 
 
 		# command to run 
-		cmd = f"rpcdump.py {ip}"
+		cmd = f"impacket-rpcdump {ip}"
 
 		# output file 
 		str_ip_address = ip.replace('.', '_')
