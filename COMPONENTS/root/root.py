@@ -54,7 +54,7 @@ class Root():
 						sys.path.append(dir_path) # add this path to the sys 
 						module_import_path = f"{module_name}.method"
 						# Import the module dynamically
-						module = importlib.import_module(module_import_path, package=dir_path)
+						module = importlib.import_module(module_import_path, package=__name__)
 						# import the method class
 						method_class = getattr(module, method_name)
 						cls.methods.append(method_class)
