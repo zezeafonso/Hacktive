@@ -14,7 +14,7 @@ class DomainGroup(AbstractNetworkComponent):
 	"""
 	Defines the class for a Domain group and the attributes of interest.
 	"""
-	methods = [] # I even doubt that he will have one
+	methods = None # I even doubt that he will have one
 	#methods = []
  
 	def __init__(self, domain, groupname:str, rid:str=None):

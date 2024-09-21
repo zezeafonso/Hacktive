@@ -10,7 +10,7 @@ from COMPONENTS.ldap.queryrootdseofdcthroughldap.method import QueryRootDSEOfDCT
 
 class NetBIOSGroupDC:
     # it would be a good idea to check the DNS for LDAP as well
-	methods = []
+	methods = None
 
 	def __init__(self, host, netbiosgroup):
 		self.host = host

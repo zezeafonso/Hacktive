@@ -1,3 +1,6 @@
+import importlib
+from pathlib import Path
+
 from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 
@@ -9,7 +12,7 @@ class NetBIOSMBServer:
 	TODO:
 	- add the method of checking if the smb is actually alive
 	"""
-	methods = []
+	methods = None
 
 	def __init__(self, host):
 		self.host = host

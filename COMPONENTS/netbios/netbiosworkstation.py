@@ -22,7 +22,7 @@ class NetBIOSWorkstation:
 
 	Each of these roles is placed in a dictionary along with the group
 	"""
-	methods = []
+	methods = None
 
 	def __init__(self, host=None, hostname=None):
 		"""

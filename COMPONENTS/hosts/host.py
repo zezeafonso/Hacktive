@@ -50,7 +50,7 @@ class Host(AbstractNetworkComponent):
 		- NetBIOS DC (inside workstation)
 	"""
 	#methods = {Methods.PortScan._name: Methods.PortScan}
-	methods = []
+	methods = None
 	
 	def __init__(self, path:dict, ip:str=None,hostname:str=None):
 		if hostname is not None:

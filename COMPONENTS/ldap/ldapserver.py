@@ -27,7 +27,7 @@ class LdapServer:
 	smb: 139
 	msrpc: 135
 	"""
-	methods = []
+	methods = None
 
 	def __init__(self, host):
 		self.host = host

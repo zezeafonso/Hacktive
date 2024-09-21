@@ -17,7 +17,7 @@ class MSRPCServer:
 	The port for MSRPC is usually 
 	"""
 	# the methods that use rpc from domains should be launched in the domain not here.
-	methods = []
+	methods = None
 
 	def __init__(self, host='Host', port=str):
 		self.host = host
@@ -101,7 +101,6 @@ class MSRPCServer:
 		The function that's responsible for calling the auto methods.
 		"""
 		with sharedvariables.shared_lock:
-			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
 				list_events = method.create_run_events(self.get_context())
 				for event in list_events:

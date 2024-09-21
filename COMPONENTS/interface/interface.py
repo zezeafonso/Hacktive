@@ -17,7 +17,7 @@ class Interface(AbstractNetworkComponent):
 	- dhcp broadcast discover 
 	- responder analyzer (more on this later)
 	"""
-	methods = []
+	methods = None
 
 	def __init__(self, interface_name:str, path:dict):
 		self.interface_name = interface_name

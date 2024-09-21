@@ -24,7 +24,7 @@ class SMBServer:
 	+ list shares
 	+ spider shares
  	"""
-	methods = []
+	methods = None
 
 	def __init__(self, host='Host', port=str):
 		self.host = host

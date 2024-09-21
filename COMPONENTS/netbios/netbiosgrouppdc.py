@@ -7,7 +7,7 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 from LOGGER.loggerconfig import logger
 
 class NetBIOSGroupPDC:
-	methods = []
+	methods = None
 
 	def __init__(self, host, netbiosgroup):
 		self.host = host

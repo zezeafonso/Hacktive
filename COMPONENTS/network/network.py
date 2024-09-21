@@ -21,7 +21,7 @@ class Network(AbstractNetworkComponent):
 	- get the dns server for it
 
 	"""
-	methods = []
+	methods = None
 	
 	def __init__(self, network_address:str, path:dict):
 		self.network_address = network_address

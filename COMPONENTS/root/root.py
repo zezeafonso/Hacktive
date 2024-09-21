@@ -18,7 +18,7 @@ class Root():
 	"""
 	The methods to be run should come from a file not hardcoded.
 	"""
-	methods = []
+	methods = None
 
 	def __init__(self):
 		self.interfaces = {}

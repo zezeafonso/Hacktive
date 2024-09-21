@@ -15,7 +15,7 @@ class DomainUser(AbstractNetworkComponent):
 	"""
 	Defines the class for a domain user and the attributes of interest.
 	"""
-	methods = [] 
+	methods = None
 
 	def __init__(self, domain, username:str=None, rid:str=None):
 		# username and rid can't be both None

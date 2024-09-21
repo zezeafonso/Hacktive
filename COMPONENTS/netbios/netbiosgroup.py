@@ -11,7 +11,7 @@ from COMPONENTS.netbios.nbnsgroupmembers.method import NBNSGroupMembers
 
 
 class NetBIOSGroup():
-	methods = [NBNSGroupMembers]
+	methods = None
 
 	def __init__(self, group_name, group_type):
 		"""

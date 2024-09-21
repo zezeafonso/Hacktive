@@ -11,7 +11,7 @@ class DomainShare(AbstractNetworkComponent):
 	"""
 	Defines the class for a domain user and the attributes of interest.
 	"""
-	methods = [] # for now still none
+	methods = None # for now still none
  
 	def __init__(self, domain, msrpc_server, sharename:str):
 		with sharedvariables.shared_lock:
