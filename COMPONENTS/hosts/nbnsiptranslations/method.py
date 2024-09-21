@@ -6,8 +6,8 @@ import THREADS.sharedvariables as sharedvariables
 
 
 from LOGGER.loggerconfig import logger
-from COMPONENTS.netbios.nbnsiptranslations.filter import NBNSIPTranslation_Filter
-from COMPONENTS.netbios.nbnsiptranslations.updater import update_ip_to_host_nbns
+from COMPONENTS.hosts.nbnsiptranslations.filter import NBNSIPTranslation_Filter
+from COMPONENTS.hosts.nbnsiptranslations.updater import update_ip_to_host_nbns
 
 
 class NBNSIPTranslation(AbstractMethod):

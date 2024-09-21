@@ -1,5 +1,6 @@
 import threading
 from concurrent.futures import ThreadPoolExecutor
+import json
 
 from COMPONENTS.root.root import Root
 from THREADS.runcommandsthread import commands_listener
@@ -7,12 +8,18 @@ from THREADS.parseoutputsthread import outputs_listener
 import THREADS.sharedvariables as sharedvariables
 from LOGGER.loggerconfig import logger
 
+
+import input_json as IJ
 import output_json as OJ
 
 
 def main():
 	# initialize the shared objects 
 	sharedvariables.initialize()
+	
+	# initialize the json methods configuration
+	methods_json = IJ.read_config_methods() 
+	sharedvariables.initialize_methods_list(methods_json)
 
 	# the thread pool executor for running commands
 	thread_pool = ThreadPoolExecutor(max_workers=3)

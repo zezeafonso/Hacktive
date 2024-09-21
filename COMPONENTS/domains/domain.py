@@ -1,4 +1,6 @@
 import copy
+import importlib
+from pathlib import Path
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from COMPONENTS.ldap.ldapserver import LdapServer
@@ -27,7 +29,7 @@ class Domain(AbstractNetworkComponent):
 	change the methods to receive the context like this
  	methods = [EnumDomainsThroughRPC, EnumDomainTrustsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
   	"""
-	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
+	methods = []
 	roles = ["DC", "machine"]
 
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
@@ -55,7 +57,39 @@ class Domain(AbstractNetworkComponent):
   
 		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
+		self.load_methods()
+  
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = []
+				
+				# Determine the current file's directory
+				current_file_path = Path(__file__).parent
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("methods", [])
 
+				for method_entry in methods_config:
+					module_name = method_entry["module"]
+					method_name = method_entry["method"]
+					
+					try:
+						# Dynamically calculate the module path relative to current directory
+						module_relative_path = current_file_path / module_name
+						module_import_path = ".".join(module_relative_path.parts)  # Convert to module path format
+						
+						# Import the module dynamically
+						module = importlib.import_module(f"{module_import_path}.method")
+						method = getattr(module, method_name)
+						cls.methods.append(method)
+					except (ModuleNotFoundError, AttributeError) as e:
+						print(f"Error loading method {method_name} from {module_name}: {e}")
 
 
 	def get_context(self):
