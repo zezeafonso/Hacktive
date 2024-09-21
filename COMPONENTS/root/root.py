@@ -1,5 +1,7 @@
 import importlib
 from pathlib import Path
+import sys 
+import os
 
 from LOGGER.loggerconfig import logger
 
@@ -48,6 +50,7 @@ class Root():
 					
 					try:
 						# Dynamically calculate the module path as a relative import path
+						sys.path.append(os.path.dirname(current_file_path))
 						module_import_path = f"{module_name}.method"
 						# Import the module dynamically
 						module = importlib.import_module(module_import_path)
