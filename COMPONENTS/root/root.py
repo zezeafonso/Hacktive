@@ -52,9 +52,9 @@ class Root():
 						# Dynamically calculate the module path as a relative import path
 						dir_path = os.path.dirname(current_file_path)
 						sys.path.append(dir_path) # add this path to the sys 
-						module_import_path = f"{module_name}.method"
+						module_import_path = f"COMPONENTS.{__name__}.{module_name}.method"
 						# Import the module dynamically
-						module = importlib.import_module(module_import_path, package=__name__)
+						module = importlib.import_module(module_import_path)
 						# import the method class
 						method_class = getattr(module, method_name)
 						cls.methods.append(method_class)
