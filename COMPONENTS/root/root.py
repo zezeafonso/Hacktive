@@ -10,8 +10,8 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 from COMPONENTS.interface.interface import Interface
 from COMPONENTS.domains.domain import Domain
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
-
 from COMPONENTS.root.listinterfaces.method import ListInterfaces
+
 
 
 class Root():
@@ -47,14 +47,13 @@ class Root():
 					method_name = method_entry["method"]
 					
 					try:
-						# Dynamically calculate the module path relative to current directory
-						module_relative_path = current_file_path / module_name
-						module_import_path = ".".join(module_relative_path.parts)  # Convert to module path format
-						
+						# Dynamically calculate the module path as a relative import path
+						module_import_path = f"{module_name}.method"
 						# Import the module dynamically
-						module = importlib.import_module(f"{module_import_path}.method")
-						method = getattr(module, method_name)
-						cls.methods.append(method)
+						module = importlib.import_module(module_import_path)
+						# import the method class
+						method_class = getattr(module, method_name)
+						cls.methods.append(method_class)
 					except (ModuleNotFoundError, AttributeError) as e:
 						print(f"Error loading method {method_name} from {module_name}: {e}")
 		
