@@ -20,6 +20,7 @@ class Root():
 	"""
 	The methods to be run should come from a file not hardcoded.
 	"""
+	string_to_class = {'ListInterfaces':ListInterfaces}
 	methods = None
 
 	def __init__(self):
@@ -47,8 +48,10 @@ class Root():
 				for method_entry in methods_config:
 					module_name = method_entry["module"]
 					class_name = method_entry["method"]
-					cls.methods.append(class_name)
-					print(class_name.to_str())
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
+						print(_class.to_str())
 					"""
 					#cls.methods.append(class_name) # specific class
 					try:
