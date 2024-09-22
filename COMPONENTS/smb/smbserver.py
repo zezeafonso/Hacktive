@@ -42,6 +42,9 @@ class SMBServer:
 		self.domain = None # the associated domain, might be useful 
 		self.smbv1 = None # not enabled
 		self.signing = None # By default is True
+		self.network_address = None 
+		self.interface_name = None
+		self.domain_name = None
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -83,16 +86,21 @@ class SMBServer:
 		logger.debug(f"getting context for SMBServer ({self.host.get_ip()})")
 		context = dict()
 		context['ip'] = self.host.get_ip() # the ip of host
-		context['network_address'] = self.get_host().get_network().get_network_address()
-		context['interface_name'] = self.get_host().get_interface().get_interface_name()
-		if self.domain is not None:
-			context['domain_name'] = self.domain.get_domain_name()
-		else:
-			host = self.host
-			domain = host.get_domain()
-			if domain is not None:
-				context['domain_name'] = domain.get_domain_name()
-				self.domain = domain
+		if self.network_address is None:
+			self.network_address = self.get_host().get_network().get_network_address()
+		context['network_address'] = self.network_address
+		if self.interface_name is None: 
+			self.interface_name = self.get_host().get_interface().get_interface_name()
+		context['interface_name'] = self.interface_name
+		if self.domain_name is None:
+			if self.domain is not None:
+				host = self.host
+				domain = host.get_domain()
+				if domain is not None:
+					self.domain = domain
+					self.domain_name = self.domain.get_domain_name()
+		context['domain_name'] = self.domain_name
+		
 		context['smb_server'] = self # doesn't work 
 
 		return context
