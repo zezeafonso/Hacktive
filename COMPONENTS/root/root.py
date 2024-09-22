@@ -47,6 +47,9 @@ class Root():
 				for method_entry in methods_config:
 					module_name = method_entry["module"]
 					class_name = method_entry["method"]
+					cls.methods.append(class_name)
+					print(class_name.to_str())
+					"""
 					#cls.methods.append(class_name) # specific class
 					try:
 						# Import the base module (technique1, technique2) directly
@@ -65,6 +68,7 @@ class Root():
 					
 					except ModuleNotFoundError:
 						raise ImportError(f"Module '{module_name}' not found")
+					"""
 					
 
 	# getters
