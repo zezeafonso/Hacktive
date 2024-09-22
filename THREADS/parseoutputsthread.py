@@ -80,6 +80,7 @@ def analyze_event(event):
 		# nothing to update
 		# states are the same as before
 		print(f"everything done for: ({cmd})")
+		print_state_network_components_after_cmd(cmd)
 		return 
 
 	# update the network components with these captured information from the filter
