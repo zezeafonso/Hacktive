@@ -73,7 +73,11 @@ class Network(AbstractNetworkComponent):
 			logger.debug(f"getting context for network ({self.network_address})")
 			context = dict()
 			context['network_address'] = self.get_network_address()
-			context['interface_name'] = self.get_interface().get_interface_name()
+			if self.interface_name is not None:
+				context['interface_name'] = self.interface_name
+			else:
+				self.interface_name = self.get_interface().get_interface_name()
+				context['interface_name'] = self.interface_name
 			context['our_ip'] = self.get_our_ip()
 			return context
 
