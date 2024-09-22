@@ -64,19 +64,15 @@ class Host(AbstractNetworkComponent):
 		self.path = path.copy()
 		self.path['host'] = self
 		self.dc = False
+		self.netbios_hostname = None
+		self.netbios_groups = dict() # group_obj: roles
 		self.dns_hostname = None
 		self.fqdn = None
 		self.domain = None # the domain object
 		self.domain_role = None # the role this host has in the domain
-		self.domain_name = None # the name of the domain it belongs to
-		self.network_address = None # the network address it belongs to
-		self.interface_name = None # the interface through which is reachable
-		self.netbios_hostname = None # name of hostname
-		self.netbios_groups = dict() # group_obj: roles
 		#self.ad_domain_roles = dict() # {domain_obj: role} - > the role might be None, 'DC' or 'PDC'
 		self.roles = dict() # class_name: obj - > ex: 'NetBIOSWorkstation':nw_obj; 'LdapServer'
 		self.ports = dict()
-
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -113,30 +109,19 @@ class Host(AbstractNetworkComponent):
 			logger.debug(f"getting context for Host ({self.ip})")
 			context = dict()
 			context['ip'] = self.get_ip()
-			if self.network_address is not None: 
-				context['network_address'] = self.network_address
-			else:
-				self.network_address = self.get_network().get_network_address()
-				context['network_address'] = self.network_address
-				
-			if self.interface_name is not None:
-				context['interface_name'] = self.interface_name
-			else: 
-				self.interface_name = self.get_interface().get_interface_name()
-				context['interface_name'] = self.interface_name
+			context['network_address'] = self.get_network().get_network_address()
+			context['interface_name'] = self.get_interface().get_interface_name()
 
 			# for domain name 
-			if self.domain_name is not None:
-				context['domain_name'] = self.domain_name
-			else: 
-				domain = self.get_domain()
-				if domain is not None:
-					self.domain_name = domain.get_domain_name()
-					context['domain_name'] = self.domain_name
-				else:
-					context['domain_name'] = None
+			#(HOST IS DEPENDET OF DOMAIN)
+			domain = self.get_domain()
+			if domain is not None:
+				context['domain_name'] = domain.get_domain_name()
+			else:
+				context['domain_name'] = None
 
 			# hostname
+			# (HOST IS DEPENDET OF NETBIOS WORKSTATION)
 			context['netbios_hostname'] = self.get_netbios_hostname() # might be None
 			return context
 
