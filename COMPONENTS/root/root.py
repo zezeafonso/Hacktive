@@ -21,7 +21,7 @@ class Root():
 	The methods to be run should come from a file not hardcoded.
 	"""
 	string_to_class = {'ListInterfaces':ListInterfaces}
-	methods = None
+	methods = None #
 
 	def __init__(self):
 		self.interfaces = {}
@@ -38,40 +38,17 @@ class Root():
 		# lock this
 		with sharedvariables.shared_lock:
 			if cls.methods is None:  # Check if methods have already been loaded
-				cls.methods = []
+				cls.methods = [] # initiate so it does not enter again
 				
-				# Determine the current file's directory
-				current_file_path = Path(__file__).parent
+				# get the techniques for this class
 				class_name = cls.__name__
-				methods_config = sharedvariables.methods_config.get(class_name, {}).get("methods", [])
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
 
-				for method_entry in methods_config:
-					module_name = method_entry["module"]
-					class_name = method_entry["method"]
+				for class_entry in methods_config:
+					class_name = class_entry["technique"]
 					if class_name in cls.string_to_class:
 						_class = cls.string_to_class[class_name]
 						cls.methods.append(_class)
-						print(_class.to_str())
-					"""
-					#cls.methods.append(class_name) # specific class
-					try:
-						# Import the base module (technique1, technique2) directly
-						full_module_name = f".{module_name}"
-						
-						# Dynamically import the module, relative to the current package (root)
-						module = importlib.import_module(full_module_name, package='root')
-						
-						# Check if the class exists in the module
-						if hasattr(module, class_name):
-							# Get the class
-							import_class = getattr(module, class_name)
-							cls.methods.append(import_class)
-						else:
-							raise ImportError(f"Class '{class_name}' not found in module '{full_module_name}'")
-					
-					except ModuleNotFoundError:
-						raise ImportError(f"Module '{module_name}' not found")
-					"""
 					
 
 	# getters

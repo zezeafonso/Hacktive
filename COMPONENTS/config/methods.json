@@ -1,74 +1,74 @@
 {
 	"Root":{
-		"methods":[
-			{"module": "listinterfaces", "method": "ListInterfaces"}
+		"techniques":[
+			{"module":"listinterfaces", "class":"ListInterfaces"}
 		]
 	},
 	"Domain":{
-		"methods":[
-			{"module":"enumdomainsthroughrpc", "method":"EnumDomainsThroughRPC"},
-			{"module":"enumdomainusersthroughrpc", "method":"EnumDomainUsersThroughRPC"},
-			{"module":"enumdomaingroupsthroughrpc", "method":"EnumDomainGroupsThroughRPC"}
+		"techniques":[
+			{"module":"enumdomainsthroughrpc", "class":"EnumDomainsThroughRPC"},
+			{"module":"enumdomainusersthroughrpc", "class":"EnumDomainUsersThroughRPC"},
+			{"module":"enumdomaingroupsthroughrpc", "class":"EnumDomainGroupsThroughRPC"}
 		]
 	},
 	"DomainGroup":{
-		"methods":[
-			{"module":"enumdomainusersingroupthroughrpc", "method":"EnumDomainUsersInGroupThroughRPC"}
+		"techniques":[
+			{"module":"enumdomainusersingroupthroughrpc", "class":"EnumDomainUsersInGroupThroughRPC"}
 		]
 	},
 	"DomainUser":{
-		"methods":[
-			{"module":"retrieveuserinformationthroughrpc", "method":"RetrieveUserInformationThroughRPC"}
+		"techniques":[
+			{"module":"retrieveuserinformationthroughrpc", "class":"RetrieveUserInformationThroughRPC"}
 		]
 	},
 	"Interface":{
-		"methods": []
+		"techniques": []
 	},
 	"Network":{
-		"methods": [
-			{"module":"arpscan", "method":"ArpScan"}
+		"techniques": [
+			{"module":"arpscan", "class":"ArpScan"}
 		]
 	},
 	"Host" : {
-		"methods": [
-			{"module":"nbnsiptranslations", "method":"NBNSIPTranslation"},
-			{"module":"checkifmsrpcserviceisrunning", "method":"CheckIfMSRPCServiceIsRunning"},
-			{"module":"checkifsmbserviceisrunning", "method":"CheckIfMSRPCServiceIsRunning"}
+		"techniques": [
+			{"module":"nbnsiptranslations", "class":"NBNSIPTranslation"},
+			{"module":"checkifmsrpcserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"},
+			{"module":"checkifsmbserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"}
 		]
 	}, 
 	"LdapServer" : {
-		"methods": [
-			{"module":"queryrootdseofdcthroughldap", "method":"QueryRootDSEOfDCThroughLDAP"},
-			{"module":"getallnmap", "method":"GetAllLdap"}
+		"techniques": [
+			{"module":"queryrootdseofdcthroughldap", "class":"QueryRootDSEOfDCThroughLDAP"},
+			{"module":"getallnmap", "class":"GetAllLdap"}
 		]
 	},
 	"MSRPCServer": {
-		"methods": [
-			{"module":"dumpinterfaceendpointsfromendpointmapper", "method":"DumpInterfaceEndpointsFromEndpointMapper"}
+		"techniques": [
+			{"module":"dumpinterfaceendpointsfromendpointmapper", "class":"DumpInterfaceEndpointsFromEndpointMapper"}
 		]
 	},
 	"NetBIOSWorkstation": {
-	  "methods": []
+	  "techniques": []
 	},
 	"NetBIOSMBServer": {
-		"methods": []
+		"techniques": []
 	},
 	"NetBIOSGroupPDC": {
-		"methods": []
+		"techniques": []
 	},
 	"NetBIOSGroupDC": {
-		"methods": [
-			{"module":"queryrootdseofdcthroughldap", "method":"QueryRootDSEOfDCThroughLDAP"}
+		"techniques": [
+			{"module":"queryrootdseofdcthroughldap", "class":"QueryRootDSEOfDCThroughLDAP"}
 		]
 	},
 	"NetBIOSGroup": {
-		"methods": [
-			{"module": "nbnsgroupmembers", "method":"NBNSGroupMembers"}]
+		"techniques": [
+			{"module": "nbnsgroupmembers", "class":"NBNSGroupMembers"}]
 	},
 	"SMBServer": {
-		"methods": [
-			{"module":"listsharesthroughsmb", "method":"ListSharesThroughSMB"},
-			{"module":"basiccrackmapexec", "method":"BasicCrackMapExec"},
-			{"module":"spidersharesthroughsmb", "method":"SpiderSharesThroughSMB"}]
+		"techniques": [
+			{"module":"listsharesthroughsmb", "class":"ListSharesThroughSMB"},
+			{"module":"basiccrackmapexec", "class":"BasicCrackMapExec"},
+			{"module":"spidersharesthroughsmb", "class":"SpiderSharesThroughSMB"}]
 	}
 }
