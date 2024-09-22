@@ -7,9 +7,6 @@ from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
-from COMPONENTS.domains.retrieveuserinformationthroughrpc.method import RetrieveUserInformationThroughRPC
-from COMPONENTS.domains.enumdomaingroupsforuserthroughrpc.method import EnumDomainGroupsForUserThroughRPC
-
 from .enumdomaingroupsforuserthroughrpc import EnumDomainGroupsForUserThroughRPC
 from .enumdomaingroupsthroughrpc import EnumDomainGroupsThroughRPC
 from .enumdomainsthroughrpc import EnumDomainsThroughRPC
@@ -31,7 +28,7 @@ class DomainUser(AbstractNetworkComponent):
       	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
        	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
         "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC, 
-        "RetriveUserInformationThroughRPC": RetrieveUserInformationThroughRPC,
+        "RetrieveUserInformationThroughRPC": RetrieveUserInformationThroughRPC,
     }
 	methods = None
 
