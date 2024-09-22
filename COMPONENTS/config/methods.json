@@ -8,8 +8,7 @@
 		"techniques":[
 			{"module":"enumdomainsthroughrpc", "class":"EnumDomainsThroughRPC"},
 			{"module":"enumdomainusersthroughrpc", "class":"EnumDomainUsersThroughRPC"},
-			{"module":"enumdomaingroupsthroughrpc", "class":"EnumDomainGroupsThroughRPC"},
-			{"module":"enumdomaintruststhroughrpc", "class":"EnumDomainTrustsThroughRPC"}
+			{"module":"enumdomaingroupsthroughrpc", "class":"EnumDomainGroupsThroughRPC"}
 		]
 	},
 	"DomainGroup":{
@@ -35,7 +34,7 @@
 		"techniques": [
 			{"module":"nbnsiptranslations", "class":"NBNSIPTranslation"},
 			{"module":"checkifmsrpcserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"},
-			{"module":"checkifsmbserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"}
+			{"module":"checkifsmbserviceisrunning", "class":"CheckIfSMBServiceIsRunning"}
 		]
 	}, 
 	"LdapServer" : {
