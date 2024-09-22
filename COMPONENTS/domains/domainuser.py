@@ -16,6 +16,7 @@ from .enumdomainsthroughrpc import EnumDomainsThroughRPC
 from .enumdomaintruststhroughrpc import EnumDomainTrustsThroughRPC
 from .enumdomainusersingroupthroughrpc import EnumDomainUsersInGroupThroughRPC
 from .enumdomainusersthroughrpc import EnumDomainUsersThroughRPC
+from .retrieveuserinformationthroughrpc import RetrieveUserInformationThroughRPC
 
 
 
@@ -29,7 +30,8 @@ class DomainUser(AbstractNetworkComponent):
      	"EnumDomainGroupsThroughRPC": EnumDomainGroupsThroughRPC,
       	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
        	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
-        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC
+        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC, 
+        "RetriveUserInformationThroughRPC": RetrieveUserInformationThroughRPC,
     }
 	methods = None
 
