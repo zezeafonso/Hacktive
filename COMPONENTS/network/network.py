@@ -30,8 +30,7 @@ class Network(AbstractNetworkComponent):
 	
 	def __init__(self, network_address:str, path:dict):
 		self.network_address = network_address
-		self.interface_name = None # the interface through which is reachable
-		
+		#TODO: search for hosts using ip address
 		self.hosts = {}
 		self.hostnames = {} # point to the same hosts as hosts, but uses hostnames
 		self.netbios_workstations = []
@@ -74,9 +73,11 @@ class Network(AbstractNetworkComponent):
 			logger.debug(f"getting context for network ({self.network_address})")
 			context = dict()
 			context['network_address'] = self.get_network_address()
-			if self.interface_name is None:
+			if self.interface_name is not None:
+				context['interface_name'] = self.interface_name
+			else:
 				self.interface_name = self.get_interface().get_interface_name()
-			context['interface_name'] = self.interface_name
+				context['interface_name'] = self.interface_name
 			context['our_ip'] = self.get_our_ip()
 			return context
 
