@@ -12,7 +12,7 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 from COMPONENTS.interface.interface import Interface
 from COMPONENTS.domains.domain import Domain
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
-from COMPONENTS.root.listinterfaces.method import ListInterfaces
+from .listinterfaces import ListInterfaces
 
 
 
@@ -46,20 +46,26 @@ class Root():
 
 				for method_entry in methods_config:
 					module_name = method_entry["module"]
-					method_name = method_entry["method"]
-					
+					class_name = method_entry["method"]
+					#cls.methods.append(class_name) # specific class
 					try:
-						# Dynamically calculate the module path as a relative import path
-						print(f"{__name__}")
-						module_import_path = f"COMPONENTS.{__name__}.{module_name}.method"
-						# Import the module dynamically
-						module = importlib.import_module(module_import_path)
-						# import the method class
-						method_class = getattr(module, method_name)
-						cls.methods.append(method_class)
-					except (ModuleNotFoundError, AttributeError) as e:
-						print(f"Error loading method {method_name} from {module_name}: {e}")
-		
+						# Import the base module (technique1, technique2) directly
+						full_module_name = f".{module_name}"
+						
+						# Dynamically import the module, relative to the current package (root)
+						module = importlib.import_module(full_module_name, package='root')
+						
+						# Check if the class exists in the module
+						if hasattr(module, class_name):
+							# Get the class
+							import_class = getattr(module, class_name)
+							cls.methods.append(import_class)
+						else:
+							raise ImportError(f"Class '{class_name}' not found in module '{full_module_name}'")
+					
+					except ModuleNotFoundError:
+						raise ImportError(f"Module '{module_name}' not found")
+					
 
 	# getters
 
