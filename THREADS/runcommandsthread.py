@@ -12,6 +12,8 @@ from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from LOGGER.loggerconfig import logger
 
+global threads
+
 
 
 def send_run_event_to_run_commands_thread(run_event:Run_Event):
@@ -135,8 +137,8 @@ def call_auto_functions_for_set_of_techniques(set_objects):
 	# to run in parallel
 	for component in set_objects:
 		component.auto_function()
+	SV.cmd_queue.put("Done") # signal for termination
 	return 
-
 
 def call_methods_of_updated_objects():
 	"""
@@ -147,18 +149,24 @@ def call_methods_of_updated_objects():
 	"""
 	# copy the list so we don't end up updating it as well 
 	with SV.shared_lock:
+		global threads
 		logger.debug(f"Calling auto_function of the updated objects")
 		updated_objects = SV.updated_objects.copy() 
 		#SV.clear_set_of_updated_objects()
 		for component in updated_objects:
 			component.auto_function()
-		SV.clear_set_of_updated_objects()
 		# Create a thread to run the for loop in parallel
-		#thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
-		#thread.start()
-		SV.clear_set_of_updated_objects()
+		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
+		thread.start()
+		threads.append(thread)
 	return
 
+
+def check_for_live_threads(thread_list):
+	for _thread in thread_list:
+		if _thread.is_alive(): 
+			return True
+	return False
 
 
 def commands_listener(thread_pool:ThreadPoolExecutor):
@@ -170,6 +178,8 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 	the output thread as well
 	"""
 	logger.info(f"going inside the while Loop")
+	global threads
+	threads = list()
 
 	while True:
 		event = get_event_from_the_command_queue() # blocking
@@ -182,7 +192,7 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 			if SV.cmd_queue.empty() and SV.check_if_there_are_no_commands_for_analysis():
 				logger.debug(f"Checking if there were updated objects")
 				# empty = kill
-				if SV.is_set_of_updated_objects_empty():
+				if SV.is_set_of_updated_objects_empty() and not check_for_live_threads(threads):
 					termination_process(thread_pool)
 					break # end of thread 
 				call_methods_of_updated_objects()
