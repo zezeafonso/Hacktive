@@ -12,6 +12,9 @@ This information is kept in the host. This way we can access
 the servers and know what roles a host plays from other parts
 of the code.
 """
+import importlib
+from pathlib import Path
+
 from LOGGER.loggerconfig import logger
 
 import THREADS.sharedvariables as sharedvariables
@@ -26,12 +29,11 @@ from COMPONENTS.msrpc.msrpcserver import MSRPCServer
 from COMPONENTS.smb.smbserver import SMBServer
 
 
-# methods
-from COMPONENTS.hosts.checkifmsrpcserviceisrunning.method import CheckIfMSRPCServiceIsRunning
-from COMPONENTS.hosts.checkifsmbserviceisrunning.method import CheckIfSMBServiceIsRunning
-from COMPONENTS.netbios.nbnsiptranslations.method import NBNSIPTranslation
-
-
+# import the classes of techniques 
+from .checkifmsrpcserviceisrunning import CheckIfMSRPCServiceIsRunning
+from .checkifsmbserviceisrunning import CheckIfSMBServiceIsRunning
+from .nbnsiptranslations import NBNSIPTranslation
+from .portscan import PortScan
 
 class Host(AbstractNetworkComponent):
 	"""
@@ -46,8 +48,13 @@ class Host(AbstractNetworkComponent):
 		- NetBIOS SMB server (inside workstation)
 		- NetBIOS DC (inside workstation)
 	"""
-	#methods = {Methods.PortScan._name: Methods.PortScan}
-	methods = [NBNSIPTranslation, CheckIfMSRPCServiceIsRunning, CheckIfSMBServiceIsRunning]
+	string_to_class = {
+		"CheckIfMSRPCServiceIsRunning": CheckIfMSRPCServiceIsRunning, 
+		"CheckIfSMBServiceIsRunning": CheckIfSMBServiceIsRunning,
+		"NBNSIPTranslation": NBNSIPTranslation, 
+		"PortScan": PortScan
+	}
+	methods = None
 	
 	def __init__(self, path:dict, ip:str=None,hostname:str=None):
 		if hostname is not None:
@@ -69,6 +76,28 @@ class Host(AbstractNetworkComponent):
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
+		self.load_methods() 
+
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = [] # initiate so it does not enter again
+				
+				# get the techniques for this class
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
+
+				for class_entry in methods_config:
+					class_name = class_entry["class"]
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
 
 	# getters
 

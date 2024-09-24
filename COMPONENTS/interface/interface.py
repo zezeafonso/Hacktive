@@ -1,3 +1,6 @@
+import importlib
+from pathlib import Path
+
 from LOGGER.loggerconfig import logger
 
 import THREADS.sharedvariables as sharedvariables
@@ -14,7 +17,8 @@ class Interface(AbstractNetworkComponent):
 	- dhcp broadcast discover 
 	- responder analyzer (more on this later)
 	"""
-	methods = {}
+	string_to_class = {}
+	methods = None
 
 	def __init__(self, interface_name:str, path:dict):
 		self.interface_name = interface_name
@@ -23,6 +27,28 @@ class Interface(AbstractNetworkComponent):
 		self.path['interface'] = self
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
+		self.load_methods() 
+
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = [] # initiate so it does not enter again
+				
+				# get the techniques for this class
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
+
+				for class_entry in methods_config:
+					class_name = class_entry["class"]
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
 
 
 	def get_context(self):

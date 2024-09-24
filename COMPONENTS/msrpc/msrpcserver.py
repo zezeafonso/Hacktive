@@ -1,15 +1,16 @@
 import copy
+import importlib
+from pathlib import Path
 
 from LOGGER.loggerconfig import logger
-
 import THREADS.sharedvariables as sharedvariables
-
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
-
 import COMPONENTS.msrpc.componentupdater as componentupdater
 
 # methods
 from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.method import DumpInterfaceEndpointsFromEndpointMapper
+
+from .dumpinterfaceendpointsfromendpointmapper import DumpInterfaceEndpointsFromEndpointMapper
 
 class MSRPCServer:
 	"""
@@ -18,7 +19,10 @@ class MSRPCServer:
 	The port for MSRPC is usually 
 	"""
 	# the methods that use rpc from domains should be launched in the domain not here.
-	methods = [DumpInterfaceEndpointsFromEndpointMapper]
+	string_to_class = {
+		"DumpInterfaceEndpointsFromEndpointMapper":DumpInterfaceEndpointsFromEndpointMapper
+	}
+	methods = None
 
 	def __init__(self, host='Host', port=str):
 		self.host = host
@@ -27,14 +31,35 @@ class MSRPCServer:
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
-  
+		self.load_methods() 
+
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = [] # initiate so it does not enter again
+				
+				# get the techniques for this class
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
+
+				for class_entry in methods_config:
+					class_name = class_entry["class"]
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
 
   
 	def get_ip(self):
 		"""
   		retrieves the ip of this msrpc
-    	calls the get_ip of the associated host
-     	"""
+		calls the get_ip of the associated host
+	 	"""
 		with sharedvariables.shared_lock:
 			return self.host.get_ip()
 
@@ -70,7 +95,6 @@ class MSRPCServer:
 		The function that's responsible for calling the auto methods.
 		"""
 		with sharedvariables.shared_lock:
-			logger.debug(f"Auto function for MSRPC server ({self.host.get_ip()}) was called")
 			for method in self.methods:
 				list_events = method.create_run_events(self.get_context())
 				for event in list_events:
@@ -87,8 +111,8 @@ class MSRPCServer:
 	def associate_domain(self, domain):
 		"""
   		Associates a domain to this server
-    	(function in the component updater)
-     	"""
+		(function in the component updater)
+	 	"""
 		componentupdater.associate_server_to_domain(domain, self)
 		return 
 
@@ -96,13 +120,13 @@ class MSRPCServer:
 	def add_domain(self, domain):
 		"""
   		Associates a domain to this server
-    	"""
+		"""
 		with sharedvariables.shared_lock:
 			logger.debug(f"Associating domain ({domain.domain_name}) to \
-       			RPC server @ ({self.get_ip()})")
+	   			RPC server @ ({self.get_ip()})")
 			if self.domain is not None:
 				logger.debug(f"RPC server @ ({self.get_ip()}) \
-        			already has a domain")
+					already has a domain")
 				return 
 
 			# associate the domain

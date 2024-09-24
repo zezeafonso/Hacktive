@@ -1,4 +1,6 @@
 import copy
+import importlib
+from pathlib import Path
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from COMPONENTS.ldap.ldapserver import LdapServer
@@ -15,6 +17,13 @@ from COMPONENTS.domains.enumdomainusersthroughrpc.method import EnumDomainUsersT
 from COMPONENTS.domains.enumdomaingroupsthroughrpc.method import EnumDomainGroupsThroughRPC
 from COMPONENTS.domains.listsharesthroughsmb.method import ListSharesThroughSMB
 
+from .enumdomaingroupsforuserthroughrpc import EnumDomainGroupsForUserThroughRPC
+from .enumdomaingroupsthroughrpc import EnumDomainGroupsThroughRPC
+from .enumdomainsthroughrpc import EnumDomainsThroughRPC
+from .enumdomaintruststhroughrpc import EnumDomainTrustsThroughRPC
+from .enumdomainusersingroupthroughrpc import EnumDomainUsersInGroupThroughRPC
+from .enumdomainusersthroughrpc import EnumDomainUsersThroughRPC
+
 
 class Domain(AbstractNetworkComponent):
 	"""
@@ -27,7 +36,15 @@ class Domain(AbstractNetworkComponent):
 	change the methods to receive the context like this
  	methods = [EnumDomainsThroughRPC, EnumDomainTrustsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
   	"""
-	methods = [EnumDomainsThroughRPC, EnumDomainUsersThroughRPC, EnumDomainGroupsThroughRPC]
+	string_to_class = {
+     	"EnumDomainsThroughRPC": EnumDomainsThroughRPC, 
+    	"EnumDomainUsersThroughRPC": EnumDomainUsersThroughRPC,
+     	"EnumDomainGroupsThroughRPC": EnumDomainGroupsThroughRPC,
+      	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
+       	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
+        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC
+    }
+	methods = None
 	roles = ["DC", "machine"]
 
 	def __init__(self, domain_name:str, domain_pdc:'LdapServer'=None):
@@ -55,8 +72,28 @@ class Domain(AbstractNetworkComponent):
   
 		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
+		self.load_methods()
+  
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = [] # initiate so it does not enter again
+				
+				# get the techniques for this class
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
 
-
+				for class_entry in methods_config:
+					class_name = class_entry["class"]
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
 
 	def get_context(self):
 		"""

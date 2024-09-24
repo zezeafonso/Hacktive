@@ -1,0 +1,75 @@
+{
+	"Root":{
+		"techniques":[
+			{"module":"listinterfaces", "class":"ListInterfaces"}
+		]
+	},
+	"Domain":{
+		"techniques":[
+			{"module":"enumdomainsthroughrpc", "class":"EnumDomainsThroughRPC"},
+			{"module":"enumdomainusersthroughrpc", "class":"EnumDomainUsersThroughRPC"},
+			{"module":"enumdomaingroupsthroughrpc", "class":"EnumDomainGroupsThroughRPC"}
+		]
+	},
+	"DomainGroup":{
+		"techniques":[
+			{"module":"enumdomainusersingroupthroughrpc", "class":"EnumDomainUsersInGroupThroughRPC"}
+		]
+	},
+	"DomainUser":{
+		"techniques":[
+			{"module":"retrieveuserinformationthroughrpc", "class":"RetrieveUserInformationThroughRPC"},
+			{"module":"enumdomaingroupsforuserthroughrpc", "class":"EnumDomainGroupsForUserThroughRPC"}
+		]
+	},
+	"Interface":{
+		"techniques": []
+	},
+	"Network":{
+		"techniques": [
+			{"module":"arpscan", "class":"ArpScan"}
+		]
+	},
+	"Host" : {
+		"techniques": [
+			{"module":"nbnsiptranslations", "class":"NBNSIPTranslation"},
+			{"module":"checkifmsrpcserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"},
+			{"module":"checkifsmbserviceisrunning", "class":"CheckIfSMBServiceIsRunning"}
+		]
+	}, 
+	"LdapServer" : {
+		"techniques": [
+			{"module":"queryrootdseofdcthroughldap", "class":"QueryRootDSEOfDCThroughLDAP"},
+			{"module":"getallnmap", "class":"GetAllLdap"}
+		]
+	},
+	"MSRPCServer": {
+		"techniques": [
+			{"module":"dumpinterfaceendpointsfromendpointmapper", "class":"DumpInterfaceEndpointsFromEndpointMapper"}
+		]
+	},
+	"NetBIOSWorkstation": {
+	  "techniques": []
+	},
+	"NetBIOSMBServer": {
+		"techniques": []
+	},
+	"NetBIOSGroupPDC": {
+		"techniques": []
+	},
+	"NetBIOSGroupDC": {
+		"techniques": [
+			{"module":"queryrootdseofdcthroughldap", "class":"QueryRootDSEOfDCThroughLDAP"}
+		]
+	},
+	"NetBIOSGroup": {
+		"techniques": [
+			{"module": "nbnsgroupmembers", "class":"NBNSGroupMembers"}]
+	},
+	"SMBServer": {
+		"techniques": [
+			{"module":"listsharesthroughsmb", "class":"ListSharesThroughSMB"},
+			{"module":"basiccrackmapexec", "class":"BasicCrackMapExec"},
+			{"module":"spidersharesthroughsmb", "class":"SpiderSharesThroughSMB"}]
+	}
+}

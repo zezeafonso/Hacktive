@@ -1,3 +1,6 @@
+import importlib
+from pathlib import Path
+
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from LOGGER.loggerconfig import logger
 
@@ -5,13 +8,26 @@ import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 from COMPONENTS.domains.enumdomainusersingroupthroughrpc.method import EnumDomainUsersInGroupThroughRPC
-
+from .enumdomaingroupsforuserthroughrpc import EnumDomainGroupsForUserThroughRPC
+from .enumdomaingroupsthroughrpc import EnumDomainGroupsThroughRPC
+from .enumdomainsthroughrpc import EnumDomainsThroughRPC
+from .enumdomaintruststhroughrpc import EnumDomainTrustsThroughRPC
+from .enumdomainusersingroupthroughrpc import EnumDomainUsersInGroupThroughRPC
+from .enumdomainusersthroughrpc import EnumDomainUsersThroughRPC
 
 class DomainGroup(AbstractNetworkComponent):
 	"""
 	Defines the class for a Domain group and the attributes of interest.
 	"""
-	methods = [EnumDomainUsersInGroupThroughRPC] # I even doubt that he will have one
+	string_to_class = {
+     	"EnumDomainsThroughRPC": EnumDomainsThroughRPC, 
+    	"EnumDomainUsersThroughRPC": EnumDomainUsersThroughRPC,
+     	"EnumDomainGroupsThroughRPC": EnumDomainGroupsThroughRPC,
+      	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
+       	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
+        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC
+    }
+	methods = None # I even doubt that he will have one
 	#methods = []
  
 	def __init__(self, domain, groupname:str, rid:str=None):
@@ -23,6 +39,28 @@ class DomainGroup(AbstractNetworkComponent):
   
 		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
+		self.load_methods() 
+
+	@classmethod
+	def load_methods(cls):
+		"""
+		Loads the methods for this class. 
+		The methods should be defined for this class name in config.json
+		"""
+		# lock this
+		with sharedvariables.shared_lock:
+			if cls.methods is None:  # Check if methods have already been loaded
+				cls.methods = [] # initiate so it does not enter again
+				
+				# get the techniques for this class
+				class_name = cls.__name__
+				methods_config = sharedvariables.methods_config.get(class_name, {}).get("techniques", [])
+
+				for class_entry in methods_config:
+					class_name = class_entry["class"]
+					if class_name in cls.string_to_class:
+						_class = cls.string_to_class[class_name]
+						cls.methods.append(_class)
 
 	def get_context(self):
 		logger.debug(f"Getting context for Domain Group ({self.groupname})")

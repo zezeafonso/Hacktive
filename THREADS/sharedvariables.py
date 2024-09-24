@@ -1,5 +1,6 @@
 import threading
 import queue
+import json
 
 import EXCEPTIONS.commandexceptions as CE
 from LOGGER.loggerconfig import logger
@@ -13,6 +14,13 @@ might be accessed in the same type that these components
 are being updated with more.
 """
 shared_lock = None
+
+
+"""
+The list of methods per COMPONENTS class. 
+Defines which methods the tool will run for each 
+specific COMPONENT class."""
+methods_config = None
 
 
 """
@@ -67,6 +75,7 @@ def initialize():
 	global commands_for_analysis_list
 	global commands_run_set	
 	global updated_objects
+	global methods_config
 
 	out_queue = queue.Queue() # the queue for the parse outputs thread
 	cmd_queue = queue.Queue() # the queue for the run commands thread
@@ -76,7 +85,8 @@ def initialize():
 
 	commands_for_analysis_list = list() # use with locks in threads
 	commands_run_set = set() # commands that were run 
- 
+	methods_config = None # methods for each class (config.json)
+
  
 def initialize_root_obj(obj) -> None:
 	global root_obj
@@ -84,7 +94,15 @@ def initialize_root_obj(obj) -> None:
 	root_obj = obj
 	return 
 
-
+def initialize_methods_list(json_data) -> None:
+    """
+    Main should call this function after 
+    gathering the json data from config.json
+    """
+    global methods_config
+    
+    methods_config = json_data
+    return
 
 def add_pid_to_cmd_pid_dict(cmd:str, pid:int) -> None:
 	global cmd_pid_dict
