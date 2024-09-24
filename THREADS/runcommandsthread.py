@@ -149,10 +149,14 @@ def call_methods_of_updated_objects():
 	with SV.shared_lock:
 		logger.debug(f"Calling auto_function of the updated objects")
 		updated_objects = SV.updated_objects.copy() 
+		#SV.clear_set_of_updated_objects()
+		for component in updated_objects:
+			component.auto_function()
 		SV.clear_set_of_updated_objects()
 		# Create a thread to run the for loop in parallel
-		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
-		thread.start()
+		#thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
+		#thread.start()
+		SV.clear_set_of_updated_objects()
 	return
 
 
