@@ -23,6 +23,8 @@ specific COMPONENT class."""
 methods_config = None
 
 
+running_auto_functions = False
+
 """
 The Objects that were updated since the last time we checked for the updated objects.
 It's a set so we don't end up duplicating objects inside of it.
@@ -76,6 +78,7 @@ def initialize():
 	global commands_run_set	
 	global updated_objects
 	global methods_config
+	global running_auto_functions
 
 	out_queue = queue.Queue() # the queue for the parse outputs thread
 	cmd_queue = queue.Queue() # the queue for the run commands thread
@@ -86,6 +89,7 @@ def initialize():
 	commands_for_analysis_list = list() # use with locks in threads
 	commands_run_set = set() # commands that were run 
 	methods_config = None # methods for each class (config.json)
+	running_auto_functions = False
 
  
 def initialize_root_obj(obj) -> None:
@@ -208,6 +212,12 @@ def is_set_of_updated_objects_empty():
 		if len(updated_objects) == 0:
 			return True
 		return False
+
+
+def check_if_running_auto_functions():
+    global running_auto_functions
+    with shared_lock: 
+        return running_auto_functions
 
 
 

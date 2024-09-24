@@ -132,10 +132,10 @@ def handle_normal_command(thread_pool, out_file, cmd, method, context):
 
 
 def call_auto_functions_for_set_of_techniques(set_objects):
-    # to run in parallel
-    for component in set_objects:
-        component.auto_function()
-    return 
+	# to run in parallel
+	for component in set_objects:
+		component.auto_function()
+	return 
 
 
 def call_methods_of_updated_objects():
