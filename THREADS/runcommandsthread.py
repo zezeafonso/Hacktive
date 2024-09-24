@@ -159,6 +159,7 @@ def call_methods_of_updated_objects():
 		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
 		thread.start()
 		threads.append(thread)
+		SV.clear_set_of_updated_objects()
 	return
 
 
