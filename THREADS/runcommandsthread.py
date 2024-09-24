@@ -1,6 +1,7 @@
 import subprocess
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import threading
 
 from LOGGER.loggerconfig import logger
 import EXCEPTIONS.commandexceptions as SE
@@ -130,17 +131,28 @@ def handle_normal_command(thread_pool, out_file, cmd, method, context):
 
 
 
+def call_auto_functions_for_set_of_techniques(set_objects):
+    # to run in parallel
+    for component in set_objects:
+        component.auto_function()
+    return 
+
+
 def call_methods_of_updated_objects():
 	"""
 	Calls the auto functions for the updated objects
+	Maybe run this in another thread, until this finishes. 
+	Check if the list of updated objects is a copy of the objects 
+	or just of its list.
 	"""
 	# copy the list so we don't end up updating it as well 
 	with SV.shared_lock:
 		logger.debug(f"Calling auto_function of the updated objects")
-		updated_objects = copy.deepcopy(SV.updated_objects) 
-		for component in updated_objects:
-			component.auto_function()
+		updated_objects = SV.updated_objects.copy() 
 		SV.clear_set_of_updated_objects()
+		# Create a thread to run the for loop in parallel
+		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
+		thread.start()
 	return
 
 
