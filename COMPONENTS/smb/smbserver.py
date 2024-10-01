@@ -5,6 +5,8 @@ from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 import COMPONENTS.smb.componentupdater as componentupdater
 
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
+
 # methods
 from COMPONENTS.smb.listshares.method import ListSharesThroughSMB
 from COMPONENTS.smb.basiccrackmapexec.method import BasicCrackMapExec
@@ -15,7 +17,7 @@ from .listshares import ListSharesThroughSMB
 from .spidershares import SpiderSharesThroughSMB
 
 
-class SMBServer:
+class SMBServer(AbstractNetworkComponent):
 	"""
 	If we find a host that is launching an SMB service 
 	this class will represent it's server.

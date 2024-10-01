@@ -4,7 +4,7 @@ from pathlib import Path
 from LOGGER.loggerconfig import logger
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 import THREADS.sharedvariables as sharedvariables
-
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from COMPONENTS.netbios.netbiosgroup import NetBIOSGroup
 from COMPONENTS.netbios.netbiosgroupdc import NetBIOSGroupDC
@@ -15,7 +15,7 @@ from COMPONENTS.netbios.netbiosgrouppdc import NetBIOSGroupPDC
 from .nbnsgroupmembers import NBNSGroupMembers
 from .queryrootdseofdcthroughldap import QueryRootDSEOfDCThroughLDAP
 
-class NetBIOSWorkstation:
+class NetBIOSWorkstation(AbstractNetworkComponent):
 	"""
 	A Host if it has NetBIOS on and we receive output from queries
 	We create the NetBIOSWorkstation.

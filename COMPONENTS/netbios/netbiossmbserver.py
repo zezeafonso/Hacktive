@@ -3,6 +3,7 @@ from pathlib import Path
 
 from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
@@ -10,7 +11,7 @@ from .nbnsgroupmembers import NBNSGroupMembers
 from .queryrootdseofdcthroughldap import QueryRootDSEOfDCThroughLDAP
 
 
-class NetBIOSMBServer:
+class NetBIOSMBServer(AbstractNetworkComponent):
 	"""
 	TODO:
 	- add the method of checking if the smb is actually alive

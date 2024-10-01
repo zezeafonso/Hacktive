@@ -2,6 +2,8 @@ import copy
 import importlib
 from pathlib import Path
 
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
+
 from LOGGER.loggerconfig import logger
 import THREADS.sharedvariables as sharedvariables
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
@@ -12,7 +14,7 @@ from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.method import Dum
 
 from .dumpinterfaceendpointsfromendpointmapper import DumpInterfaceEndpointsFromEndpointMapper
 
-class MSRPCServer:
+class MSRPCServer(AbstractNetworkComponent):
 	"""
 	If we find a host that is launching an RPC service 
 	this class will represent it's server.

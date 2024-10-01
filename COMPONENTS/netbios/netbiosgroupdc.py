@@ -2,6 +2,7 @@ import importlib
 from pathlib import Path
 
 import THREADS.sharedvariables as sharedvariables
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
@@ -11,7 +12,7 @@ from LOGGER.loggerconfig import logger
 from .nbnsgroupmembers import NBNSGroupMembers
 from .queryrootdseofdcthroughldap import QueryRootDSEOfDCThroughLDAP
 
-class NetBIOSGroupDC:
+class NetBIOSGroupDC(AbstractNetworkComponent):
 	# it would be a good idea to check the DNS for LDAP as well
 	string_to_class = {
 		"NBNSGroupMembers":NBNSGroupMembers, 
