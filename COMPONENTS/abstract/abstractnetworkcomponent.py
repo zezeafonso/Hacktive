@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
 class AbstractNetworkComponent(ABC):
 
@@ -18,6 +17,5 @@ class AbstractNetworkComponent(ABC):
 		""" Common logic to be shared across subclasses """
 		list_events = []
 		for method in self.methods:
-			list_events = method.create_run_events(context)
-			for event in list_events:
-				send_run_event_to_run_commands_thread(event)
+			list_events += method.create_run_events(context)
+		return list_events
