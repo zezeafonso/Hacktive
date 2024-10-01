@@ -143,10 +143,12 @@ def call_auto_functions_for_set_of_techniques(set_objects):
 			snapshot_dict[component] = component.get_context()
    
 	# parallely call all auto functions
+	list_events = list()
 	for _component in snapshot_dict:
-		list_events = _component.auto_function_with_context(snapshot_dict[_component])
-		for event in list_events:
-			send_run_event_to_run_commands_thread(event)
+		list_events += _component.auto_function_with_context(snapshot_dict[_component])
+		
+	for event in list_events:
+		send_run_event_to_run_commands_thread(event)
 	SV.cmd_queue.put("Done") # signal for termination
    	
 	return 
@@ -163,13 +165,13 @@ def call_methods_of_updated_objects():
 		global threads
 		logger.debug(f"Calling auto_function of the updated objects")
 		updated_objects = SV.updated_objects.copy() # copy of list
-		SV.clear_set_of_updated_objects() # clear the original list
 		
   		# Create a thread to create the commands
 		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
 		thread.start()
+
 		threads.append(thread)
-		SV.clear_set_of_updated_objects()
+		SV.clear_set_of_updated_objects() # clear the original list
 	return
 
 
