@@ -6,6 +6,7 @@ import os
 from LOGGER.loggerconfig import logger
 
 import THREADS.sharedvariables as sharedvariables
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 from THREADS.runcommandsthread import send_run_event_to_run_commands_thread
 
@@ -16,7 +17,7 @@ from .listinterfaces import ListInterfaces
 
 
 
-class Root():
+class Root(AbstractNetworkComponent):
 	"""
 	The methods to be run should come from a file not hardcoded.
 	"""
