@@ -134,10 +134,20 @@ def handle_normal_command(thread_pool, out_file, cmd, method, context):
 
 
 def call_auto_functions_for_set_of_techniques(set_objects):
-	# to run in parallel
-	for component in set_objects:
-		component.auto_function()
+	snapshot_dict = dict() # objects and their variables snapshots 
+    
+    # take a snapshot with a lock
+	with SV.shared_lock:
+		# to run in parallel
+		for component in set_objects:
+			snapshot_dict[component] = component.get_context()
+   
+	# parallely call all auto functions
+	for _key in snapshot_dict:
+		_key.auto_function_with_context(snapshot_dict[_key])
+  
 	SV.cmd_queue.put("Done") # signal for termination
+   	
 	return 
 
 def call_methods_of_updated_objects():
@@ -151,11 +161,10 @@ def call_methods_of_updated_objects():
 	with SV.shared_lock:
 		global threads
 		logger.debug(f"Calling auto_function of the updated objects")
-		updated_objects = SV.updated_objects.copy() 
-		#SV.clear_set_of_updated_objects()
-		for component in updated_objects:
-			component.auto_function()
-		# Create a thread to run the for loop in parallel
+		updated_objects = SV.updated_objects.copy() # copy of list
+		SV.clear_set_of_updated_objects() # clear the original list
+		
+  		# Create a thread to create the commands
 		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
 		thread.start()
 		threads.append(thread)
@@ -191,13 +200,16 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 			# THIS WAY WE CAN RECEIVE COMMANDS WHILE WE PROCESS IT
 			# if there is no command for analysis and no command to be read from the queue -> finish
 			if SV.cmd_queue.empty():
-				logger.debug(f"Checking if we should check for new commands from the updated objects")
+				logger.debug(f"Checking if we should terminate")
 				# termination conditions
 				if SV.is_set_of_updated_objects_empty() and not check_for_live_threads(threads) and SV.check_if_there_are_no_commands_for_analysis():
 					termination_process(thread_pool)
 					break # end of thread 
-				call_methods_of_updated_objects()
-				#SV.cmd_queue.put('Done')
+				
+				# if there is no thread creating commands, create them
+				if not check_for_live_threads(threads):
+					logger.debug(f"calling the creating new commands")
+					call_methods_of_updated_objects()
 				
 		
 		else:
