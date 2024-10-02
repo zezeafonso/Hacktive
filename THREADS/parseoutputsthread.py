@@ -71,7 +71,7 @@ def analyze_event(event):
 	list_filtered_objects = f.filter(output) # returns filtered objects
 	logger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
 
-	#SV.remove_command_from_commands_to_analyze(cmd)
+	SV.remove_command_from_commands_to_analyze(cmd)
 
 	# to know what we extrapolated from the output of the command
 	commands_and_filtered_objs[cmd] = list_filtered_objects
@@ -88,7 +88,6 @@ def analyze_event(event):
 	# print the state of the network components after the update network components
 	print_state_network_components_after_cmd(cmd)
 	print(f"everything done for: ({cmd})")
-	SV.remove_command_from_commands_to_analyze(cmd)
 	return
 
 
