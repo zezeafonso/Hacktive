@@ -165,7 +165,7 @@ def call_methods_of_updated_objects():
 	with SV.shared_lock:
 		global threads
 		logger.debug(f"Calling auto_function of the updated objects")
-		updated_objects = SV.updated_objects.copy() # copy of list
+		updated_objects = SV.updated_objects.copy() # copy of list as is now
 		SV.clear_set_of_updated_objects() # clear the original list
 		
   		# Create a thread to create the commands
@@ -210,7 +210,7 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 					break # end of thread 
 				
 				# if there is no thread creating commands, create them
-				if not check_for_live_threads(threads):
+				if not SV.is_set_of_updated_objects_empty() and not check_for_live_threads(threads):
 					logger.debug(f"calling the creating new commands")
 					call_methods_of_updated_objects()
 				
