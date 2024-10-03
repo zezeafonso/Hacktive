@@ -60,7 +60,7 @@ def analyze_event(event):
 		SV.remove_command_from_commands_to_analyze(cmd)
 		commands_and_filtered_objs[cmd] = []
 		print_state_network_components_after_cmd(cmd) # for the states 
-		display += f"\n----\n({cmd}) : \n"
+		display = f"\n----\n({cmd}) : \n"
 		print(display)
 		return
 
@@ -80,7 +80,7 @@ def analyze_event(event):
 	if list_filtered_objects == []: 
 		# nothing to update
 		# states are the same as before
-		display += f"\n----\n({cmd}) : \n"
+		display = f"\n----\n({cmd}) : \n"
 		print(display)
 		return 
 
@@ -91,7 +91,7 @@ def analyze_event(event):
 	print_state_network_components_after_cmd(cmd)
 	
 	display_fo = str_display_from_list_filtered(list_filtered_objects)
-	display += f"\n----\n({cmd}) : \n"+display_fo
+	display = f"\n----\n({cmd}) : \n"+display_fo
 	print(display)
 	
 	return
