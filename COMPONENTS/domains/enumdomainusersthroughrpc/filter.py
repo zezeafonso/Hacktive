@@ -11,21 +11,27 @@ class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 
 	@staticmethod
 	def filter(output:str) -> list:
-		list_fo = list()
-  
-		# Define a regular expression pattern
-		# Define regex patterns to extract needed information
-		username_pattern = r"User Name\s*:\s*(\S+)"
-		description_pattern = r"Description\s*:\s*(.*)"
-		user_rid_pattern = r"user_rid\s*:\s*(\S+)"
-
-		# Extract using regex
-		username = re.search(username_pattern, output).group(1)
-		description = re.search(description_pattern, output).group(1)
-		user_rid = re.search(user_rid_pattern, output).group(1)
+		# Define a regex pattern to capture sharename, type, and comment from each line
+		username_pattern = re.compile(r"User Name\s*:\s*(\S+)")
+		description_pattern = re.compile(r"Description\s*:\s*(.*)")
+		user_rid_pattern = re.compile(r"user_rid\s*:\s*(\S+)")
 		
-		list_fo.append(Filtered_FoundUsernameFromQuery(username))
-		list_fo.append(Filtered_FoundDescriptionOfDomainUser(description))
-		list_fo.append(Filtered_FoundDomainUserRidThroughRPC(user_rid))
-
+		# the list of filtered objects
+		list_fo = list()
+		
+		# Split the output by lines and iterate through each line
+		for line in output.splitlines():
+			# Try to match the line against the pattern
+			username_match = username_pattern.match(line)
+			description_match = description_pattern.match(line)
+			user_rid_match = user_rid_pattern.match(line)
+			if username_match:
+				username = username_match.group(1)
+				list_fo.append(Filtered_FoundUsernameFromQuery(username))
+			elif description_match:
+				description = description_match.group(1)
+				list_fo.append(Filtered_FoundDescriptionOfDomainUser(description))
+			elif user_rid_match: 
+				user_rid = user_rid_match.group(1)	
+				list_fo.append(Filtered_FoundDomainUserRidThroughRPC(user_rid))
 		return list_fo
