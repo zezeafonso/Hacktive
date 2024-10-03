@@ -56,6 +56,7 @@ class Domain(AbstractNetworkComponent):
 		self.ldap_servers = list() # list of ldap servers (ip)
 		self.msrpc_servers = list() # list of msrpc servers (ip)
 		self.smb_servers = list() # list of smb servers (ip)
+		self.dns_servers = list()
   
 		#self.machines = dict() # the machines that belong and their role (from roles)
 
@@ -200,14 +201,20 @@ class Domain(AbstractNetworkComponent):
 			if host.get_smb_server_obj() is not None:
 				if ip not in self.smb_servers:
 					logger.debug(f"Adding ip ({ip}) to list of \
-         				smb_servers @ domain ({self.domain_name})")
+         				smb_servers in domain ({self.domain_name})")
 					self.smb_servers.append(ip)
 			# if host has rpc server and is not already present
 			if host.get_msrpc_server_obj() is not None:
 				if ip not in self.msrpc_servers:
 					logger.debug(f"Adding ip ({ip}) to list of \
-         				msrpc_servers @ domain ({self.domain_name})")
+         				msrpc_servers in domain ({self.domain_name})")
 					self.msrpc_servers.append(ip)
+			# if host has dns server and is not already present
+			if host.get_dns_server_obj() is not None:
+				if ip not in self.dns_servers:
+					logger.debug(f"Adding ip ({ip}) to list of \
+         				dns_servers in domain ({self.domain_name})")
+					self.dns_servers.append(ip)
 
 	def add_host(self, host):
 		"""
@@ -435,6 +442,31 @@ class Domain(AbstractNetworkComponent):
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 		return
    
+   
+	"""
+ 	DNS
+  	"""
+   
+	def get_dns_servers(self): 
+		"""
+		Retrieves the list of msrpc servers 
+		(the ips of the msrpc servers listed)
+  		"""
+		with sharedvariables.shared_lock:
+			return self.dns_servers
+
+	def add_dns_server(self, dns_ip):
+		"""
+  		Adds an ip to the msrpc_servers list.
+		Checks if the ip is already in the list.
+    	"""
+		list_dns_server_ips = self.get_dns_servers()
+		if dns_ip not in list_dns_server_ips:
+			logger.debug(f"Adding {dns_ip} to the list of dns servers of domain {self.domain_name}")
+			with sharedvariables.shared_lock:
+				self.dns_servers.append(dns_ip)	
+			sharedvariables.add_object_to_set_of_updated_objects(self)
+		return
 	
 	"""
  	smb
