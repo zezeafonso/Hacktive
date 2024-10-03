@@ -9,7 +9,7 @@ commands_and_filtered_objs = dict()
 def str_display_from_list_filtered(filtered_objs : list):
 	filtered_obj_display = ""
 	for f_obj in filtered_objs:
-		filtered_obj_display += f_obj.display()+';'
+		filtered_obj_display += f_obj.display()+';\n'
 	return filtered_obj_display
 
 
