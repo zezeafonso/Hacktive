@@ -2,25 +2,30 @@ import re
 
 from COMPONENTS.abstract.abstractfilter import AbstractFilter
 from COMPONENTS.filteredobjects.filteredfounddomainuserthroughrpc import Filtered_FoundDomainUserThroughRPC
+from COMPONENTS.filteredobjects.filteredfoundusernamefromqueryuser import Filtered_FoundUsernameFromQuery
+from COMPONENTS.filteredobjects.filteredfounddescriptionofdomainuser import Filtered_FoundDescriptionOfDomainUser
+from COMPONENTS.filteredobjects.filteredfounddomainuserridthroughrpc import Filtered_FoundDomainUserRidThroughRPC
 
 class EnumDomUsersThroughRPC_Filter(AbstractFilter):
 	_name = "filter enum domain users through rpc"
 
 	@staticmethod
 	def filter(output:str) -> list:
-		findings = list()
+		list_fo = list()
+  
 		# Define a regular expression pattern
-		pattern = re.compile(r"user:\[([^\]]+)\] rid:\[([^\]]+)\]")
+		# Define regex patterns to extract needed information
+		username_pattern = r"User Name\s*:\s*(\S+)"
+		description_pattern = r"Description\s*:\s*(.*)"
+		user_rid_pattern = r"user_rid\s*:\s*(\S+)"
 
-		# Iterate over each line and search for matches
-		for line in output.splitlines():
-			match = pattern.search(line)
-			if match:
-				user = match.group(1)
-				rid_hex = match.group(2)
-				rid_hex_str = str(rid_hex)
-				rid_dec = int(rid_hex, 16)
-				rid_str = str(rid_dec)
+		# Extract using regex
+		username = re.search(username_pattern, output).group(1)
+		description = re.search(description_pattern, output).group(1)
+		user_rid = re.search(user_rid_pattern, output).group(1)
+		
+		list_fo.append(Filtered_FoundUsernameFromQuery(username))
+		list_fo.append(Filtered_FoundDescriptionOfDomainUser(description))
+		list_fo.append(Filtered_FoundDomainUserRidThroughRPC(user_rid))
 
-				findings.append(Filtered_FoundDomainUserThroughRPC(user, rid_hex_str))
-		return findings
+		return list_fo
