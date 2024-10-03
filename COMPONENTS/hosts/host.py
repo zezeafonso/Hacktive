@@ -403,7 +403,7 @@ class Host(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			logger.debug(f"Host ({self.ip}) adding DNS server role")
 
-			if self.check_if_host_has_smb_server_role():
+			if self.check_if_host_has_dns_server_role():
 				logger.debug(f"Host ({self.ip}) already had a DNS server role")
 				return self.roles['DNSServer'] 
 			else:
