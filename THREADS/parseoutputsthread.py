@@ -55,11 +55,13 @@ def analyze_event(event):
 	# THE COMMAND WASN'T SUCCESSFULL
 	if return_code != 0:
 		logger.warning(f"({cmd}) produced a non 0 return code")
-		# remove command from analyze
+		# NOTE: super important so that commands thread knows this is done
 		SV.remove_command_from_commands_to_analyze(cmd)
+		
 		commands_and_filtered_objs[cmd] = []
 		# NOTE: the state was just for debug
 		#print_state_network_components_after_cmd(cmd) # for the states 
+		
 		display = f"\n----\n({cmd}) : \nProduced a non 0 return code"
 		print(display)
 		return
@@ -72,12 +74,13 @@ def analyze_event(event):
 	list_filtered_objects = f.filter(output) # returns filtered objects
 	logger.debug(f"filtered objects from ({cmd}): {str_display_from_list_filtered(list_filtered_objects)}")
 
-	SV.remove_command_from_commands_to_analyze(cmd)
 
 	# to know what we extrapolated from the output of the command
 	commands_and_filtered_objs[cmd] = list_filtered_objects
 	# no succesfull filter
 	if list_filtered_objects == []: 
+		# NOTE: super important so that commands thread knows this is done
+		SV.remove_command_from_commands_to_analyze(cmd)
 		# nothing to update
 		# states are the same as before
 		display = f"\n----\n({cmd}) : \n"
@@ -94,6 +97,9 @@ def analyze_event(event):
 	display_fo = str_display_from_list_filtered(list_filtered_objects)
 	display = f"\n----\n({cmd}) : \n"+display_fo
 	print(display)
+	
+	# NOTE: super important so that commands thread knows this is done
+	SV.remove_command_from_commands_to_analyze(cmd)
 	
 	return
 
