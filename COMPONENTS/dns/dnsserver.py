@@ -66,6 +66,7 @@ class DNSServer(AbstractNetworkComponent):
 		context['ip'] = self.host.get_ip() # the ip of host
 		context['network_address'] = self.get_host().get_network().get_network_address()
 		context['interface_name'] = self.get_host().get_interface().get_interface_name()
+		context['domain_name'] = None
 		if self.domain is not None:
 			context['domain_name'] = self.domain.get_domain_name()
 		else:
