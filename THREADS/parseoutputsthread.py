@@ -31,7 +31,7 @@ def display_command_results(cmd, findings, success=True):
     if success:
         print("\033[92m" + "Findings:" +"\033[0m")
         for finding in findings:
-            print("\033[92m" + f"  - {finding}" + "\033[0m")
+            print("\033[92m" + f"  - {finding.display()}" + "\033[0m")
     else:
         print("\033[91m"+" Command produced Non 0 output"+"\033[0m")
 
