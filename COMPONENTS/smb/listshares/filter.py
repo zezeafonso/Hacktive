@@ -22,6 +22,10 @@ class ListSharesThroughSMB_Filter(AbstractFilter):
 		
 		# Split the output by lines and iterate through each line
 		for line in output.splitlines():
+			# Check if the line doesn't start with spaces/tabs (end of share list)
+			if parsing and not line.startswith((' ', '\t')):
+				break
+			
 			line = line.strip()
 			
 			# Detect separator and switch parsing mode on
