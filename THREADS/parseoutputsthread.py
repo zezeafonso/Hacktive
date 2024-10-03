@@ -60,7 +60,7 @@ def analyze_event(event):
 		commands_and_filtered_objs[cmd] = []
 		# NOTE: the state was just for debug
 		#print_state_network_components_after_cmd(cmd) # for the states 
-		display = f"\n----\n({cmd}) : \n produced a non 0 return code"
+		display = f"\n----\n({cmd}) : \nProduced a non 0 return code"
 		print(display)
 		return
 
