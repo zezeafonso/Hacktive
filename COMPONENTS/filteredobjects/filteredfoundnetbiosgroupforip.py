@@ -10,7 +10,7 @@ class Filtered_FoundNetBIOSGroupForIP(AbstractFilteredObject):
 		self.info['ip'] = ip
 
 	def display(self):
-		return f"netbios group ({self.info['netbios_group']}#{self.info['group_type']}) for ip ({self.info['ip']})"
+		return f"Found NetBIOS group ({self.info['netbios_group']}#{self.info['group_type']}) for ip ({self.info['ip']})"
 
 
 	def captured(self) -> dict:

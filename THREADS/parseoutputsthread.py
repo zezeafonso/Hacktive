@@ -110,7 +110,7 @@ def outputs_listener():
 		# Sentinel to exit
 		if event == 'Done':  
 			logger.info(" Finishing...")
-			print_commands_and_filtered_objects()
+			#print_commands_and_filtered_objects()
 			break
 
 		# EXCEPTION

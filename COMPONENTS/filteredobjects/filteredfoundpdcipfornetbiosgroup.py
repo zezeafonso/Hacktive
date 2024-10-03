@@ -8,7 +8,7 @@ class Filtered_FoundPDCIPForNetBIOSGroup(AbstractFilteredObject):
 		self.info['ip'] = ip
 
 	def display(self):
-		return f" PDC role for netbios group ({self.info['netbios_group']}) for ip ({self.info['ip']})"
+		return f"Found PDC role for NetBIOS group ({self.info['netbios_group']}) for ip ({self.info['ip']})"
 
 
 	def captured(self) -> dict:

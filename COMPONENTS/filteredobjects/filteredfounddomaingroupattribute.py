@@ -8,7 +8,7 @@ class Filtered_FoundDomainGroupAttribute(AbstractFilteredObject):
 		self.value = attribute_value
 
 	def display(self):
-		return f"new domain attribute ({self.name}) with value ({self.value}) \
+		return f"Found new domain attribute ({self.name}) with value ({self.value}) \
       for domain group ({self.get_groupname()})"
 
 	def get_groupname(self):

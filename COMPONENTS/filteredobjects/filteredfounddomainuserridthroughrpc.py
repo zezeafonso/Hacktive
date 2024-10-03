@@ -5,7 +5,7 @@ class Filtered_FoundDomainUserRidThroughRPC(AbstractFilteredObject):
 		self.user_rid = user_rid # in hexadecimal for now
 
 	def display(self):
-		return f"domain user with rid ({self.user_rid}) found"
+		return f"Found domain user with rid ({self.user_rid})"
 
 	def get_user_rid(self):
 		# returns in hexadecimal

@@ -7,7 +7,7 @@ class Filtered_FoundNewInterface(AbstractFilteredObject):
 		self.info['interface_name'] = interface
 
 	def display(self):
-		return f" new interface ({self.info['interface_name']})"	
+		return f"Found interface ({self.info['interface_name']})"	
 
 	def captured(self) -> dict:
 		return self.info
