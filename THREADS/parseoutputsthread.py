@@ -24,6 +24,18 @@ def print_commands_and_filtered_objects():
 	print(display)
 
 
+# Example function to showcase results
+def display_command_results(cmd, findings, success=True):
+    print(f"\n[>] {cmd}")
+
+    if success:
+        print("\033[92m" + "Findings:" +"\033[0m")
+        for finding in findings:
+            print("\033[92m" + f"  - {finding}" + "\033[0m")
+    else:
+        print("\033[91m"+" Command produced Non 0 output"+"\033[0m")
+
+
 def print_state_network_components_after_cmd(cmd):
 	with SV.shared_lock:
 		cmd_without_strings = cmd.replace(' ', '')
@@ -61,9 +73,9 @@ def analyze_event(event):
 		commands_and_filtered_objs[cmd] = []
 		# NOTE: the state was just for debug
 		#print_state_network_components_after_cmd(cmd) # for the states 
-		
-		display = f"\n----\n({cmd}) : \nProduced a non 0 return code"
-		print(display)
+		display_command_results(cmd, [], False)
+		#display = f"\n----\n({cmd}) : \nProduced a non 0 return code"
+		#print(display)
 		return
 
 	# know the correct filter
@@ -83,8 +95,9 @@ def analyze_event(event):
 		SV.remove_command_from_commands_to_analyze(cmd)
 		# nothing to update
 		# states are the same as before
-		display = f"\n----\n({cmd}) : \n"
-		print(display)
+		display_command_results(cmd, list_filtered_objects, True)
+		#display = f"\n----\n({cmd}) : \n"
+		#print(display)
 		return 
 
 	# update the network components with these captured information from the filter
@@ -94,9 +107,10 @@ def analyze_event(event):
 	# NOTE: the state is only used for debug
 	# print_state_network_components_after_cmd(cmd)
 	
-	display_fo = str_display_from_list_filtered(list_filtered_objects)
-	display = f"\n----\n({cmd}) : \n"+display_fo
-	print(display)
+	display_command_results(cmd, list_filtered_objects, True)
+	#display_fo = str_display_from_list_filtered(list_filtered_objects)
+	#display = f"\n----\n({cmd}) : \n"+display_fo
+	#print(display)
 	
 	# NOTE: super important so that commands thread knows this is done
 	SV.remove_command_from_commands_to_analyze(cmd)
