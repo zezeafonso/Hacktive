@@ -54,13 +54,13 @@ def analyze_event(event):
 	# error cases:
 	# THE COMMAND WASN'T SUCCESSFULL
 	if return_code != 0:
-		print(f"({cmd}) produced a non 0 return code")
 		logger.warning(f"({cmd}) produced a non 0 return code")
 		# remove command from analyze
 		SV.remove_command_from_commands_to_analyze(cmd)
 		commands_and_filtered_objs[cmd] = []
-		print_state_network_components_after_cmd(cmd) # for the states 
-		display = f"\n----\n({cmd}) : \n"
+		# NOTE: the state was just for debug
+		#print_state_network_components_after_cmd(cmd) # for the states 
+		display = f"\n----\n({cmd}) : \n produced a non 0 return code"
 		print(display)
 		return
 
@@ -88,7 +88,8 @@ def analyze_event(event):
 	func_update(context, list_filtered_objects)
 
 	# print the state of the network components after the update network components
-	print_state_network_components_after_cmd(cmd)
+	# NOTE: the state is only used for debug
+	# print_state_network_components_after_cmd(cmd)
 	
 	display_fo = str_display_from_list_filtered(list_filtered_objects)
 	display = f"\n----\n({cmd}) : \n"+display_fo
