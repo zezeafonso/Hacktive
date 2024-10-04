@@ -33,7 +33,7 @@ def display_command_results(cmd, findings, success=True):
         for finding in findings:
             print("\033[92m" + f"  - {finding.display()}" + "\033[0m")
     else:
-        print("\033[91m"+" Command produced Non 0 output"+"\033[0m")
+        print("\033[91m"+" Command produced no results"+"\033[0m")
 
 
 def print_state_network_components_after_cmd(cmd):
