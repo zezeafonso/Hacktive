@@ -7,7 +7,7 @@ class Filtered_FoundNewNetworkForInterface(AbstractFilteredObject):
 		self.info['network_address'] = network
 
 	def display(self):
-		return f" network ({self.info['network_address']}) for interface ({self.info['interface_name']})"
+		return f"Found reachable network ({self.info['network_address']}) for interface ({self.info['interface_name']})"
 
 	def captured(self) -> dict:
 		return self.info

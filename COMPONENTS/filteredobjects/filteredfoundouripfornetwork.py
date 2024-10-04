@@ -8,7 +8,7 @@ class Filtered_FoundOurIPForNetwork(AbstractFilteredObject):
 		self.info['ip'] = ip
 
 	def display(self):
-		return f" our ip ({self.info['ip']}) for network ({self.info['network_address']}) for interface ({self.info['interface_name']})"
+		return f"Found our ip ({self.info['ip']}) for network ({self.info['network_address']}) for interface ({self.info['interface_name']})"
 
 	def captured(self) -> dict:
 		return self.info

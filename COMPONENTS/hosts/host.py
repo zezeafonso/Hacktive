@@ -27,6 +27,7 @@ from COMPONENTS.ldap.ldapserver import LdapServer
 from COMPONENTS.netbios.netbiosworkstation import NetBIOSWorkstation
 from COMPONENTS.msrpc.msrpcserver import MSRPCServer
 from COMPONENTS.smb.smbserver import SMBServer
+from COMPONENTS.dns.dnsserver import DNSServer
 
 
 # import the classes of techniques 
@@ -34,6 +35,7 @@ from .checkifmsrpcserviceisrunning import CheckIfMSRPCServiceIsRunning
 from .checkifsmbserviceisrunning import CheckIfSMBServiceIsRunning
 from .nbnsiptranslations import NBNSIPTranslation
 from .portscan import PortScan
+from .checkifdnsserviceisrunning import CheckIfDNSServiceIsRunning
 
 class Host(AbstractNetworkComponent):
 	"""
@@ -51,6 +53,7 @@ class Host(AbstractNetworkComponent):
 	string_to_class = {
 		"CheckIfMSRPCServiceIsRunning": CheckIfMSRPCServiceIsRunning, 
 		"CheckIfSMBServiceIsRunning": CheckIfSMBServiceIsRunning,
+		"CheckIfDNSServiceIsRunning": CheckIfDNSServiceIsRunning,
 		"NBNSIPTranslation": NBNSIPTranslation, 
 		"PortScan": PortScan
 	}
@@ -372,6 +375,51 @@ class Host(AbstractNetworkComponent):
 
 
 	# DNS
+ 
+	def check_if_host_has_dns_server_role(self):
+		with sharedvariables.shared_lock:
+			logger.debug(f"Checking if host ({self.ip}) has a DNS server role")
+			if 'DNSServer' not in self.roles:
+				logger.debug(f"Host ({self.ip}) does not have a DNS server role")
+				return False
+			logger.debug(f"Host ({self.ip}) has a DNS server role")
+			return True
+
+
+	def get_dns_server_obj(self):
+		"""
+  		Retrieves the DNS server for this host or None
+		"""
+		with sharedvariables.shared_lock:
+			if 'DNSServer' not in self.roles:
+				return None
+			return self.roles['DNSServer']
+
+	def get_or_add_role_dns_server(self, port=str):
+		"""
+		Add and SMB server role to the host.
+		First checks if it already has
+		"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Host ({self.ip}) adding DNS server role")
+
+			if self.check_if_host_has_dns_server_role():
+				logger.debug(f"Host ({self.ip}) already had a DNS server role")
+				return self.roles['DNSServer'] 
+			else:
+				dns_server_obj = DNSServer(self, port)
+				self.roles['DNSServer'] = dns_server_obj
+
+				# we updated this object
+				sharedvariables.add_object_to_set_of_updated_objects(self)
+	
+				return dns_server_obj
+
+
+	def found_dns_service_running_on_port(self, port=str):
+		with sharedvariables.shared_lock:
+			dns_server = self.get_or_add_role_dns_server(port)
+			return dns_server
 	
 	def add_dns_hostname(self, dns_hostname):
 		"""

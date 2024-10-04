@@ -9,7 +9,7 @@ class Filtered_FoundNetBIOSHostnameWithSMB(AbstractFilteredObject):
 		self.info['ip'] = ip
 
 	def display(self):
-		return f" SMB server with netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
+		return f"Found SMB server with netbios hostname ({self.info['netbios_hostname']}) for ip ({self.info['ip']})"
 
 	def captured(self) -> dict:
 		return self.info

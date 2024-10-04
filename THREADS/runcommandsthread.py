@@ -1,6 +1,7 @@
 import subprocess
 import copy
 from concurrent.futures import ThreadPoolExecutor
+import threading
 
 from LOGGER.loggerconfig import logger
 import EXCEPTIONS.commandexceptions as SE
@@ -10,6 +11,8 @@ import THREADS.sharedvariables as SV
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
 from LOGGER.loggerconfig import logger
+
+global threads
 
 
 
@@ -130,19 +133,53 @@ def handle_normal_command(thread_pool, out_file, cmd, method, context):
 
 
 
+def call_auto_functions_for_set_of_techniques(set_objects):
+	snapshot_dict = dict() # objects and their variables snapshots 
+    
+    # take a snapshot with a lock
+	with SV.shared_lock:
+		# to run in parallel
+		for component in set_objects:
+			snapshot_dict[component] = component.get_context()
+   
+	# parallely call all auto functions
+	list_events = list()
+	for _component in snapshot_dict:
+		list_events += _component.auto_function_with_context(snapshot_dict[_component])
+		
+	for event in list_events:
+		send_run_event_to_run_commands_thread(event)
+	
+	SV.cmd_queue.put("Done") # signal for termination
+   	
+	return 
+
 def call_methods_of_updated_objects():
 	"""
 	Calls the auto functions for the updated objects
+	Maybe run this in another thread, until this finishes. 
+	Check if the list of updated objects is a copy of the objects 
+	or just of its list.
 	"""
 	# copy the list so we don't end up updating it as well 
 	with SV.shared_lock:
+		global threads
 		logger.debug(f"Calling auto_function of the updated objects")
-		updated_objects = copy.deepcopy(SV.updated_objects) 
-		for component in updated_objects:
-			component.auto_function()
-		SV.clear_set_of_updated_objects()
+		updated_objects = SV.updated_objects.copy() # copy of list as is now
+		SV.clear_set_of_updated_objects() # clear the original list
+		
+  		# Create a thread to create the commands
+		thread = threading.Thread(target=call_auto_functions_for_set_of_techniques, args=(updated_objects,))
+		threads.append(thread)
+		thread.start()
 	return
 
+
+def check_for_live_threads(thread_list):
+	for _thread in thread_list:
+		if _thread.is_alive(): 
+			return True
+	return False
 
 
 def commands_listener(thread_pool:ThreadPoolExecutor):
@@ -154,6 +191,8 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 	the output thread as well
 	"""
 	logger.info(f"going inside the while Loop")
+	global threads
+	threads = list()
 
 	while True:
 		event = get_event_from_the_command_queue() # blocking
@@ -163,14 +202,17 @@ def commands_listener(thread_pool:ThreadPoolExecutor):
 			# IF THIS IS TOO SLOW; PUT THIS PROCESS OF CALL METHODS IN ANOTHER THREAD
 			# THIS WAY WE CAN RECEIVE COMMANDS WHILE WE PROCESS IT
 			# if there is no command for analysis and no command to be read from the queue -> finish
-			if SV.cmd_queue.empty() and SV.check_if_there_are_no_commands_for_analysis():
-				logger.debug(f"Checking if there were updated objects")
-				# empty = kill
-				if SV.is_set_of_updated_objects_empty():
+			if SV.cmd_queue.empty():
+				logger.debug(f"Checking if we should terminate")
+				# termination conditions
+				if SV.is_set_of_updated_objects_empty() and not check_for_live_threads(threads) and SV.check_if_there_are_no_commands_for_analysis():
 					termination_process(thread_pool)
 					break # end of thread 
-				call_methods_of_updated_objects()
-				SV.cmd_queue.put('Done')
+				
+				# if there is no thread creating commands, create them
+				if not SV.is_set_of_updated_objects_empty() and not check_for_live_threads(threads):
+					logger.debug(f"calling the creating new commands")
+					call_methods_of_updated_objects()
 				
 		
 		else:

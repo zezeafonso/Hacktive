@@ -34,7 +34,8 @@
 		"techniques": [
 			{"module":"nbnsiptranslations", "class":"NBNSIPTranslation"},
 			{"module":"checkifmsrpcserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"},
-			{"module":"checkifsmbserviceisrunning", "class":"CheckIfSMBServiceIsRunning"}
+			{"module":"checkifsmbserviceisrunning", "class":"CheckIfSMBServiceIsRunning"},
+			{"module":"checkifdnsserviceisrunning", "class":"CheckIfDNSServiceIsRunning"}
 		]
 	}, 
 	"LdapServer" : {
@@ -46,6 +47,17 @@
 	"MSRPCServer": {
 		"techniques": [
 			{"module":"dumpinterfaceendpointsfromendpointmapper", "class":"DumpInterfaceEndpointsFromEndpointMapper"}
+		]
+	},
+	"SMBServer": {
+		"techniques": [
+			{"module":"listsharesthroughsmb", "class":"ListSharesThroughSMB"},
+			{"module":"basiccrackmapexec", "class":"BasicCrackMapExec"},
+			{"module":"spidersharesthroughsmb", "class":"SpiderSharesThroughSMB"}]
+	},
+	"DNSServer": {
+		"techniques": [
+			{"module":"zonetransfer", "class":"ZoneTransfer"}
 		]
 	},
 	"NetBIOSWorkstation": {
@@ -64,12 +76,7 @@
 	},
 	"NetBIOSGroup": {
 		"techniques": [
-			{"module": "nbnsgroupmembers", "class":"NBNSGroupMembers"}]
-	},
-	"SMBServer": {
-		"techniques": [
-			{"module":"listsharesthroughsmb", "class":"ListSharesThroughSMB"},
-			{"module":"basiccrackmapexec", "class":"BasicCrackMapExec"},
-			{"module":"spidersharesthroughsmb", "class":"SpiderSharesThroughSMB"}]
+			{"module": "nbnsgroupmembers", "class":"NBNSGroupMembers"}
+		]
 	}
 }

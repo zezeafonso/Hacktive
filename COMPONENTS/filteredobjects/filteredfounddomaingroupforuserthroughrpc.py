@@ -5,7 +5,7 @@ class Filtered_FoundDomainGroupForUserThroughRPC(AbstractFilteredObject):
 		self.group_rid = group_rid # hexadecimal
 
 	def display(self):
-		return f"found domain group with rid ({self.get_group_rid()}) for user"
+		return f"Found domain group with rid ({self.get_group_rid()}) for user"
 
 	def get_group_rid(self):
 		return self.group_rid

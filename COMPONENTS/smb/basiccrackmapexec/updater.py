@@ -46,4 +46,6 @@ def BasicCrackMapExec_Updater(context:dict, filtered_objects:list):
 				logger.debug(f"Filter for basic CME found signing \
         			requirement is ({signing}) for ({ip})")
 				smb_server.update_signing_required_value(signing)
+    
+			# TODO: put the server version as well
 	return 

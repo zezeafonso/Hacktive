@@ -21,6 +21,16 @@ def update_components_found_smb_service_is_running(host, port):
 		smb_server = host.found_smb_service_running_on_port(port)
 		return
 
+def update_components_found_dns_service_is_running(host, port):
+	"""
+ 	Updates the components when we find that a DNS service is running 
+	for a host
+ 	"""
+	with sharedvariables.shared_lock:
+		# TODO: implement this function
+		dns_server = host.found_dns_service_running_on_port(port)
+		return 
+
 
 def found_domain_for_host(host, domain):
 	"""

@@ -49,7 +49,7 @@ def main():
 	# visualize the data in a file
 	OJ.write_to_file('final.json', root)
 	
-	print("All threads done")
+	print("\n[!] END: all threads done")
 	exit()
 
 	

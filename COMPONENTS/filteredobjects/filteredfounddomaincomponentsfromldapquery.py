@@ -14,7 +14,7 @@ class Filtered_FoundDomainComponentsFromLDAPQuery(AbstractFilteredObject):
 		self.info['dc_path'] = domain_components_path
 
 	def display(self):
-		return f"Domain Components Path ({self.info['dc_path']}) from ldap query to ..."
+		return f"Found Domain Components Path ({self.info['dc_path']})"
 
 	def captured(self) -> dict:
 		return self.info

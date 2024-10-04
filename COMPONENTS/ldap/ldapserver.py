@@ -2,6 +2,7 @@ import importlib
 from pathlib import Path
 
 from LOGGER.loggerconfig import logger
+from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 
 import THREADS.sharedvariables as sharedvariables
 
@@ -22,7 +23,7 @@ from .getusersldap import GetUsersLdap
 from .getallnmap import GetAllLdap
 from.retrievelistofuserswithwindapsearch import RetrieveListUsersWithWindapsearch
 
-class LdapServer:
+class LdapServer(AbstractNetworkComponent):
 	"""
 	If we find that a host is in fact a ldap server.
 	We want to check if it is a domain controller for active directory.

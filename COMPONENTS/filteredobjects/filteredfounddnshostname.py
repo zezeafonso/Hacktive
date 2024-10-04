@@ -5,7 +5,7 @@ class Filtered_founddnshostname(AbstractFilteredObject):
 		self.dns_hostname = dns_hostname # ex: foxriver.local
 
 	def display(self):
-		return f"Found DNS hostname ({self.dns_hostname})"
+		return f"Found DNS hostname: ({self.dns_hostname})"
 
 	def captured(self) -> dict:
 		return {'dns hostname':self.dns_hostname}
