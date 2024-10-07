@@ -46,7 +46,7 @@ class QueryRootDSEOfDCThroughLDAP_Filter(AbstractFilter):
 				filtered_obj = Filtered_FoundSupportedLdapVersion(version)
 				findings.append(filtered_obj)
 			if policies_match:
-				policy = policies_pattern.group(1)
+				policy = policies_match.group(1)
 				filtered_obj = Filtered_FoundPolicyForLdapServer(policy)
 				findings.append(filtered_obj)
 				
