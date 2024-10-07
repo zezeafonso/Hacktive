@@ -17,7 +17,7 @@ def update_retrieve_domain_sid_through_rpc(context:dict, filtered_objects:list):
 		for filtered_obj in filtered_objects:
 			# found domain user
 			if isinstance(filtered_obj, Filtered_FoundDomainSID):
-				logger.debug(f"filter for enum domain users through rpc found user ({filtered_obj.get_user()}) with rid ({filtered_obj.get_rid()})")
+				logger.debug(f"filter for retrievedomainsidthroughrpc recieved domain sid: ({filtered_obj.get_sid()})")
 
 				domain_sid = filtered_obj.get_sid()
 				domain.add_domain_sid(domain_sid)
