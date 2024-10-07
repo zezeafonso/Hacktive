@@ -34,7 +34,8 @@
 			{"module":"nbnsiptranslations", "class":"NBNSIPTranslation"},
 			{"module":"checkifmsrpcserviceisrunning", "class":"CheckIfMSRPCServiceIsRunning"},
 			{"module":"checkifsmbserviceisrunning", "class":"CheckIfSMBServiceIsRunning"},
-			{"module":"checkifdnsserviceisrunning", "class":"CheckIfDNSServiceIsRunning"}
+			{"module":"checkifdnsserviceisrunning", "class":"CheckIfDNSServiceIsRunning"},
+			{"module":"checkifldapserviceisrunning", "class":"CheckIfLDAPServiceIsRunning"}
 		]
 	}, 
 	"LdapServer" : {
