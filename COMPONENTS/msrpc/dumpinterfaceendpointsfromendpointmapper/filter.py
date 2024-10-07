@@ -12,11 +12,11 @@ class DumpInterfaceEndpointsFromEndpointMapper_Filter(AbstractFilter):
 		findings = []
 
 		# Regular expression to match lines starting with 'namingcontexts:' and followed by 'DC='
-		ms_par_pattern = re.compile(r'ms-par')
+		ms_par_pattern = re.compile(r'MS-PAR')
 
 		# Regular expression to capture the 'DC=' fields
 		for line in output.splitlines():
-			ms_par_match = ms_par_pattern.search(line, re.IGNORECASE)
+			ms_par_match = ms_par_pattern.search(line)
 			# default naming context = domain name without the DC=...
 			if ms_par_match:
 				filtered_obj = Filtered_FoundMSPARInInterfaces()
