@@ -13,7 +13,6 @@
 	},
 	"DomainGroup":{
 		"techniques":[
-			{"module":"enumdomainusersingroupthroughrpc", "class":"EnumDomainUsersInGroupThroughRPC"}
 		]
 	},
 	"DomainUser":{
