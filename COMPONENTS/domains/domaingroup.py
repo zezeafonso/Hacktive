@@ -36,6 +36,7 @@ class DomainGroup(AbstractNetworkComponent):
 		self.groupname = groupname # might be None
 		self.rid = rid # might be None
 		self.users = set() # the set of users (no duplicates this way)
+		self.sid = None # the Sid
   
 		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -68,6 +69,9 @@ class DomainGroup(AbstractNetworkComponent):
 		context['domain_name'] = self.domain.get_domain_name()
 		context['msrpc_servers'] = self.domain.get_msrpc_servers()
 		context['group_rid'] = self.rid
+		# for domain name 
+		if self.domain.get_sid() is not None and self.rid is not None and self.sid is None:
+			self.sid = self.domain.get_sid() + self.rid
 		return context
 
 	def auto_function(self):

@@ -23,6 +23,7 @@ from .enumdomainsthroughrpc import EnumDomainsThroughRPC
 from .enumdomaintruststhroughrpc import EnumDomainTrustsThroughRPC
 from .enumdomainusersingroupthroughrpc import EnumDomainUsersInGroupThroughRPC
 from .enumdomainusersthroughrpc import EnumDomainUsersThroughRPC
+from .retrievedomainsidthroughrpc import RetrieveDomainSIDThroughRPC
 
 
 class Domain(AbstractNetworkComponent):
@@ -42,7 +43,8 @@ class Domain(AbstractNetworkComponent):
      	"EnumDomainGroupsThroughRPC": EnumDomainGroupsThroughRPC,
       	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
        	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
-        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC
+        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC,
+        "RetrieveDomainSIDThroughRPC": RetrieveDomainSIDThroughRPC,
     }
 	methods = None
 	roles = ["DC", "machine"]
@@ -51,6 +53,7 @@ class Domain(AbstractNetworkComponent):
 		self.domain_name = domain_name
 		# the domain pdc
 		self.domain_pdc = domain_pdc
+		self.sid = None # will be a string
 
 		# list of interesting servers
 		self.ldap_servers = list() # list of ldap servers (ip)
@@ -125,6 +128,10 @@ class Domain(AbstractNetworkComponent):
 				if username is not None:
 					list_usernames.append(username)
 			return list_usernames
+
+	def get_sid(self):
+		with sharedvariables.shared_lock:
+			return self.sid
 
 	def get_list_groupnames(self):
 		"""
@@ -441,6 +448,11 @@ class Domain(AbstractNetworkComponent):
 				self.msrpc_servers.append(rpc_ip)	
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 		return
+
+	def add_domain_sid(self, sid):
+		with sharedvariables.shared_lock:
+			if self.get_sid() is None:
+				self.sid = sid
    
    
 	"""
