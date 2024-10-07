@@ -165,32 +165,33 @@ class Domain(AbstractNetworkComponent):
 		"""
 		method to retrieve the json information to display the domain
 		"""
-		data = dict()
-		data['name'] = self.get_domain_name()
-		pdc = self.get_pdc()
-		if pdc is not None:
-			data['PDC'] = pdc.get_host().get_ip()
-   
-		data['DCs'] = list()
-		data['machines'] = list()
-		for ip in self.machines:
-			data['machines'].append(ip)
-		for ip in self.dcs:
-			data['DCs'].append(ip)
-   
-		data['Trusts'] = list()
-		for domain in self.trusts:
-			data['Trusts'].append(domain.get_domain_name())
-   
-		data['Users'] = list()
-		for user in self.users:
-			data['Users'].append(user.display_json())
-   
-		data['Groups'] = list()
-		for group in self.groups:
-			data['Groups'].append(group.display_json())
+		with sharedvariables.shared_lock:
+			data = dict()
+			data['name'] = self.get_domain_name()
+			pdc = self.get_pdc()
+			if pdc is not None:
+				data['PDC'] = pdc.get_host().get_ip()
 	
-		return data
+			data['DCs'] = list()
+			data['machines'] = list()
+			for ip in self.machines:
+				data['machines'].append(ip)
+			for ip in self.dcs:
+				data['DCs'].append(ip)
+	
+			data['Trusts'] = list()
+			for domain in self.trusts:
+				data['Trusts'].append(domain.get_domain_name())
+	
+			data['Users'] = list()
+			for user in self.users:
+				data['Users'].append(user.display_json())
+	
+			data['Groups'] = list()
+			for group in self.groups:
+				data['Groups'].append(group.display_json())
+		
+			return data
 
 
 	def add_host_services(self, host):
