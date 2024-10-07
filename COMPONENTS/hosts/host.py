@@ -36,6 +36,7 @@ from .checkifsmbserviceisrunning import CheckIfSMBServiceIsRunning
 from .nbnsiptranslations import NBNSIPTranslation
 from .portscan import PortScan
 from .checkifdnsserviceisrunning import CheckIfDNSServiceIsRunning
+from .checkifldapserviceisrunning import CheckIfLDAPServiceIsRunning
 
 class Host(AbstractNetworkComponent):
 	"""
@@ -55,6 +56,7 @@ class Host(AbstractNetworkComponent):
 		"CheckIfSMBServiceIsRunning": CheckIfSMBServiceIsRunning,
 		"CheckIfDNSServiceIsRunning": CheckIfDNSServiceIsRunning,
 		"NBNSIPTranslation": NBNSIPTranslation, 
+		"CheckIfLDAPServiceIsRunning":CheckIfLDAPServiceIsRunning,
 		"PortScan": PortScan
 	}
 	methods = None
@@ -595,6 +597,56 @@ class Host(AbstractNetworkComponent):
 		with sharedvariables.shared_lock:
 			msrpc_server = self.get_or_add_role_rpc_server(port)
 			return msrpc_server
+
+
+
+
+	# LDAP 
+	def check_if_host_has_ldap_server_role(self):
+		with sharedvariables.shared_lock:
+			logger.debug(f"Checking if host ({self.ip}) has a LDAP server role")
+			if 'LdapServer' not in self.roles:
+				logger.debug(f"Host ({self.ip}) does not have a LDAP server role")
+				return False
+			logger.debug(f"Host ({self.ip}) has a LDAP server role")
+			return True
+
+
+	def get_ldap_server_obj(self):
+		"""
+  		Retrieves the DNS server for this host or None
+		"""
+		with sharedvariables.shared_lock:
+			if 'LdapServer' not in self.roles:
+				return None
+			return self.roles['LdapServer']
+
+	def get_or_add_role_ldap_server(self, port=str):
+		"""
+		Add and SMB server role to the host.
+		First checks if it already has
+		"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Host ({self.ip}) adding LDAP server role")
+
+			if self.check_if_host_has_ldap_server_role():
+				logger.debug(f"Host ({self.ip}) already had a LDAP server role")
+				return self.roles['LdapServer'] 
+			else:
+				ldap_server_obj = LdapServer(self)
+				self.roles['LdapServer'] = ldap_server_obj
+
+				# we updated this object
+				sharedvariables.add_object_to_set_of_updated_objects(self)
+	
+				return ldap_server_obj
+
+
+	def found_ldap_service_running_on_port(self, port=str):
+		with sharedvariables.shared_lock:
+			ldap_server = self.get_or_add_role_ldap_server(port)
+			return ldap_server
+
 
 
 
