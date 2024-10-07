@@ -30,6 +30,7 @@ class MSRPCServer(AbstractNetworkComponent):
 		self.host = host
 		self.port = port # might be None
 		self.domain = None # the associated domain ( might be needed )
+		self.interesting_interfaces = list()
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -90,6 +91,9 @@ class MSRPCServer(AbstractNetworkComponent):
 			data = dict()
 			data['MSRPC Server'] = dict()
 			data['MSRPC Server']['port'] = self.port
+			data['MSRPC Server']['interfaces of interest'] = list()
+			for ii in self.interesting_interfaces:
+				data['MSRPC Server']['interfaces of interest'].append(ii) # string
 			return data
 
 	def auto_function(self):
@@ -136,3 +140,12 @@ class MSRPCServer(AbstractNetworkComponent):
 			# this object was updated
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 			return 
+
+
+	def add_interface_of_interest(self, interface_name:str): 
+		"""
+  		Adds an interface if not already there
+    	"""
+		with sharedvariables.shared_lock:
+			if interface_name not in self.interesting_interfaces:
+				self.interesting_interfaces.append(interface_name)

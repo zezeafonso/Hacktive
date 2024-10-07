@@ -6,7 +6,7 @@ class Filtered_FoundPermissionsForSMBShare(AbstractFilteredObject):
 		self.permissions = permissions
 
 	def display(self):
-		return f"Found share description: ({self.permissions}) for share: ({self.share_name})"
+		return f"Found access level: ({self.permissions}) for share: ({self.share_name})"
 
 	def get_share_name(self):
 		return self.share_name

@@ -6,6 +6,7 @@ from COMPONENTS.ldap.componentupdater import found_new_domain_components_path_ld
 from COMPONENTS.filteredobjects.filteredfounddomaincomponentsfromldapquery import Filtered_FoundDomainComponentsFromLDAPQuery
 from COMPONENTS.filteredobjects.filteredfounddnshostname import Filtered_founddnshostname
 from COMPONENTS.filteredobjects.filteredfoundsupportedldapversion import Filtered_FoundSupportedLdapVersion
+from COMPONENTS.filteredobjects.filteredfoundpolicyforldapserver import Filtered_FoundPolicyForLdapServer
 
 from COMPONENTS.hosts.componentupdater import found_dns_hostname_for_host
 
@@ -62,4 +63,12 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
        for host ({host.get_ip()})")
 
 			ldap_server.add_supported_version(version)
+   
+		# found a policy for the ldap server
+		if isinstance(filtered_obj, Filtered_FoundPolicyForLdapServer):
+			policy = filtered_obj.get_policy()
+			ldap_server = host.get_ldap_server_obj()
+			logger.debug(f"Filter found policy ({policy}) for host ({host.get_ip()})")
+   
+			ldap_server.add_policy(policy)
 

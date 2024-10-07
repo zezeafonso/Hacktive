@@ -47,6 +47,7 @@ class LdapServer(AbstractNetworkComponent):
 		self.host = host
 		self.domain = None # (might be needed)
 		self.supported_versions = set() # in strings
+		self.policies = list() # list of strings
   
 		logger.debug(f"Created Ldap Server for host ({host.get_ip()})")
   		# we updated this object
@@ -123,6 +124,10 @@ class LdapServer(AbstractNetworkComponent):
 			data['LDAP Server']['supported versions'] = list()
 			for version in self.supported_versions:
 				data['LDAP Server']['supported versions'].append(version)
+			# supported policies
+			data['LDAP Server']['policies'] = list()
+			for policy in self.policies: 
+				data['LDAP Server']['policies'].append(policy) # string
 			return data
 
 	def auto_function(self):
@@ -182,4 +187,15 @@ class LdapServer(AbstractNetworkComponent):
        ldap server ({self.get_ip()})")
 			if version not in self.supported_versions:
 				self.supported_versions.add(version)
+			return 
+
+
+	def add_policy(self, policy:str):
+		"""
+  		Checks if the policy is already present.
+    	"""
+		with sharedvariables.shared_lock:
+			logger.debug(f"Adding policy ({policy}) to ldap server ({self.get_ip()})")
+			if policy not in self.policies:
+				self.policies.append(policy)
 			return 
