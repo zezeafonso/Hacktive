@@ -76,7 +76,7 @@ class DomainUser(AbstractNetworkComponent):
 		context['username'] = self.username 
 		# for domain name 
 		if self.domain.get_sid() is not None and self.rid is not None and self.sid is None:
-			self.sid = self.domain.get_sid() + self.rid
+			self.sid = self.domain.get_sid() + str(int(self.rid, 16))
 		return context
 
 	def auto_function(self):
