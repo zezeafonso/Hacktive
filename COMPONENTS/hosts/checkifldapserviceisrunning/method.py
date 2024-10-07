@@ -13,7 +13,7 @@ from LOGGER.loggerconfig import logger
 
 class CheckIfLDAPServiceIsRunning(AbstractMethod):
 	_name = 'check if MSRPC service is running'
-	_filename = 'outputs/nmap_port_135'
+	_filename = 'outputs/nmap_port_636'
 	_previous_args = set()
 	_filter = CheckIfLDAPServiceIsRunning_Filter
 	_updater = update_check_if_ldap_service_is_runnning
