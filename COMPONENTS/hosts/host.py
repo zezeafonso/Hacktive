@@ -36,6 +36,7 @@ from .checkifsmbserviceisrunning import CheckIfSMBServiceIsRunning
 from .nbnsiptranslations import NBNSIPTranslation
 from .portscan import PortScan
 from .checkifdnsserviceisrunning import CheckIfDNSServiceIsRunning
+from .checkifldapserviceisrunning import CheckIfLDAPServiceIsRunning
 
 class Host(AbstractNetworkComponent):
 	"""
@@ -55,6 +56,7 @@ class Host(AbstractNetworkComponent):
 		"CheckIfSMBServiceIsRunning": CheckIfSMBServiceIsRunning,
 		"CheckIfDNSServiceIsRunning": CheckIfDNSServiceIsRunning,
 		"NBNSIPTranslation": NBNSIPTranslation, 
+		"CheckIfLDAPServiceIsRunning":CheckIfLDAPServiceIsRunning,
 		"PortScan": PortScan
 	}
 	methods = None
