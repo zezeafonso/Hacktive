@@ -631,7 +631,7 @@ class Host(AbstractNetworkComponent):
 				logger.debug(f"Host ({self.ip}) already had a LDAP server role")
 				return self.roles['LDAPServer'] 
 			else:
-				ldap_server_obj = LdapServer(self, port)
+				ldap_server_obj = LdapServer(self)
 				self.roles['LDAPServer'] = ldap_server_obj
 
 				# we updated this object
