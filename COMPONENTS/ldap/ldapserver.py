@@ -124,6 +124,8 @@ class LdapServer(AbstractNetworkComponent):
 			data['LDAP Server']['supported versions'] = list()
 			for version in self.supported_versions:
 				data['LDAP Server']['supported versions'].append(version)
+			# supported policies
+			data['LDAP Server']['policies'] = list()
 			for policy in self.policies: 
 				data['LDAP Server']['policies'].append(policy) # string
 			return data
