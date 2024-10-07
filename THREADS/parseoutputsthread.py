@@ -43,6 +43,11 @@ def print_state_network_components_after_cmd(cmd):
 		cmd_without_dots = cmd_without_slashes.replace('.', '-')
 		filename = 'states/JSON-'+cmd_without_dots+'.json'
 		OJ.write_to_file(filename, SV.root_obj)
+  
+def print_final_state():
+	with SV.shared_lock:
+		filename = 'states/final.json'
+		OJ.write_to_file(filename, SV.root_obj)
 
 
 def analyze_event(event):
@@ -130,6 +135,7 @@ def outputs_listener():
 
 		# Sentinel to exit
 		if event == 'Done':  
+			print_final_state()
 			logger.info(" Finishing...")
 			#print_commands_and_filtered_objects()
 			break
