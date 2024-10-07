@@ -603,7 +603,7 @@ class Host(AbstractNetworkComponent):
 	def check_if_host_has_ldap_server_role(self):
 		with sharedvariables.shared_lock:
 			logger.debug(f"Checking if host ({self.ip}) has a LDAP server role")
-			if 'LDAPServer' not in self.roles:
+			if 'LdapServer' not in self.roles:
 				logger.debug(f"Host ({self.ip}) does not have a LDAP server role")
 				return False
 			logger.debug(f"Host ({self.ip}) has a LDAP server role")
@@ -615,9 +615,9 @@ class Host(AbstractNetworkComponent):
   		Retrieves the DNS server for this host or None
 		"""
 		with sharedvariables.shared_lock:
-			if 'LDAPServer' not in self.roles:
+			if 'LdapServer' not in self.roles:
 				return None
-			return self.roles['LDAPServer']
+			return self.roles['LdapServer']
 
 	def get_or_add_role_ldap_server(self, port=str):
 		"""
@@ -629,10 +629,10 @@ class Host(AbstractNetworkComponent):
 
 			if self.check_if_host_has_ldap_server_role():
 				logger.debug(f"Host ({self.ip}) already had a LDAP server role")
-				return self.roles['LDAPServer'] 
+				return self.roles['LdapServer'] 
 			else:
 				ldap_server_obj = LdapServer(self)
-				self.roles['LDAPServer'] = ldap_server_obj
+				self.roles['LdapServer'] = ldap_server_obj
 
 				# we updated this object
 				sharedvariables.add_object_to_set_of_updated_objects(self)
