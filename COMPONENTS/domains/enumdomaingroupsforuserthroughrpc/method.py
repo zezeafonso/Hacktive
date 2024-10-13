@@ -8,6 +8,8 @@ from COMPONENTS.domains.enumdomaingroupsforuserthroughrpc.filter import EnumDoma
 from COMPONENTS.domains.enumdomaingroupsforuserthroughrpc.updater import updateEnumDomainGroupsForUserThroughRPC
 from LOGGER.loggerconfig import logger
 
+import re
+
 
 class EnumDomainGroupsForUserThroughRPC(AbstractMethod):
 	"""
@@ -58,13 +60,14 @@ class EnumDomainGroupsForUserThroughRPC(AbstractMethod):
 			ip = tup[0] 
 			user_rid = tup[1] # in hex
 			cmd = f"rpcclient {ip} -c=\'queryusergroups {user_rid}\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainGroupsForUserThroughRPC._filename + str_ip_address +'-'+str(user_rid)+ '.out'
 			list_run_events.append(Run_Event( \
                     type='run', \
-                    filename=output_file, \
+                    filename=f"outputs/{file_name}", \
                     command=cmd, \
                     method=EnumDomainGroupsForUserThroughRPC, \
                     context=context))

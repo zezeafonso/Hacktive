@@ -9,6 +9,7 @@ from COMPONENTS.hosts.checkifsmbserviceisrunning.filter import CheckIfSMBService
 from COMPONENTS.hosts.checkifsmbserviceisrunning.updater import update_check_if_smb_service_is_running
 from LOGGER.loggerconfig import logger
 
+import re
 
 class CheckIfSMBServiceIsRunning(AbstractMethod):
 	_name = 'check if SMB service is running'
@@ -56,9 +57,10 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		output_file = CheckIfSMBServiceIsRunning._filename +str_ip + '.out'
 		# construct the command
 		cmd = f"sudo nmap -p 139,445 -n -Pn {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# create the event 
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfSMBServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=CheckIfSMBServiceIsRunning, context=context)]
 
 	def get_context(context):
 		"""

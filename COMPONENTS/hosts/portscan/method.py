@@ -9,6 +9,8 @@ from LOGGER.loggerconfig import logger
 from COMPONENTS.hosts.portscan.filter import PortScan_Filter
 from COMPONENTS.hosts.portscan.updater import updater
 
+import re
+
 class PortScan(AbstractMethod):
 	_name = 'port scan'
 	_filename = 'outputs/port_scan'
@@ -38,8 +40,9 @@ class PortScan(AbstractMethod):
 		output_file = PortScan._filename +str_ip + '.out'
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -sS -n -Pn {_ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=PortScan, nc=nc)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=PortScan, nc=nc)]
 
 	@staticmethod
 	def check_for_objective(nc):

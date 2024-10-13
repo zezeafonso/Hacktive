@@ -4,7 +4,7 @@ only do a zone transfer for the domain that the DNS server is authorative for.
 
 The name of the domain, this DNS server belongs to is accessible from the DNS server"""
 
-
+import re
 from COMPONENTS.abstract.abstractnetworkcomponent import AbstractNetworkComponent
 from COMPONENTS.abstract.abstractmethod import AbstractMethod
 
@@ -63,16 +63,12 @@ class ZoneTransfer(AbstractMethod):
 			ip = tup[0]
 			domain_name = tup[1] # in hex
 			cmd = f"dig axfr {domain_name} @{ip}"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
-			output_file = ZoneTransfer._filename + str_ip_address +'-'+str(domain_name)+'.out'
-			list_run_events.append(Run_Event( \
-                    type='run', \
-                    filename=output_file, \
-                    command=cmd, \
-                    method=ZoneTransfer, \
-                    context=context))
+			
+			list_run_events.append(Run_Event(type='run',filename=f"outputs/{file_name}", command=cmd, method=ZoneTransfer,context=context))
    
 		return list_run_events
 

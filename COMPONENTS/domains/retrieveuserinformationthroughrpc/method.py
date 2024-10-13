@@ -8,6 +8,7 @@ from COMPONENTS.domains.retrieveuserinformationthroughrpc.filter import Retrieve
 from COMPONENTS.domains.retrieveuserinformationthroughrpc.updater import update_retrieve_information_through_rpc
 from LOGGER.loggerconfig import logger
 
+import re
 
 class RetrieveUserInformationThroughRPC(AbstractMethod):
 	"""
@@ -58,13 +59,14 @@ class RetrieveUserInformationThroughRPC(AbstractMethod):
 			ip = tup[0] 
 			username = tup[1] # in hex
 			cmd = f"rpcclient {ip} -c=\'queryuser {username}\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = RetrieveUserInformationThroughRPC._filename + str_ip_address +'-'+str(username)+ '.out'
 			list_run_events.append(Run_Event( \
                     type='run', \
-                    filename=output_file, \
+                    filename=f"outputs/{file_name}", \
                     command=cmd, \
                     method=RetrieveUserInformationThroughRPC, \
                     context=context))

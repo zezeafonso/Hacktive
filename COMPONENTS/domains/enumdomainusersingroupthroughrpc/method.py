@@ -8,7 +8,7 @@ from COMPONENTS.domains.enumdomainusersingroupthroughrpc.filter import EnumDomai
 from COMPONENTS.domains.enumdomainusersingroupthroughrpc.updater import updateEnumDomainUsersInGroupThroughRPC
 from LOGGER.loggerconfig import logger
 
-
+import re
 class EnumDomainUsersInGroupThroughRPC(AbstractMethod):
 	"""
 	Emumera the users that belong to a group through rpc 
@@ -58,11 +58,12 @@ class EnumDomainUsersInGroupThroughRPC(AbstractMethod):
 			ip = tup[0] 
 			group_rid = tup[1] # in hex
 			cmd = f"rpcclient {ip} -c=\'querygroupmem {group_rid}\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainUsersInGroupThroughRPC._filename + str_ip_address +'-'+str(group_rid)+ '.out'
-			list_run_events.append(Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainUsersInGroupThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=EnumDomainUsersInGroupThroughRPC, context=context))
    
 		return list_run_events
 

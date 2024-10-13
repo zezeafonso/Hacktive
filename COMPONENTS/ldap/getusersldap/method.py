@@ -10,6 +10,8 @@ from COMPONENTS.ldap.getusersldap.updater import get_users_ldap_updater
 
 from LOGGER.loggerconfig import logger
 
+import re
+
 class GetUsersLdap(AbstractMethod):
 	_name = "retrieve list of users through ldap with nmap"
 	_filename = "outputs/list-users-nmap"
@@ -48,13 +50,14 @@ class GetUsersLdap(AbstractMethod):
 		
   		# command
 		cmd = f"sudo nmap -Pn -p 389 --script ldap-search --script-args \'ldap.qfilter=users\' {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file
 		str_ip_address = ip.replace('.', '_')
 		output_file = GetUsersLdap._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd,method=GetUsersLdap, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd,method=GetUsersLdap, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

@@ -9,7 +9,7 @@ from COMPONENTS.domains.retrievedomainsidthroughrpc.filter import RetrieveDomain
 from COMPONENTS.domains.retrievedomainsidthroughrpc.updater import update_retrieve_domain_sid_through_rpc
 
 from LOGGER.loggerconfig import logger
-
+import re
 
 class RetrieveDomainSIDThroughRPC(AbstractMethod):
 	"""
@@ -60,11 +60,12 @@ class RetrieveDomainSIDThroughRPC(AbstractMethod):
 		for ip in unused_msrpc_server_ips:
 			# command to run 
 			cmd = f"rpcclient {ip} -c=\'lsaquery\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = RetrieveDomainSIDThroughRPC._filename + str_ip_address + '.out'
-			list_run_events.append(Run_Event(type='run', filename=output_file, command=cmd, method=RetrieveDomainSIDThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=RetrieveDomainSIDThroughRPC, context=context))
 		
 		return list_run_events
   

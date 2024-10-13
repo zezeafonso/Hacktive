@@ -8,6 +8,7 @@ from COMPONENTS.domains.enumdomaingroupsthroughrpc.filter import EnumDomGroupsTh
 from COMPONENTS.domains.enumdomaingroupsthroughrpc.updater import update_enum_domain_groups_through_rpc
 
 from LOGGER.loggerconfig import logger
+import re
 
 class EnumDomainGroupsThroughRPC(AbstractMethod):
 	"""
@@ -56,10 +57,11 @@ class EnumDomainGroupsThroughRPC(AbstractMethod):
 		for ip in unused_msrpc_server_ips:
 			# command to run 
 			cmd = f"rpcclient {ip} -c=\'enumdomgroups\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainGroupsThroughRPC._filename + str_ip_address + '.out'
-			list_run_events.append(Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainGroupsThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=EnumDomainGroupsThroughRPC, context=context))
 		
 		return list_run_events
 		

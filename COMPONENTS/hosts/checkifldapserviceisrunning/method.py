@@ -9,7 +9,7 @@ from COMPONENTS.hosts.checkifldapserviceisrunning.filter import CheckIfLDAPServi
 from COMPONENTS.hosts.checkifldapserviceisrunning.updater import update_check_if_ldap_service_is_runnning
 
 from LOGGER.loggerconfig import logger
-
+import re
 
 class CheckIfLDAPServiceIsRunning(AbstractMethod):
 	_name = 'check if MSRPC service is running'
@@ -61,8 +61,9 @@ class CheckIfLDAPServiceIsRunning(AbstractMethod):
 		output_file = CheckIfLDAPServiceIsRunning._filename +str_ip + '.out'
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -p 636 -n -Pn {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfLDAPServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=CheckIfLDAPServiceIsRunning, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

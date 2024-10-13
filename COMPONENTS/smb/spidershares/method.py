@@ -9,6 +9,7 @@ from COMPONENTS.smb.spidershares.updater import SpiderSharesThroughSMB_Updater
 
 from LOGGER.loggerconfig import logger
 
+import re
 
 class SpiderSharesThroughSMB(AbstractMethod):
 	"""
@@ -55,13 +56,14 @@ class SpiderSharesThroughSMB(AbstractMethod):
 
 		# command to run (guest account, list until depth 100)
 		cmd = f"smbmap -u guest -p '' -H {ip} -r --depth 100 --no-banner"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		
 		# output file 
 		str_ip_address = ip.replace('.', '_')
 		output_file = SpiderSharesThroughSMB._filename + str_ip_address + '.out'
 		list_run_events.append(\
 			Run_Event(type='run', \
-				filename=output_file, \
+				filename=f"outputs/{file_name}", \
 				command=cmd, \
 				method=SpiderSharesThroughSMB, \
 				context=context))

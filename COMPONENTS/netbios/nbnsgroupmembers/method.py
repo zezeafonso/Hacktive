@@ -9,6 +9,7 @@ from LOGGER.loggerconfig import logger
 from COMPONENTS.netbios.nbnsgroupmembers.filter import NBNSGroupMembers_Filter
 from COMPONENTS.netbios.nbnsgroupmembers.updater import update
 
+import re
 
 class NBNSGroupMembers(AbstractMethod):
 	_name = 'find the members of netbios group'
@@ -51,10 +52,12 @@ class NBNSGroupMembers(AbstractMethod):
 
 		# construct the command
 		cmd =  f"nmblookup '{group_id}'"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		# output file
 		output_file = NBNSGroupMembers._filename + group_id +'.out'
 
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=NBNSGroupMembers, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=NBNSGroupMembers, context=context)]
 
 
 	@staticmethod

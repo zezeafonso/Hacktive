@@ -9,6 +9,8 @@ from COMPONENTS.ldap.getallnmap.updater import get_all_ldap_updater
 
 from LOGGER.loggerconfig import logger
 
+import re
+
 class GetAllLdap(AbstractMethod):
 	_name = "retrieve all available information through nmap"
 	_filename = "outputs/get-all-nmap"
@@ -47,13 +49,14 @@ class GetAllLdap(AbstractMethod):
 		
   		# command
 		cmd = f"sudo nmap -Pn -p 389 --script ldap-search --script-args \'all\' {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file
 		str_ip_address = ip.replace('.', '_')
 		output_file = GetAllLdap._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd,method=GetAllLdap, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd,method=GetAllLdap, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

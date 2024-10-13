@@ -10,6 +10,8 @@ from COMPONENTS.ldap.querymetadatawindapsearch.updater import query_metadata_win
 
 from LOGGER.loggerconfig import logger
 
+import re
+
 class QueryMetadataWindapsearch(AbstractMethod):
 	_name = "query root dse of DC through LDAP"
 	_filename = "outputs/metadata-windapsearch"
@@ -48,13 +50,14 @@ class QueryMetadataWindapsearch(AbstractMethod):
 
 		# command
 		cmd = f"windapsearch -m metadata --dc {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file
 		str_ip_address = ip.replace('.', '_')
 		output_file = QueryMetadataWindapsearch._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [ Run_Event(type='run', filename=output_file, command=cmd, \
+		return [ Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, \
       				method=QueryMetadataWindapsearch, context=context)]
 
 	@staticmethod
