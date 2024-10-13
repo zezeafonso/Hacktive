@@ -40,6 +40,7 @@ class DomainUser(AbstractNetworkComponent):
 		self.groups = set() # the set of groups to which the user belongs to
 		self.distinguished_name = None
 		self.user_principal_name = None 
+		self.sid = None # the sid 
   
   		# we updated this object
 		sharedvariables.add_object_to_set_of_updated_objects(self)
@@ -73,6 +74,9 @@ class DomainUser(AbstractNetworkComponent):
 		context['msrpc_servers'] = self.domain.get_msrpc_servers() # ips
 		context['user_rid'] = self.rid
 		context['username'] = self.username 
+		# for domain name 
+		if self.domain.get_sid() is not None and self.rid is not None and self.sid is None:
+			self.sid = self.domain.get_sid() + str(int(self.rid, 16))
 		return context
 
 	def auto_function(self):

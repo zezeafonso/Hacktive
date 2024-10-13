@@ -20,16 +20,17 @@ def associate_server_to_domain(domain, smb_server):
 	
 	
 def found_domain_name_for_smb_server(domain_name, smb_server):
-    """
-    Found the domain of a SMB server.
-    Update the domains list of machines for SMB.
-    Add the domain association in the host and
-    other services of the host 
-    """
-    domain = sharedvariables.root_obj.get_or_create_domain(domain_name)
-    host = smb_server.get_host()
-    
-    hosts_componentupdater.found_domain_for_host(host, domain)
-    return 
-    
-    
+	"""
+	Found the domain of a SMB server.
+	Update the domains list of machines for SMB.
+	Add the domain association in the host and
+	other services of the host 
+	"""
+	with sharedvariables.shared_lock:
+		domain = sharedvariables.root_obj.get_or_create_domain(domain_name)
+		host = smb_server.get_host()
+		
+		hosts_componentupdater.found_domain_for_host(host, domain)
+		return 
+	
+	

@@ -231,6 +231,12 @@ class Host(AbstractNetworkComponent):
 			data['Host'] = dict()
 			data['Host']['ip'] = self.get_ip()
 			data['Host']['hostname'] = self.get_netbios_hostname()
+			domain = self.get_domain()
+			if domain is not None:
+				domain_name = domain.get_domain_name()
+			else:
+				domain_name = None
+			data['Host']['domain'] = domain_name
 			data['Host']['roles'] = list()
 			data['Host']['DNS hostname'] = self.get_dns_hostname() 
 			# for each role i want to show what it has

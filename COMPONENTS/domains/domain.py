@@ -23,6 +23,7 @@ from .enumdomainsthroughrpc import EnumDomainsThroughRPC
 from .enumdomaintruststhroughrpc import EnumDomainTrustsThroughRPC
 from .enumdomainusersingroupthroughrpc import EnumDomainUsersInGroupThroughRPC
 from .enumdomainusersthroughrpc import EnumDomainUsersThroughRPC
+from .retrievedomainsidthroughrpc import RetrieveDomainSIDThroughRPC
 
 
 class Domain(AbstractNetworkComponent):
@@ -42,7 +43,8 @@ class Domain(AbstractNetworkComponent):
      	"EnumDomainGroupsThroughRPC": EnumDomainGroupsThroughRPC,
       	"EnumDomainTrustsThroughRPC": EnumDomainTrustsThroughRPC, 
        	"EnumDomainUsersInGroupThroughRPC": EnumDomainUsersInGroupThroughRPC,
-        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC
+        "EnumDomainGroupsForUserThroughRPC": EnumDomainGroupsForUserThroughRPC,
+        "RetrieveDomainSIDThroughRPC": RetrieveDomainSIDThroughRPC,
     }
 	methods = None
 	roles = ["DC", "machine"]
@@ -51,6 +53,7 @@ class Domain(AbstractNetworkComponent):
 		self.domain_name = domain_name
 		# the domain pdc
 		self.domain_pdc = domain_pdc
+		self.sid = None # will be a string
 
 		# list of interesting servers
 		self.ldap_servers = list() # list of ldap servers (ip)
@@ -126,6 +129,10 @@ class Domain(AbstractNetworkComponent):
 					list_usernames.append(username)
 			return list_usernames
 
+	def get_sid(self):
+		with sharedvariables.shared_lock:
+			return self.sid
+
 	def get_list_groupnames(self):
 		"""
 		Goes to each group known to the domain and attempts to extract the groupname.
@@ -158,32 +165,33 @@ class Domain(AbstractNetworkComponent):
 		"""
 		method to retrieve the json information to display the domain
 		"""
-		data = dict()
-		data['name'] = self.get_domain_name()
-		pdc = self.get_pdc()
-		if pdc is not None:
-			data['PDC'] = pdc.get_host().get_ip()
-   
-		data['DCs'] = list()
-		data['machines'] = list()
-		for ip in self.machines:
-			data['machines'].append(ip)
-		for ip in self.dcs:
-			data['DCs'].append(ip)
-   
-		data['Trusts'] = list()
-		for domain in self.trusts:
-			data['Trusts'].append(domain.get_domain_name())
-   
-		data['Users'] = list()
-		for user in self.users:
-			data['Users'].append(user.display_json())
-   
-		data['Groups'] = list()
-		for group in self.groups:
-			data['Groups'].append(group.display_json())
+		with sharedvariables.shared_lock:
+			data = dict()
+			data['name'] = self.get_domain_name()
+			pdc = self.get_pdc()
+			if pdc is not None:
+				data['PDC'] = pdc.get_host().get_ip()
 	
-		return data
+			data['DCs'] = list()
+			data['machines'] = list()
+			for ip in self.machines:
+				data['machines'].append(ip)
+			for ip in self.dcs:
+				data['DCs'].append(ip)
+	
+			data['Trusts'] = list()
+			for domain in self.trusts:
+				data['Trusts'].append(domain.get_domain_name())
+	
+			data['Users'] = list()
+			for user in self.users:
+				data['Users'].append(user.display_json())
+	
+			data['Groups'] = list()
+			for group in self.groups:
+				data['Groups'].append(group.display_json())
+		
+			return data
 
 
 	def add_host_services(self, host):
@@ -441,6 +449,11 @@ class Domain(AbstractNetworkComponent):
 				self.msrpc_servers.append(rpc_ip)	
 			sharedvariables.add_object_to_set_of_updated_objects(self)
 		return
+
+	def add_domain_sid(self, sid):
+		with sharedvariables.shared_lock:
+			if self.get_sid() is None:
+				self.sid = sid
    
    
 	"""
