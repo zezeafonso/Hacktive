@@ -54,7 +54,7 @@ class RetrieveListUsersWithWindapsearch(AbstractMethod):
 		output_file = RetrieveListUsersWithWindapsearch._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=cmd+'.out', command=cmd,method=RetrieveListUsersWithWindapsearch, context=context)]
+		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd,method=RetrieveListUsersWithWindapsearch, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

@@ -58,7 +58,7 @@ class CheckIfSMBServiceIsRunning(AbstractMethod):
 		cmd = f"sudo nmap -p 139,445 -n -Pn {ip}"
 
 		# create the event 
-		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=CheckIfSMBServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=CheckIfSMBServiceIsRunning, context=context)]
 
 	def get_context(context):
 		"""

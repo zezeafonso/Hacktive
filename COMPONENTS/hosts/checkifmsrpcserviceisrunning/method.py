@@ -62,7 +62,7 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -p 135 -n -Pn {ip}"
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=CheckIfMSRPCServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=CheckIfMSRPCServiceIsRunning, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

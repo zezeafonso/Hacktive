@@ -61,7 +61,7 @@ class SpiderSharesThroughSMB(AbstractMethod):
 		output_file = SpiderSharesThroughSMB._filename + str_ip_address + '.out'
 		list_run_events.append(\
 			Run_Event(type='run', \
-				filename=cmd+'.out', \
+				filename='outputs/'+cmd+'.out', \
 				command=cmd, \
 				method=SpiderSharesThroughSMB, \
 				context=context))

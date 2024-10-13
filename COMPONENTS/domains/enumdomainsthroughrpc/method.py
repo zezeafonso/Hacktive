@@ -60,7 +60,7 @@ class EnumDomainsThroughRPC(AbstractMethod):
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainsThroughRPC._filename + str_ip_address + '.out'
-			list_run_events.append(Run_Event(type='run', filename=cmd+'.out', command=cmd, method=EnumDomainsThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=EnumDomainsThroughRPC, context=context))
    
 		return list_run_events
 

@@ -54,7 +54,7 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		# output file 
 		str_ip_address = ip.replace('.', '_')
 		output_file = EnumDomainTrustsThroughRPC._filename + str_ip_address + '.out'
-		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=EnumDomainTrustsThroughRPC, context=context)]
+		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=EnumDomainTrustsThroughRPC, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

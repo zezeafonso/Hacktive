@@ -69,7 +69,7 @@ class ZoneTransfer(AbstractMethod):
 			output_file = ZoneTransfer._filename + str_ip_address +'-'+str(domain_name)+'.out'
 			list_run_events.append(Run_Event( \
                     type='run', \
-                    filename=cmd+'.out', \
+                    filename='outputs/'+cmd+'.out', \
                     command=cmd, \
                     method=ZoneTransfer, \
                     context=context))

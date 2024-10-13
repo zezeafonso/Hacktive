@@ -64,7 +64,7 @@ class RetrieveUserInformationThroughRPC(AbstractMethod):
 			output_file = RetrieveUserInformationThroughRPC._filename + str_ip_address +'-'+str(username)+ '.out'
 			list_run_events.append(Run_Event( \
                     type='run', \
-                    filename=cmd+'.out', \
+                    filename='outputs/'+cmd+'.out', \
                     command=cmd, \
                     method=RetrieveUserInformationThroughRPC, \
                     context=context))

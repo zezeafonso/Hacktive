@@ -54,7 +54,7 @@ class NBNSGroupMembers(AbstractMethod):
 		# output file
 		output_file = NBNSGroupMembers._filename + group_id +'.out'
 
-		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=NBNSGroupMembers, context=context)]
+		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=NBNSGroupMembers, context=context)]
 
 
 	@staticmethod
