@@ -7,7 +7,7 @@ from LOGGER.loggerconfig import logger
 from COMPONENTS.root.listinterfaces.filter import ListInterfaces_Filter
 from COMPONENTS.root.listinterfaces.updater import update_list_interfaces
 
-
+import re
 
 class ListInterfaces(AbstractMethod):
 	_name = "list interfaces"
@@ -35,7 +35,8 @@ class ListInterfaces(AbstractMethod):
 			return []
 
 		cmd = "ip a"
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=ListInterfaces, context=context)]
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=ListInterfaces, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

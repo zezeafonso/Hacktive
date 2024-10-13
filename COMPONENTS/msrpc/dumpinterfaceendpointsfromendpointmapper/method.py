@@ -10,6 +10,8 @@ from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.filter import Dum
 from COMPONENTS.msrpc.dumpinterfaceendpointsfromendpointmapper.updater import update
 
 
+import re
+
 class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 	_name = 'dump interface endpoints from endpoint mapper'
 	_filename = 'outputs/rpcdump-'
@@ -51,11 +53,12 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 
 		# command to run 
 		cmd = f"impacket-rpcdump {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file 
 		str_ip_address = ip.replace('.', '_')
 		output_file = DumpInterfaceEndpointsFromEndpointMapper._filename + str_ip_address + '.out'
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

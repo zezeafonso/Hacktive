@@ -9,7 +9,7 @@ from COMPONENTS.hosts.checkifmsrpcserviceisrunning.filter import CheckIfMSRPCSer
 from COMPONENTS.hosts.checkifmsrpcserviceisrunning.updater import update_check_if_msrpc_service_is_running
 
 from LOGGER.loggerconfig import logger
-
+import re
 
 class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 	_name = 'check if MSRPC service is running'
@@ -61,8 +61,9 @@ class CheckIfMSRPCServiceIsRunning(AbstractMethod):
 		output_file = CheckIfMSRPCServiceIsRunning._filename +str_ip + '.out'
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -p 135 -n -Pn {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=CheckIfMSRPCServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=CheckIfMSRPCServiceIsRunning, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

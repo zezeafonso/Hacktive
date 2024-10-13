@@ -9,6 +9,7 @@ from COMPONENTS.smb.basiccrackmapexec.updater import BasicCrackMapExec_Updater
 
 from LOGGER.loggerconfig import logger
 
+import re
 
 class BasicCrackMapExec(AbstractMethod):
 	"""
@@ -53,11 +54,12 @@ class BasicCrackMapExec(AbstractMethod):
 		list_run_events = list()
 
 		cmd = f"crackmapexec smb {server_ip}" # guest user with no password 
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file 
 		str_ip_address = server_ip.replace('.', '_')
 		output_file = BasicCrackMapExec._filename + str_ip_address + '.out'
-		list_run_events.append(Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=BasicCrackMapExec, context=context))
+		list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=BasicCrackMapExec, context=context))
 		
 		return list_run_events
   

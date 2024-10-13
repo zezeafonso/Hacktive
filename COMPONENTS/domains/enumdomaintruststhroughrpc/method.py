@@ -8,6 +8,7 @@ from COMPONENTS.domains.enumdomaintruststhroughrpc.filter import EnumDomainTrust
 from COMPONENTS.domains.enumdomaintruststhroughrpc.updater import update_enum_domain_trusts_through_rpc
 
 from LOGGER.loggerconfig import logger
+import re
 
 class EnumDomainTrustsThroughRPC(AbstractMethod):
 	"""
@@ -50,11 +51,12 @@ class EnumDomainTrustsThroughRPC(AbstractMethod):
 		# command to run 
 		#cmd = f"rpcclient -U=\"foxriver.local/DrTancredi%Password123\" {ip} -c=\'dsenumdomtrusts\'"
 		cmd = f"rpcclient {ip} -c=\'dsenumdomtrusts\' -U=\'%\'"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file 
 		str_ip_address = ip.replace('.', '_')
 		output_file = EnumDomainTrustsThroughRPC._filename + str_ip_address + '.out'
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=EnumDomainTrustsThroughRPC, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=EnumDomainTrustsThroughRPC, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

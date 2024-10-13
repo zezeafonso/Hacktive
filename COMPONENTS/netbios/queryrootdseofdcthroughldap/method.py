@@ -10,6 +10,7 @@ from COMPONENTS.ldap.queryrootdseofdcthroughldap.updater import update_query_roo
 
 from LOGGER.loggerconfig import logger
 
+import re
 
 class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 	"""
@@ -57,6 +58,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 
 		# command
 		cmd = f"sudo nmap -Pn -n -p 389 --script=ldap-rootdse {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
 
 		# output file
@@ -64,7 +66,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		output_file = QueryRootDSEOfDCThroughLDAP._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=QueryRootDSEOfDCThroughLDAP, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=QueryRootDSEOfDCThroughLDAP, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

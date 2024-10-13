@@ -9,6 +9,7 @@ from COMPONENTS.smb.listshares.updater import ListSharesThroughSMB_Updater
 
 from LOGGER.loggerconfig import logger
 
+import re
 
 class ListSharesThroughSMB(AbstractMethod):
 	"""
@@ -56,11 +57,12 @@ class ListSharesThroughSMB(AbstractMethod):
 		for ip in unused_ips:
 			# command to run 
 			cmd = f"smbclient -L //{ip} -U=\'guest%\'" # guest user with no password 
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = ListSharesThroughSMB._filename + str_ip_address + '.out'
-			list_run_events.append(Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=ListSharesThroughSMB, context=context))
+			list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=ListSharesThroughSMB, context=context))
 		
 		return list_run_events
   

@@ -9,6 +9,7 @@ from LOGGER.loggerconfig import logger
 from COMPONENTS.network.arpscan.filter import ArpScan_Filter
 from COMPONENTS.network.arpscan.updater import update_arp_scan
 
+import re
 
 class ArpScan(AbstractMethod):
 	_name = "arp scan"
@@ -53,7 +54,8 @@ class ArpScan(AbstractMethod):
 		output_file = ArpScan._filename +str_network_address +'.out'
 
 		cmd =  f"sudo nmap -PR -sn -n {network_address}"
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=ArpScan,context=context)]
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=ArpScan,context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

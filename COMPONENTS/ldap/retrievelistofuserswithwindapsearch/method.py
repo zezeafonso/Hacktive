@@ -10,6 +10,8 @@ from COMPONENTS.ldap.retrievelistofuserswithwindapsearch.updater import retrieve
 
 from LOGGER.loggerconfig import logger
 
+import re
+
 class RetrieveListUsersWithWindapsearch(AbstractMethod):
 	_name = "retrieve list of users with windapsearch"
 	_filename = "outputs/list-users-windapsearch"
@@ -48,13 +50,14 @@ class RetrieveListUsersWithWindapsearch(AbstractMethod):
 
 		# command
 		cmd = f"windapsearch -m users --dc {ip}"
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 		# output file
 		str_ip_address = ip.replace('.', '_')
 		output_file = RetrieveListUsersWithWindapsearch._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd,method=RetrieveListUsersWithWindapsearch, context=context)]
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd,method=RetrieveListUsersWithWindapsearch, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

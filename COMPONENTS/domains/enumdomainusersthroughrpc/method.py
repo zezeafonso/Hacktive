@@ -9,7 +9,7 @@ from COMPONENTS.domains.enumdomainusersthroughrpc.filter import EnumDomUsersThro
 from COMPONENTS.domains.enumdomainusersthroughrpc.updater import update_enum_domain_users_through_rpc
 
 from LOGGER.loggerconfig import logger
-
+import re
 
 class EnumDomainUsersThroughRPC(AbstractMethod):
 	"""
@@ -60,11 +60,12 @@ class EnumDomainUsersThroughRPC(AbstractMethod):
 		for ip in unused_msrpc_server_ips:
 			# command to run 
 			cmd = f"rpcclient {ip} -c=\'enumdomusers\' -U=\'%\'"
+			file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
 
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainUsersThroughRPC._filename + str_ip_address + '.out'
-			list_run_events.append(Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=EnumDomainUsersThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=EnumDomainUsersThroughRPC, context=context))
 		
 		return list_run_events
   

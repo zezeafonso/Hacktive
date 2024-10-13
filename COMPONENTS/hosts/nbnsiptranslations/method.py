@@ -9,6 +9,7 @@ from LOGGER.loggerconfig import logger
 from COMPONENTS.hosts.nbnsiptranslations.filter import NBNSIPTranslation_Filter
 from COMPONENTS.hosts.nbnsiptranslations.updater import update_ip_to_host_nbns
 
+import re
 
 class NBNSIPTranslation(AbstractMethod):
 	_name = "ip to hostname through NBNS"
@@ -54,7 +55,8 @@ class NBNSIPTranslation(AbstractMethod):
 		output_file = NBNSIPTranslation._filename +str_ip_address +'.out'
 
 		cmd =  f"nmblookup -A {context_ip_address}"
-		return [Run_Event(type='run', filename='outputs/'+cmd+'.out', command=cmd, method=NBNSIPTranslation, context=context)]
+		file_name = re.sub(r'[^\w\-_\.]', '_', cmd)
+		return [Run_Event(type='run', filename=f"outputs/{file_name}", command=cmd, method=NBNSIPTranslation, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):
