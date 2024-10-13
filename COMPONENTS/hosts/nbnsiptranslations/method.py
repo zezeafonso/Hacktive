@@ -54,7 +54,7 @@ class NBNSIPTranslation(AbstractMethod):
 		output_file = NBNSIPTranslation._filename +str_ip_address +'.out'
 
 		cmd =  f"nmblookup -A {context_ip_address}"
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=NBNSIPTranslation, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=NBNSIPTranslation, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

@@ -64,7 +64,7 @@ class QueryRootDSEOfDCThroughLDAP(AbstractMethod):
 		output_file = QueryRootDSEOfDCThroughLDAP._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=QueryRootDSEOfDCThroughLDAP, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=QueryRootDSEOfDCThroughLDAP, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

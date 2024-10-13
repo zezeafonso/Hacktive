@@ -54,7 +54,7 @@ class GetUsersLdap(AbstractMethod):
 		output_file = GetUsersLdap._filename+'-'+str_ip_address +'.out'
 
 		#cmd =  f"ldapsearch -H ldap://{context_ip_address} -x -s base namingcontexts"
-		return [Run_Event(type='run', filename=output_file, command=cmd,method=GetUsersLdap, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd,method=GetUsersLdap, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

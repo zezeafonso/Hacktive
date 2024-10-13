@@ -62,7 +62,7 @@ class CheckIfLDAPServiceIsRunning(AbstractMethod):
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -p 636 -n -Pn {ip}"
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=CheckIfLDAPServiceIsRunning, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=CheckIfLDAPServiceIsRunning, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

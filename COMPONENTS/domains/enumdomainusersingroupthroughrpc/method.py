@@ -62,7 +62,7 @@ class EnumDomainUsersInGroupThroughRPC(AbstractMethod):
 			# output file 
 			str_ip_address = ip.replace('.', '_')
 			output_file = EnumDomainUsersInGroupThroughRPC._filename + str_ip_address +'-'+str(group_rid)+ '.out'
-			list_run_events.append(Run_Event(type='run', filename=output_file, command=cmd, method=EnumDomainUsersInGroupThroughRPC, context=context))
+			list_run_events.append(Run_Event(type='run', filename=cmd+'.out', command=cmd, method=EnumDomainUsersInGroupThroughRPC, context=context))
    
 		return list_run_events
 

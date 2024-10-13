@@ -55,7 +55,7 @@ class DumpInterfaceEndpointsFromEndpointMapper(AbstractMethod):
 		# output file 
 		str_ip_address = ip.replace('.', '_')
 		output_file = DumpInterfaceEndpointsFromEndpointMapper._filename + str_ip_address + '.out'
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=DumpInterfaceEndpointsFromEndpointMapper, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):

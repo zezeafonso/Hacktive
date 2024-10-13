@@ -64,7 +64,7 @@ class EnumDomainGroupsForUserThroughRPC(AbstractMethod):
 			output_file = EnumDomainGroupsForUserThroughRPC._filename + str_ip_address +'-'+str(user_rid)+ '.out'
 			list_run_events.append(Run_Event( \
                     type='run', \
-                    filename=output_file, \
+                    filename=cmd+'.out', \
                     command=cmd, \
                     method=EnumDomainGroupsForUserThroughRPC, \
                     context=context))

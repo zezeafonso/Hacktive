@@ -39,7 +39,7 @@ class PortScan(AbstractMethod):
 		# chamar o comando para listar os portos
 		cmd = f"sudo nmap -sS -n -Pn {_ip}"
 		# criar o evento de run com o comando
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=PortScan, nc=nc)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=PortScan, nc=nc)]
 
 	@staticmethod
 	def check_for_objective(nc):

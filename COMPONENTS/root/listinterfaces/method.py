@@ -35,7 +35,7 @@ class ListInterfaces(AbstractMethod):
 			return []
 
 		cmd = "ip a"
-		return [Run_Event(type='run', filename=output_file, command=cmd, method=ListInterfaces, context=context)]
+		return [Run_Event(type='run', filename=cmd+'.out', command=cmd, method=ListInterfaces, context=context)]
 
 	@staticmethod
 	def check_for_objective(context):
