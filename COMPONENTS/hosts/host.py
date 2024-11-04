@@ -236,7 +236,7 @@ class Host(AbstractNetworkComponent):
 				domain_name = domain.get_domain_name()
 			else:
 				domain_name = None
-			data['Host']['domain'] = domain_name
+			data['Host']['domain'] = id(self.domain)
 			data['Host']['roles'] = list()
 			data['Host']['DNS hostname'] = self.get_dns_hostname() 
 			# for each role i want to show what it has
