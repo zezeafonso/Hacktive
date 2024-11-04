@@ -14,9 +14,6 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	"""
 	updates the components when we find a naminc context through 
 	ldap 
-
-	TODO: 
-	+ implement the proper functioning when the objects don't exist
 	"""
 	
 	# for this update the context will just be the root object
@@ -26,7 +23,6 @@ def update_query_root_dse_of_dc_through_ldap(context, filtered_objects):
 	# context is only the network and interface names
 	net_name = context['network_address']
 	int_name = context['interface_name']
-	host_name = context['ip']
 
 	# retrieve interface and network objects (both methods have locks)
 	with sharedvariables.shared_lock:

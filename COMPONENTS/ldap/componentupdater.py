@@ -39,7 +39,7 @@ def associate_server_to_domain(domain, ldap_server):
  
 	server_ip = ldap_server.get_ip()
  
-	# will add this ip to the list of smb servers
+	# will add this ip to the list of ldap servers
 	domain.add_ldap_server(server_ip)
 	return 
 

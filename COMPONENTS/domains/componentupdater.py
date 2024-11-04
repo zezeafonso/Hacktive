@@ -145,6 +145,8 @@ def found_dc_for_domain(domain, host):
 	with sharedvariables.shared_lock:
 		# add the host to dc list
 		domain.add_dc(host)
+		# add to the list of machines
+		domain.add_host(host)
 		# add the dc services to the domain
 		domain.add_dc_services(host)
 		return 
