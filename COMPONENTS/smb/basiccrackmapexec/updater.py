@@ -31,7 +31,6 @@ def BasicCrackMapExec_Updater(context:dict, filtered_objects:list):
 				domain_name = filtered_obj.get_domain_name()
 				logger.debug(f"Filter for basic CME found domain\
         			({domain_name}) for machine ip ({ip})")
-				# TODO
 				smb_componentupdater.found_domain_name_for_smb_server(domain_name, smb_server)
 				
 			# found smbv1 required or not
