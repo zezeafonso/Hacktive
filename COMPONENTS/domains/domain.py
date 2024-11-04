@@ -236,7 +236,6 @@ class Domain(AbstractNetworkComponent):
    
 			# check if it's already in the list of hosts for this domain
 			ip = host.get_ip()
-			print(f'BEFORE: ip: {ip}, domain {id(self)}, machines: {self.machines}')
 			if ip not in self.machines:
 				logger.debug(f"Host ({ip}) was not in domain.")
 				# debug:
@@ -247,7 +246,6 @@ class Domain(AbstractNetworkComponent):
 
 				# add to the domain
 				self.machines[ip] = host
-				print(f'AFTER: ip: {ip}, domain {id(self)}, machines: {self.machines}')
 			else:
 				logger.debug(f"Host ({ip}) was already part of list of domain machines.")
 				return
