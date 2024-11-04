@@ -71,7 +71,7 @@ class DomainGroup(AbstractNetworkComponent):
 		context['group_rid'] = self.rid
 		# for domain name 
 		if self.domain.get_sid() is not None and self.rid is not None and self.sid is None:
-			self.sid = self.domain.get_sid() + str(int(self.rid, 16))
+			self.sid = self.domain.get_sid() +'-' + str(int(self.rid, 16))
 		return context
 
 	def auto_function(self):
