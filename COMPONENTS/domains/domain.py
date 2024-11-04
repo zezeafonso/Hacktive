@@ -246,7 +246,7 @@ class Domain(AbstractNetworkComponent):
 
 				# add to the domain
 				self.machines[ip] = host
-				print(f'domain {id(self)}, machines: {self.machines}')
+				print(f'ip: {ip}, domain {id(self)}, machines: {self.machines}')
 			else:
 				logger.debug(f"Host ({ip}) was already part of list of domain machines.")
 				return
