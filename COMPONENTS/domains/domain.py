@@ -241,8 +241,8 @@ class Domain(AbstractNetworkComponent):
 				logger.debug(f"Host ({ip}) was not in domain.")
 				# debug:
 				string = f"domain machines: "
-				for ip in self.machines:
-					string += f"{ip}"
+				for machines_ip in self.machines:
+					string += f"{machines_ip}"
 				logger.debug(string)
 
 				# add to the domain
